@@ -163,7 +163,7 @@ Kacamata Diantar
 
 Database dibuat sederhana dengan beberapa tabel utama.
 
-### users
+### `users`
 
 ```text
 id
@@ -174,7 +174,7 @@ role
 no_telepon
 ```
 
-### layanan
+### `layanan`
 
 ```text
 id
@@ -187,7 +187,7 @@ jam_jemput
 status
 ```
 
-### detail_layanan
+### `detail_layanan`
 
 ```text
 id
@@ -242,14 +242,29 @@ detail_layanan
 
 ## 🛠️ Teknologi
 
-Teknologi yang digunakan:
+### Frontend
 
-* **Frontend:** HTML, CSS, JavaScript
-* **Backend:** [Framework yang digunakan]
-* **Database:** MySQL / MariaDB
-* **Version Control:** Git & GitHub
+* **React.js**
+* HTML
+* CSS
+* JavaScript
 
-> Teknologi dapat disesuaikan dengan kebutuhan project.
+### Backend
+
+* **Node.js**
+* **Express.js**
+* REST API
+
+### Database
+
+* **MySQL**
+
+### Tools
+
+* Git
+* GitHub
+* Visual Studio Code
+* Postman
 
 ---
 
@@ -267,7 +282,7 @@ Project dikembangkan menggunakan konsep **Rekayasa Perangkat Lunak (RPL)** melal
 
 ---
 
-##🧪 Pengujian
+## 🧪 Pengujian
 
 Pengujian dilakukan untuk memastikan fitur sistem berjalan sesuai kebutuhan.
 
@@ -285,3 +300,5 @@ Fitur yang diuji meliputi:
 ## 🚀 Status Project
 
 **Status:** 🚧 Dalam Pengembangan
+
+Project ini dibuat sebagai tugas **Mata Kuliah Rekayasa Perangkat Lunak (RPL)**.
