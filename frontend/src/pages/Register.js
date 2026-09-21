@@ -53,10 +53,15 @@ const Register = () => {
       }, 1500);
     } catch (err) {
       console.error('Registration error:', err);
-      const message =
-        err.response?.data?.message ||
-        err.response?.data?.error ||
-        'Pendaftaran gagal. Pastikan email belum terdaftar atau coba lagi nanti.';
+      let message = 'Pendaftaran gagal. Silakan coba lagi nanti.';
+
+      if (err.response?.data?.message || err.response?.data?.error) {
+        message = err.response.data.message || err.response.data.error;
+      } else if (!err.response) {
+        message =
+          'Server tidak dapat dihubungi. Pastikan backend berjalan di http://localhost:5000, lalu coba lagi.';
+      }
+
       setError(message);
     } finally {
       setLoading(false);
