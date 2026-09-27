@@ -2,10 +2,13 @@ import axios from 'axios';
 
 /**
  * Konfigurasi instance Axios untuk komunikasi ke Backend API.
- * Base URL mengarah ke http://localhost:5000/api
+ *
+ * REACT_APP_API_URL dapat diisi saat frontend dan backend berjalan pada host
+ * berbeda. Jika kosong, request memakai /api agar proxy development atau
+ * reverse proxy production yang meneruskan request ke backend.
  */
 const api = axios.create({
-  baseURL: 'http://localhost:5000/api',
+  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:5000/api',
   headers: {
     'Content-Type': 'application/json',
   },

@@ -18,7 +18,8 @@ const VALID_STATUSES = [
 // Daftar jenis layanan yang valid
 const VALID_JENIS_LAYANAN = [
   'perbaikan',
-  'penggantian_lensa'
+  'penggantian_lensa',
+  'perbaikan_dan_lensa'
 ];
 
 /**
@@ -280,7 +281,7 @@ const createLayanan = async (req, res) => {
 const updateStatusLayanan = async (req, res) => {
   try {
     const layananId = req.params.id;
-    const { status } = req.body;
+    const { status, total_biaya, catatan_admin } = req.body;
 
     // Validasi keberadaan status pada body
     if (!status) {
@@ -313,11 +314,23 @@ const updateStatusLayanan = async (req, res) => {
 
     const statusSebelumnya = checkRows[0].status;
 
-    // Perbarui status di database
-    await db.query(
-      'UPDATE layanan SET status = ? WHERE id = ?',
-      [status, layananId]
-    );
+    // Perbarui status di database beserta biaya & catatan jika disertakan
+    let updateSql = 'UPDATE layanan SET status = ?';
+    const updateParams = [status];
+
+    if (total_biaya !== undefined) {
+      updateSql += ', total_biaya = ?';
+      updateParams.push(total_biaya);
+    }
+    if (catatan_admin !== undefined) {
+      updateSql += ', catatan_admin = ?';
+      updateParams.push(catatan_admin);
+    }
+
+    updateSql += ' WHERE id = ?';
+    updateParams.push(layananId);
+
+    await db.query(updateSql, updateParams);
 
     return res.status(200).json({
       success: true,
@@ -325,7 +338,9 @@ const updateStatusLayanan = async (req, res) => {
       data: {
         id: parseInt(layananId, 10),
         status_sebelumnya: statusSebelumnya,
-        status_terbaru: status
+        status_terbaru: status,
+        total_biaya: totalBiayaOrUndefined(total_biaya),
+        catatan_admin
       }
     });
   } catch (error) {
@@ -335,6 +350,146 @@ const updateStatusLayanan = async (req, res) => {
       message: 'Terjadi kesalahan saat memperbarui status layanan.',
       error: error.message
     });
+  }
+};
+
+const totalBiayaOrUndefined = (val) => (val !== undefined ? val : null);
+
+/**
+ * @route   PUT /api/layanan/:id
+ * @desc    Memperbarui data pengajuan layanan (oleh pelanggan saat pengajuan) atau status & biaya (oleh admin)
+ * @access  Privat (Pemilik Layanan / Admin)
+ */
+const updateLayanan = async (req, res) => {
+  const connection = await db.getConnection();
+  try {
+    await connection.beginTransaction();
+
+    const layananId = req.params.id;
+    const { role, id: userId } = req.user;
+    const {
+      jenis_layanan,
+      keluhan,
+      alamat,
+      tanggal_jemput,
+      jam_jemput,
+      jenis_kacamata,
+      detail_perbaikan,
+      keterangan,
+      status,
+      total_biaya,
+      catatan_admin
+    } = req.body;
+
+    const [layananRows] = await connection.query(
+      'SELECT id, user_id, status FROM layanan WHERE id = ?',
+      [layananId]
+    );
+
+    if (layananRows.length === 0) {
+      await connection.rollback();
+      return res.status(404).json({
+        success: false,
+        message: 'Layanan tidak ditemukan.'
+      });
+    }
+
+    const currentLayanan = layananRows[0];
+
+    // Cek otorisasi
+    if (role !== 'admin' && currentLayanan.user_id !== userId) {
+      await connection.rollback();
+      return res.status(403).json({
+        success: false,
+        message: 'Akses ditolak. Anda tidak berhak mengubah pesanan ini.'
+      });
+    }
+
+    if (role !== 'admin' && currentLayanan.status !== 'pengajuan') {
+      await connection.rollback();
+      return res.status(400).json({
+        success: false,
+        message: 'Pesanan hanya dapat diubah saat berstatus pengajuan.'
+      });
+    }
+
+    if (jenis_layanan && !VALID_JENIS_LAYANAN.includes(jenis_layanan)) {
+      await connection.rollback();
+      return res.status(400).json({
+        success: false,
+        message: `Jenis layanan tidak valid. Pilihan: ${VALID_JENIS_LAYANAN.join(', ')}`
+      });
+    }
+
+    // Update field tabel layanan
+    const updateFields = [];
+    const updateValues = [];
+
+    if (jenis_layanan) { updateFields.push('jenis_layanan = ?'); updateValues.push(jenis_layanan); }
+    if (keluhan) { updateFields.push('keluhan = ?'); updateValues.push(keluhan); }
+    if (alamat) { updateFields.push('alamat = ?'); updateValues.push(alamat); }
+    if (tanggal_jemput) { updateFields.push('tanggal_jemput = ?'); updateValues.push(tanggal_jemput); }
+    if (jam_jemput) { updateFields.push('jam_jemput = ?'); updateValues.push(jam_jemput); }
+
+    if (role === 'admin') {
+      if (status && VALID_STATUSES.includes(status)) { updateFields.push('status = ?'); updateValues.push(status); }
+      if (total_biaya !== undefined) { updateFields.push('total_biaya = ?'); updateValues.push(total_biaya); }
+      if (catatan_admin !== undefined) { updateFields.push('catatan_admin = ?'); updateValues.push(catatan_admin); }
+    }
+
+    if (updateFields.length > 0) {
+      updateValues.push(layananId);
+      await connection.query(
+        `UPDATE layanan SET ${updateFields.join(', ')} WHERE id = ?`,
+        updateValues
+      );
+    }
+
+    // Update detail_layanan jika ada field terkait
+    if (jenis_kacamata !== undefined || detail_perbaikan !== undefined || keterangan !== undefined) {
+      const [existingDetail] = await connection.query(
+        'SELECT id FROM detail_layanan WHERE layanan_id = ?',
+        [layananId]
+      );
+
+      if (existingDetail.length > 0) {
+        const detailFields = [];
+        const detailValues = [];
+        if (jenis_kacamata !== undefined) { detailFields.push('jenis_kacamata = ?'); detailValues.push(jenis_kacamata); }
+        if (detail_perbaikan !== undefined) { detailFields.push('detail_perbaikan = ?'); detailValues.push(detail_perbaikan); }
+        if (keterangan !== undefined) { detailFields.push('keterangan = ?'); detailValues.push(keterangan); }
+
+        if (detailFields.length > 0) {
+          detailValues.push(layananId);
+          await connection.query(
+            `UPDATE detail_layanan SET ${detailFields.join(', ')} WHERE layanan_id = ?`,
+            detailValues
+          );
+        }
+      } else {
+        await connection.query(
+          'INSERT INTO detail_layanan (layanan_id, jenis_kacamata, detail_perbaikan, keterangan) VALUES (?, ?, ?, ?)',
+          [layananId, jenis_kacamata || '-', detail_perbaikan || '-', keterangan || '-']
+        );
+      }
+    }
+
+    await connection.commit();
+
+    return res.status(200).json({
+      success: true,
+      message: 'Data layanan berhasil diperbarui.'
+    });
+  } catch (error) {
+    await connection.rollback();
+    console.error('[Error updateLayanan]:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Terjadi kesalahan saat memperbarui data layanan.',
+      error: error.message
+    });
+  } finally {
+    connection.release();
   }
 };
 
@@ -401,5 +556,6 @@ module.exports = {
   getLayananById,
   createLayanan,
   updateStatusLayanan,
+  updateLayanan,
   deleteLayanan
 };
