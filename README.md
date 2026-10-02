@@ -8,17 +8,11 @@ Sistem Informasi Layanan Antar-Jemput Kacamata untuk Perbaikan dan Penggantian L
 
 ## Tech Stack
 
-| Layer | Teknologi | Versi | Peran dalam Sistem |
-| :--- | :--- | :--- | :--- |
-| Backend | Node.js | >= 16.x | Lingkungan runtime eksekusi JavaScript sisi server |
-| Framework API | Express.js | 4.19.2 | Routing HTTP, middleware pipeline, RESTful API |
-| Database Driver | mysql2 | 3.9.7 | Komunikasi query MySQL dengan Connection Pooling |
-| Keamanan Auth | jsonwebtoken | 9.0.2 | Penerbitan dan validasi token sesi stateless (JWT) |
-| Enkripsi Sandi | bcryptjs | 2.4.3 | Hashing password dengan salt sebelum simpan database |
-| Frontend UI | React.js | 18.2.0 | Pustaka antarmuka pengguna interaktif (SPA) |
-| Perutean Halaman | React Router DOM | 6.22.3 | Navigasi halaman sisi klien dan proteksi rute privat |
-| HTTP Client | Axios | 1.6.8 | Pengiriman request asynchronous ke backend |
-| Database | MySQL / MariaDB | 8.0 / 10.4+ | Sistem Manajemen Basis Data Relasional (RDBMS) |
+- **Backend:** Node.js, Express.js 4, RESTful API
+- **Frontend:** React.js 18, React Router DOM v6, Axios, CSS3 Responsif
+- **Database:** MySQL 8.0 / MariaDB (Driver: `mysql2` dengan Connection Pool)
+- **Kontainerisasi:** Docker & Docker Compose (MySQL, Backend Express, Frontend React Nginx)
+- **Arsitektur:** Decoupled Client-Server, MVC Pattern, RESTful API, JWT + RBAC
 
 ---
 
@@ -28,19 +22,20 @@ Sebelum mulai, pastikan hal berikut sudah terpenuhi:
 
 | Kebutuhan | Keterangan |
 | :--- | :--- |
+| **Docker Desktop** | Opsional untuk menjalankan via Docker. [Download Docker Desktop](https://www.docker.com/products/docker-desktop/) |
 | **Node.js** | Versi >= 16.x (disarankan LTS 18.x atau 20.x). Cek dengan `node --version`. |
 | **npm** | Node Package Manager (otomatis terpasang). Cek dengan `npm --version`. |
-| **MySQL / MariaDB** | Melalui XAMPP, Laragon, atau MySQL Server standalone. Cek status di port `3306`. |
+| **MySQL / MariaDB** | Melalui Docker, XAMPP, Laragon, atau MySQL Server standalone. Cek status di port `3306`. |
 | **Port bebas** | Port `3000` (frontend), `5000` (backend), dan `3306` (MySQL) tidak dipakai aplikasi lain. |
-| **Koneksi internet** | Diperlukan saat install pertama (download dependency npm). |
+| **Koneksi internet** | Diperlukan saat install pertama (download image / dependency npm). |
 
 > **Catatan untuk pengguna Windows:** Seluruh perintah di panduan ini dijalankan di **PowerShell** atau **Git Bash**. Kalau memakai CMD, perintah `cp` diganti `copy`.
 
 ---
 
-## Quick Start — Cara Termudah & Disarankan
+## Quick Start (Docker) — Cara Termudah & Disarankan
 
-Cara ini menjalankan backend dan frontend secara langsung di lingkungan lokal.
+Cara ini **tidak perlu** menginstal Node.js atau MySQL secara manual di sistem lokal. Semua service sudah dibungkus di dalam Docker Compose.
 
 ### 1. Masuk ke Folder Project
 
@@ -48,146 +43,101 @@ Cara ini menjalankan backend dan frontend secara langsung di lingkungan lokal.
 cd RPLApp
 ```
 
-### 2. Setup Basis Data MySQL
-
-1. Pastikan modul MySQL pada XAMPP atau Laragon sudah aktif (Running di port `3306`).
-2. Buka phpMyAdmin di browser (`http://localhost/phpmyadmin`) atau terminal MySQL.
-3. Impor skrip SQL dari direktori:
-   ```text
-   backend/database/schema.sql
-   ```
-   Atau via terminal:
-   ```bash
-   mysql -u root -p < backend/database/schema.sql
-   ```
-   Skrip ini otomatis membuat database `db_kacamata`, seluruh tabel berelasi (`users`, `layanan`, `detail_layanan`), serta otomatis mengisi akun demo (auto-seed).
-
-### 3. Buat File `.env`
-
-File `.env` menyimpan konfigurasi database dan keamanan. Template-nya sudah tersedia di `backend/.env.example`.
+### 2. Build & Jalankan Semua Container
 
 ```bash
-cd backend
-cp .env.example .env
+docker compose up --build -d
 ```
 
-Lalu buka `backend/.env` dan isi nilainya:
+> **Build pertama memakan waktu 2–5 menit** (download image MySQL, Node, Nginx, dan npm install). Ini normal. Build berikutnya jauh lebih cepat karena cache.
 
-```dotenv
-# Server
-PORT=5000
+### 3. Verifikasi Semua Service Berjalan
 
-# Database MySQL
-DB_HOST=localhost
-DB_USER=root
-DB_PASSWORD=
-DB_NAME=db_kacamata
-DB_PORT=3306
-
-# Keamanan Backend
-JWT_SECRET=super_secret_jwt_kacamata_key_2026_universitas
-JWT_EXPIRES_IN=24h
-```
-
-Generate `JWT_SECRET` (opsional jika ingin secret acak baru, minimal 32 karakter):
+Tunggu ±20 detik, lalu cek status container:
 
 ```bash
-# Linux / macOS / Git Bash
-openssl rand -base64 32
+docker compose ps
 ```
 
-```powershell
-# Windows PowerShell
-$b = New-Object byte[] 32
-[System.Security.Cryptography.RandomNumberGenerator]::Create().GetBytes($b)
-[Convert]::ToBase64String($b)
-```
+Semua service harus berstatus **Up**:
 
-Copy hasilnya ke baris `JWT_SECRET=` pada file `.env`.
+| Container | Service | Port | Status |
+| :--- | :--- | :--- | :--- |
+| `kacamata-mysql` | db (MySQL 8.0) | `0.0.0.0:3306->3306` | Up (healthy) |
+| `kacamata-backend` | backend (Express) | `0.0.0.0:5000->5000` | Up |
+| `kacamata-frontend` | frontend (React + Nginx) | `0.0.0.0:3000->80` | Up |
 
-> **Penting:** Jangan pakai `echo "JWT_SECRET=..." > .env`. Tanda `>` akan menimpa seluruh isi `.env`. Kalau mau menambah lewat terminal, pakai `>>` (append) atau edit manual dengan text editor.
-
-### 4. Install Dependencies
-
-```bash
-# Backend
-cd backend
-npm install
-
-# Frontend
-cd ../frontend
-npm install
-```
-
-> Pemasangan dependensi pada build pertama memakan waktu 1–3 menit. Ini normal. Build berikutnya jauh lebih cepat karena cache.
-
-### 5. Jalankan Aplikasi
-
-Jalankan melalui skrip otomatis sekali klik:
-
-```bash
-# Windows (klik ganda atau via terminal)
-./jalankan_aplikasi.bat
-```
-
-Atau buka 2 terminal:
-- Terminal 1 (Backend): `cd backend && npm run dev`
-- Terminal 2 (Frontend): `cd frontend && npm start`
-
-### 6. Verifikasi Semua Service Jalan
-
-Tunggu 10–15 detik setelah start, lalu cek health endpoint backend:
+Uji health check API backend:
 
 ```bash
 curl http://localhost:5000/api/health
 ```
 
-Harus membalas:
+Respons:
 
 ```json
-{
-  "status": "UP",
-  "timestamp": "2026-10-02T..."
-}
+{ "status": "UP", "timestamp": "2026-10-02T..." }
 ```
 
-Cek root endpoint:
+### 4. Akses Aplikasi & Login
 
-```bash
-curl http://localhost:5000
-```
-
-Harus membalas:
-
-```json
-{
-  "success": true,
-  "message": "Selamat Datang di API Sistem Informasi Layanan Antar-Jemput Kacamata"
-}
-```
-
-### 7. Akses Aplikasi & Login
-
-Buka browser:
+Buka browser di:
 
 ```text
 http://localhost:3000
 ```
 
-Saat pertama kali dijalankan, backend otomatis menggunakan data tabel dan akun demo yang telah di-seed via `schema.sql`. Jadi kamu bisa langsung login tanpa setup database manual.
-
-Akun demo yang tersedia — password semuanya `admin123`:
+Akun demo yang tersedia (password: `admin123`):
 
 | Username / Email | Role | Password | Hak Akses |
 | :--- | :--- | :--- | :--- |
 | `admin@optik.com` | `admin` | `admin123` | Akses penuh dashboard admin, kelola pesanan, ubah status pengerjaan |
 | `bahrul@gmail.com` | `pelanggan` | `admin123` | Pengajuan layanan, lihat histori, pantau perkembangan status sendiri |
 
-> Gunakan akun `admin` untuk akses penuh, dan akun `pelanggan` untuk mencoba pembatasan hak akses (RBAC) per role.
+### 5. Stop & Cleanup Docker
 
-### 8. Stop & Cleanup
+```bash
+# Menghentikan service (data database TETAP tersimpan aman di volume)
+docker compose down
 
-Tekan `Ctrl + C` di masing-masing terminal (backend & frontend), atau tutup jendela terminal yang dibuka oleh `jalankan_aplikasi.bat`. Data pada database MySQL tetap tersimpan aman.
+# Menghentikan + menghapus volume (reset data database ke seed awal)
+docker compose down -v
+```
+
+---
+
+## Quick Start (Local) — Tanpa Docker
+
+Untuk development manual menggunakan XAMPP / Laragon:
+
+### 1. Setup Basis Data MySQL
+
+1. Nyalakan modul MySQL pada XAMPP/Laragon (port `3306`).
+2. Impor skrip SQL `backend/database/schema.sql` via phpMyAdmin atau terminal:
+   ```bash
+   mysql -u root -p < backend/database/schema.sql
+   ```
+
+### 2. Setup Backend
+
+```bash
+cd backend
+cp .env.example .env
+npm install
+npm run dev
+```
+
+-> Backend berjalan di `http://localhost:5000`.
+
+### 3. Setup Frontend
+
+```bash
+cd ../frontend
+npm install
+npm start
+```
+
+-> Frontend berjalan di `http://localhost:3000`.
 
 ---
 
@@ -195,16 +145,14 @@ Tekan `Ctrl + C` di masing-masing terminal (backend & frontend), atau tutup jend
 
 | Masalah | Penyebab | Solusi |
 | :--- | :--- | :--- |
-| `port 5000 is already allocated` | Port 5000 dipakai proses lain | Matikan aplikasi tersebut, atau ubah `PORT=5001` di `backend/.env` |
-| `port 3000 is already allocated` | Port 3000 dipakai proses lain | Saat ditanya `run on another port?`, ketik `Y` (akan berjalan di port 3001) |
+| `port is already allocated` | Port 3000, 5000, atau 3306 dipakai proses lain | Matikan aplikasi tersebut atau ubah port host pada `docker-compose.yml` |
+| `docker command not found` | Docker Desktop belum terpasang atau belum berjalan | Instal Docker Desktop dari [docker.com](https://www.docker.com/products/docker-desktop/) atau jalankan via mode Local |
 | `FATAL: ER_ACCESS_DENIED_ERROR` | Kredensial MySQL salah di `.env` | Cek `DB_USER` dan `DB_PASSWORD` di `backend/.env` |
 | `FATAL: ER_BAD_DB_ERROR` | Database `db_kacamata` belum dibuat | Impor ulang berkas `backend/database/schema.sql` |
-| `FATAL: JWT_SECRET not set in .env` | `JWT_SECRET` masih kosong atau placeholder | Isi dengan string acak minimal 32 karakter |
 | `Cannot find module 'express'` | Backend belum `npm install` | Masuk ke folder `backend/` lalu jalankan `npm install` |
 | `Cannot find module 'react'` | Frontend belum `npm install` | Masuk ke folder `frontend/` lalu jalankan `npm install` |
-| Halaman blank / `Failed to fetch` | Backend belum aktif di port 5000 | Pastikan terminal backend running sebelum membuka browser |
-| Perubahan kode tidak muncul | Cache browser | Hard refresh peramban (`Ctrl + Shift + R` atau `Ctrl + F5`) |
-| Tidak bisa login | Database belum ter-seed | Buka phpMyAdmin, jalankan query baris 51–131 pada `schema.sql` |
+| Halaman blank / `Failed to fetch` | Backend belum aktif di port 5000 | Pastikan container atau terminal backend sudah berstatus Up |
+| Perubahan kode tidak muncul | Cache browser | Lakukan hard refresh peramban (`Ctrl + Shift + R` atau `Ctrl + F5`) |
 
 ---
 
@@ -214,13 +162,15 @@ Tekan `Ctrl + C` di masing-masing terminal (backend & frontend), atau tutup jend
 RPLApp/
 ├── backend/                            # API Node.js (Express + mysql2)
 │   ├── config/                         # Koneksi database MySQL connection pool (db.js)
-│   ├── controllers/                    # Handler authController, layananController, detailLayananController
+│   ├── controllers/                    # Handler auth, layanan, dan detail kacamata
 │   ├── database/                       # schema.sql (DDL tabel + seed data akun & transaksi)
 │   ├── middleware/                     # Middleware JWT auth & admin RBAC verification
 │   ├── routes/                         # Definisi rute RESTful API (auth, layanan, detail-layanan)
+│   ├── .dockerignore                   # Berkas pengabaian build Docker backend
 │   ├── .env.example                    # Template konfigurasi environment backend
-│   ├── server.js                       # Titik masuk utama server Express
-│   └── package.json                    # Dependensi server Express
+│   ├── Dockerfile                      # Spesifikasi kontainerisasi backend
+│   ├── package.json                    # Dependensi server Express
+│   └── server.js                       # Titik masuk utama server Express
 ├── frontend/                           # SPA React.js
 │   ├── public/                         # index.html & aset publik
 │   ├── src/
@@ -231,7 +181,11 @@ RPLApp/
 │   │   ├── App.js                      # Root component & konfigurasi React Router v6
 │   │   ├── App.css                     # Gaya CSS responsif global
 │   │   └── index.js                    # Mount React DOM
-│   └── package.json                    # Dependensi frontend (proxy port 5000)
+│   ├── .dockerignore                   # Berkas pengabaian build Docker frontend
+│   ├── Dockerfile                      # Multi-stage build frontend dengan Nginx
+│   ├── nginx.conf                      # Konfigurasi reverse proxy Nginx untuk SPA
+│   └── package.json                    # Dependensi frontend
+├── docker-compose.yml                  # Orkestrasi multi-kontainer MySQL, backend, & frontend
 ├── jalankan_aplikasi.bat               # Skrip batch otomatisasi eksekusi ganda Windows
 ├── powershell.bat                      # Utilitas peluncur PowerShell
 ├── .env.example                        # Template konfigurasi environment root
@@ -241,91 +195,11 @@ RPLApp/
 
 ---
 
-## Quick Start (Local) — Tanpa Script Otomatis
-
-Untuk development yang butuh hot-reload lebih cepat atau debugging langsung per service.
-
-### 1. Install Dependencies
-
-Pastikan Node.js dan MySQL sudah terpasang:
-
-```bash
-node --version      # minimal 16.x
-npm --version       # minimal 8.x
-mysql --version
-```
-
-### 2. Start MySQL Service
-
-- Nyalakan modul MySQL pada XAMPP Control Panel atau Laragon.
-- Pastikan port `3306` berstatus aktif.
-
-### 3. Setup Backend
-
-```bash
-cd backend
-cp .env.example .env
-npm install
-npm run dev
-```
-
--> Backend jalan di `http://localhost:5000`. Database dan akun demo otomatis aktif melalui `schema.sql`.
-
-### 4. Setup Frontend
-
-```bash
-cd frontend
-npm install
-npm start
-```
-
--> Frontend jalan di `http://localhost:3000`. Frontend mem-proxy request `/api` ke `http://localhost:5000` via konfigurasi proxy di `frontend/package.json`.
-
-### 5. Stop Services
-
-Tekan `Ctrl + C` di masing-masing jendela terminal.
-
----
-
-## Security Notes
-
-- `.env` **TIDAK** di-commit (ada di `.gitignore`).
-- `.env.example` hanya template dengan placeholder.
-- `JWT_SECRET` harus random minimal 32 karakter: `openssl rand -base64 32`.
-- Password disimpan terenkripsi menggunakan **BCrypt** hashing.
-- Token dikirim via header `Authorization: Bearer <token_jwt>`.
-- Rute terproteksi ganda: Middleware `auth.js` dan `adminAuth.js` di backend, serta `PrivateRoute.js` di frontend.
-- Parameterized SQL queries pada seluruh endpoint controller untuk memitigasi serangan SQL Injection.
-- **Akun demo di atas hanya untuk keperluan development/demo.** Untuk production, ganti seluruh password dan hapus seeder akun demo.
-
----
-
-## Dokumen Lengkap
-
-### Dokumen Produk & Ide
-
-| File | Deskripsi |
-| :--- | :--- |
-| `LAPORAN_IMPLEMENTASI_P3.docx` | Laporan formal implementasi P3 dalam format Microsoft Word |
-| `LAPORAN_IMPLEMENTASI_P3.md` | Laporan implementasi tugas P3 (spesifikasi sistem, arsitektur, dan kode sumber) |
-| `backend/database/schema.sql` | Skrip lengkap DDL tabel basis data dan seed data awal pengujian |
-| `backend/README.md` | Dokumentasi teknis endpoint API, panduan instalasi, dan payload backend |
-
-### Dokumen Panduan Pengembangan
-
-| File | Deskripsi |
-| :--- | :--- |
-| `CATATAN_PERBAIKAN_ERROR.md` | Log pencatatan error, identifikasi penyebab, dan solusi perbaikan kode |
-| `PERBANDINGAN_KODE_ERROR_DAN_FIX.md` | Komparasi kode sebelum dan sesudah perbaikan bug |
-| `jalankan_aplikasi.bat` | Skrip otomatisasi sekali-klik untuk menjalankan backend dan frontend serentak |
-
----
-
 ## Masalah yang Diselesaikan
 
 1. **Hambatan Mobilitas & Waktu** — Pelanggan aktif kesulitan menyisihkan waktu di jam kerja untuk datang langsung ke toko optik fisik hanya untuk perbaikan frame atau ganti lensa.
 2. **Pencatatan Terfragmentasi** — Formulir keluhan lensa, ukuran minus/silinder, dan alamat kurir konvensional menggunakan nota kertas yang rawan hilang atau tertukar.
-3. **Ketiadaan Transparansi Status** — Pelanggan tidak mengetahui perkembangan proses reparasi kacamata (apakah sudah diambil, sedang diproses di lab, atau sudah selesai) tanpa menelepon toko secara berulang.
+3. **Ketiadaan Transparansi Status** — Pelanggan tidak mengetahui perkembangan proses reparasi kacamata tanpa menelepon toko secara berulang.
 4. **Penjadwalan Kurir Manual** — Koordinasi waktu penjemputan dan pengantaran kacamata sering bentrok karena tidak tercatat dalam jadwal terpusat.
 
 ---
@@ -358,16 +232,12 @@ Status ditandai jujur: **[Ada]** = sudah terimplementasi di kode, **[Rencana]** 
 
 ## Fitur yang Tidak Dikerjakan (Di Luar Ruang Lingkup 12 Pertemuan)
 
-Untuk menjaga kelayakan penyelesaian proyek dalam kurun waktu 12 pertemuan perkuliahan RPL, fitur-fitur berikut disepakati berada di luar cakupan rilis pertama:
-
-1. **Integrasi Gerbang Pembayaran Otomatis (Payment Gateway):** Pembayaran tidak diproses via gateway pihak ketiga (Midtrans/Xendit); transaksi biaya dilakukan secara langsung saat pengantaran.
+1. **Integrasi Gerbang Pembayaran Otomatis:** Pembayaran tidak diproses via gateway pihak ketiga (Midtrans/Xendit); transaksi biaya dilakukan secara langsung saat pengantaran.
 2. **Notifikasi Real-time Berbasis Socket:** Sistem tidak menggunakan WebSocket; pembaruan status dapat dilihat saat memuat atau me-refresh halaman dashboard.
 3. **Pelacakan Posisi GPS Kurir secara Langsung:** Tidak menyertakan integrasi peta langsung (Google Maps API) untuk memantau posisi armada kurir secara real-time.
 4. **Sistem Pesan Obrolan Langsung (In-App Chat):** Komunikasi klarifikasi antara pelanggan dan staf optik dilakukan via telepon atau WhatsApp.
 5. **Multi-Cabang Optik (Multi-Tenancy):** Sistem dikhususkan untuk operasional satu toko optik (single tenant).
-6. **Grafik Analitik Tingkat Lanjut (Chart / BI Dashboard):** Dasbor fokus pada metrik angka ringkas dan tabel operasional tanpa komponen chart/grafik visual.
-7. **Unggah Foto Kerusakan Frame & Kartu Resep:** Input spesifikasi kacamata dan ukuran resep dicatat dalam bentuk teks terstruktur.
-8. **Sistem Rating dan Ulasan Layanan:** Belum menyertakan modul review dan rating kepuasan pelanggan.
+6. **Grafik Analitik Tingkat Lanjut (Chart / BI Dashboard):** Dasbor fokus pada metrik angka ringkas dan tabel operasional tanpa komponen chart visual.
 
 ---
 
@@ -421,8 +291,6 @@ pengajuan -> dijadwalkan -> diambil -> diproses -> selesai -> diantar
 ---
 
 ## Dokumen Arsitektur Aplikasi
-
-Aplikasi dibangun menggunakan arsitektur Client-Server Terpisah (Decoupled SPA + RESTful API) dengan pemisahan tanggung jawab:
 
 ```text
 ┌──────────────────────────────────────────────────────────────┐
@@ -502,8 +370,6 @@ Database dibuat sederhana dengan tiga tabel utama yang ternormalisasi:
 
 ### 1. Tabel `users`
 
-Menyimpan data identitas akun pengguna, baik pelanggan maupun administrator.
-
 | Kolom | Tipe Data | Keterangan |
 | :--- | :--- | :--- |
 | `id` | INT AUTO_INCREMENT | Primary Key |
@@ -515,8 +381,6 @@ Menyimpan data identitas akun pengguna, baik pelanggan maupun administrator.
 | `created_at` | TIMESTAMP | Waktu pendaftaran akun |
 
 ### 2. Tabel `layanan`
-
-Menyimpan data transaksi pengajuan servis antar-jemput kacamata.
 
 | Kolom | Tipe Data | Keterangan |
 | :--- | :--- | :--- |
@@ -531,8 +395,6 @@ Menyimpan data transaksi pengajuan servis antar-jemput kacamata.
 | `created_at` | TIMESTAMP | Waktu transaksi dibuat |
 
 ### 3. Tabel `detail_layanan`
-
-Menyimpan spesifikasi teknis kacamata yang diperbaiki atau diganti lensanya.
 
 | Kolom | Tipe Data | Keterangan |
 | :--- | :--- | :--- |
