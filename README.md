@@ -313,7 +313,6 @@ Frontend UI     React.js          18.2.0       Pustaka antarmuka pengguna intera
 Perutean        React Router DOM  6.22.3       Navigasi halaman sisi klien dan proteksi rute privat
 HTTP Client     Axios             1.6.8        Pengiriman request asynchronous ke backend
 Database        MySQL / MariaDB   8.0 / 10.4+  Sistem Manajemen Basis Data Relasional (RDBMS)
-Kontainerisasi  Docker dan Compose v2+         Orkestrasi kontainer database MySQL opsional
 
 --------------------------------------------------------------------------------
 PREREQUISITES (PERSYARATAN SISTEM)
@@ -322,25 +321,14 @@ Kebutuhan        Keterangan
 --------------------------------------------------------------------------------
 Node.js          Versi >= 16.x (disarankan LTS 18.x/20.x). Cek dengan node --version.
 npm              Node Package Manager. Cek dengan npm --version.
-MySQL / MariaDB  Melalui XAMPP, Laragon, MySQL Server standalone, atau Docker.
+MySQL / MariaDB  Melalui XAMPP, Laragon, atau MySQL Server standalone.
 Port Bebas       Port 3000 (React), 5000 (Express), dan 3306 (MySQL) tidak dipakai aplikasi lain.
 Git              Untuk pelacakan source code dan kolaborasi tim.
 
 Catatan untuk pengguna Windows: Seluruh perintah dapat dijalankan di PowerShell, Command Prompt (CMD), atau Git Bash. Jika menggunakan CMD, perintah cp diganti dengan copy.
 
 --------------------------------------------------------------------------------
-QUICK START (DOCKER) - UNTUK MYSQL
---------------------------------------------------------------------------------
-Jika menggunakan Docker Desktop:
-1. Jalankan container MySQL dengan database dan seed data otomatis:
-   docker compose up -d
-
-2. Cek status container:
-   docker compose ps
-   Container kacamata-mysql harus berstatus Up pada port 3306.
-
---------------------------------------------------------------------------------
-QUICK START (LOCAL) - CARA TERMUDAH DAN DISARANKAN
+PANDUAN INSTALASI DAN CARA MENJALANKAN (QUICK START)
 --------------------------------------------------------------------------------
 1. Masuk ke Folder Project:
    cd RPLApp
@@ -459,7 +447,6 @@ RPLApp/
 │   │   ├── App.css                     Gaya CSS responsif global
 │   │   └── index.js                    Inisialisasi React DOM
 │   └── package.json                    Dependensi frontend (proxy ke port 5000)
-├── docker-compose.yml                  Orkestrasi container MySQL opsional
 ├── jalankan_aplikasi.bat               Skrip eksekusi satu-klik untuk Windows
 ├── powershell.bat                      Utilitas peluncur PowerShell
 ├── .env.example                        Template konfigurasi environment root
@@ -489,7 +476,6 @@ Dokumen Produk dan Ide:
 Dokumen Panduan Pengembangan:
 - CATATAN_PERBAIKAN_ERROR.md: Log pencatatan error, identifikasi penyebab, dan solusi perbaikan kode
 - PERBANDINGAN_KODE_ERROR_DAN_FIX.md: Komparasi kode sebelum dan sesudah perbaikan bug
-- docker-compose.yml: Konfigurasi kontainerisasi database MySQL terisolasi
 - jalankan_aplikasi.bat: Skrip otomatisasi sekali-klik untuk menjalankan backend dan frontend serentak
 
 --------------------------------------------------------------------------------
