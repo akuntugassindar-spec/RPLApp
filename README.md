@@ -1,529 +1,687 @@
-# OptikExpress — Sistem Informasi Layanan Antar-Jemput Kacamata
-
+SISTEM INFORMASI LAYANAN ANTAR-JEMPUT KACAMATA
 Sistem Informasi Layanan Antar-Jemput Kacamata untuk Perbaikan dan Penggantian Lensa Berbasis Web
-
-**OptikExpress** adalah aplikasi web layanan servis dan penggantian lensa kacamata terintegrasi yang dibuat untuk membantu pelanggan dalam melakukan permintaan layanan perbaikan kacamata atau penggantian lensa tanpa harus datang langsung ke toko optik fisik. Sistem ini menjembatani komunikasi dan alur data operasional antara pelanggan dan administrator toko optik, mulai dari pengajuan perbaikan, penjemputan frame, pemrosesan teknis di laboratorium optik, hingga pengantaran kacamata kembali ke alamat pelanggan.
-
----
-
-## Tech Stack
-
-- **Backend:** Node.js, Express.js 4, RESTful API
-- **Frontend:** React.js 18, React Router DOM v6, Axios, CSS3 Responsif
-- **Database:** MySQL 8.0 / MariaDB (Driver: `mysql2` dengan Connection Pool)
-- **Kontainerisasi:** Docker & Docker Compose (MySQL, Backend Express, Frontend React Nginx)
-- **Arsitektur:** Decoupled Client-Server, MVC Pattern, RESTful API, JWT + RBAC
-
----
-
-## Prerequisites
-
-Sebelum mulai, pastikan hal berikut sudah terpenuhi:
-
-| Kebutuhan | Keterangan |
-| :--- | :--- |
-| **Docker Desktop** | Opsional untuk menjalankan via Docker. [Download Docker Desktop](https://www.docker.com/products/docker-desktop/) |
-| **Node.js** | Versi >= 16.x (disarankan LTS 18.x atau 20.x). Cek dengan `node --version`. |
-| **npm** | Node Package Manager (otomatis terpasang). Cek dengan `npm --version`. |
-| **MySQL / MariaDB** | Melalui Docker, XAMPP, Laragon, atau MySQL Server standalone. Cek status di port `3306`. |
-| **Port bebas** | Port `3000` (frontend), `5000` (backend), dan `3306` (MySQL) tidak dipakai aplikasi lain. |
-| **Koneksi internet** | Diperlukan saat install pertama (download image / dependency npm). |
-
-> **Catatan untuk pengguna Windows:** Seluruh perintah di panduan ini dijalankan di **PowerShell** atau **Git Bash**. Kalau memakai CMD, perintah `cp` diganti `copy`.
-
----
-
-## Quick Start (Docker) — Cara Termudah & Disarankan
-
-Cara ini **tidak perlu** menginstal Node.js atau MySQL secara manual di sistem lokal. Semua service sudah dibungkus di dalam Docker Compose.
-
-### 1. Masuk ke Folder Project
-
-```bash
-cd RPLApp
-```
-
-### 2. Build & Jalankan Semua Container
-
-```bash
-docker compose up --build -d
-```
-
-> **Build pertama memakan waktu 2–5 menit** (download image MySQL, Node, Nginx, dan npm install). Ini normal. Build berikutnya jauh lebih cepat karena cache.
-
-### 3. Verifikasi Semua Service Berjalan
-
-Tunggu ±20 detik, lalu cek status container:
-
-```bash
-docker compose ps
-```
-
-Semua service harus berstatus **Up**:
-
-| Container | Service | Port | Status |
-| :--- | :--- | :--- | :--- |
-| `kacamata-mysql` | db (MySQL 8.0) | `0.0.0.0:3306->3306` | Up (healthy) |
-| `kacamata-backend` | backend (Express) | `0.0.0.0:5000->5000` | Up |
-| `kacamata-frontend` | frontend (React + Nginx) | `0.0.0.0:3000->80` | Up |
-
-Uji health check API backend:
-
-```bash
-curl http://localhost:5000/api/health
-```
-
-Respons:
-
-```json
-{ "status": "UP", "timestamp": "2026-10-02T..." }
-```
-
-### 4. Akses Aplikasi & Login
-
-Buka browser di:
-
-```text
-http://localhost:3000
-```
-
-Akun demo yang tersedia (password: `admin123`):
-
-| Username / Email | Role | Password | Hak Akses |
-| :--- | :--- | :--- | :--- |
-| `admin@optik.com` | `admin` | `admin123` | Akses penuh dashboard admin, kelola pesanan, ubah status pengerjaan |
-| `bahrul@gmail.com` | `pelanggan` | `admin123` | Pengajuan layanan, lihat histori, pantau perkembangan status sendiri |
-
-### 5. Stop & Cleanup Docker
-
-```bash
-# Menghentikan service (data database TETAP tersimpan aman di volume)
-docker compose down
-
-# Menghentikan + menghapus volume (reset data database ke seed awal)
-docker compose down -v
-```
-
----
-
-## Quick Start (Local) — Tanpa Docker
-
-Untuk development manual menggunakan XAMPP / Laragon:
-
-### 1. Setup Basis Data MySQL
-
-1. Nyalakan modul MySQL pada XAMPP/Laragon (port `3306`).
-2. Impor skrip SQL `backend/database/schema.sql` via phpMyAdmin atau terminal:
-   ```bash
-   mysql -u root -p < backend/database/schema.sql
-   ```
-
-### 2. Setup Backend
-
-```bash
-cd backend
-cp .env.example .env
-npm install
-npm run dev
-```
-
--> Backend berjalan di `http://localhost:5000`.
-
-### 3. Setup Frontend
-
-```bash
-cd ../frontend
-npm install
-npm start
-```
-
--> Frontend berjalan di `http://localhost:3000`.
-
----
-
-## Troubleshooting
-
-| Masalah | Penyebab | Solusi |
-| :--- | :--- | :--- |
-| `port is already allocated` | Port 3000, 5000, atau 3306 dipakai proses lain | Matikan aplikasi tersebut atau ubah port host pada `docker-compose.yml` |
-| `docker command not found` | Docker Desktop belum terpasang atau belum berjalan | Instal Docker Desktop dari [docker.com](https://www.docker.com/products/docker-desktop/) atau jalankan via mode Local |
-| `FATAL: ER_ACCESS_DENIED_ERROR` | Kredensial MySQL salah di `.env` | Cek `DB_USER` dan `DB_PASSWORD` di `backend/.env` |
-| `FATAL: ER_BAD_DB_ERROR` | Database `db_kacamata` belum dibuat | Impor ulang berkas `backend/database/schema.sql` |
-| `Cannot find module 'express'` | Backend belum `npm install` | Masuk ke folder `backend/` lalu jalankan `npm install` |
-| `Cannot find module 'react'` | Frontend belum `npm install` | Masuk ke folder `frontend/` lalu jalankan `npm install` |
-| Halaman blank / `Failed to fetch` | Backend belum aktif di port 5000 | Pastikan container atau terminal backend sudah berstatus Up |
-| Perubahan kode tidak muncul | Cache browser | Lakukan hard refresh peramban (`Ctrl + Shift + R` atau `Ctrl + F5`) |
-
----
-
-## Struktur Project
-
-```text
-RPLApp/
-├── backend/                            # API Node.js (Express + mysql2)
-│   ├── config/                         # Koneksi database MySQL connection pool (db.js)
-│   ├── controllers/                    # Handler auth, layanan, dan detail kacamata
-│   ├── database/                       # schema.sql (DDL tabel + seed data akun & transaksi)
-│   ├── middleware/                     # Middleware JWT auth & admin RBAC verification
-│   ├── routes/                         # Definisi rute RESTful API (auth, layanan, detail-layanan)
-│   ├── .dockerignore                   # Berkas pengabaian build Docker backend
-│   ├── .env.example                    # Template konfigurasi environment backend
-│   ├── Dockerfile                      # Spesifikasi kontainerisasi backend
-│   ├── package.json                    # Dependensi server Express
-│   └── server.js                       # Titik masuk utama server Express
-├── frontend/                           # SPA React.js
-│   ├── public/                         # index.html & aset publik
-│   ├── src/
-│   │   ├── components/                 # Komponen antarmuka global (Navbar.js)
-│   │   ├── pages/                      # Tampilan Home, Login, Register, Dashboard, BuatLayanan, DetailLayanan
-│   │   │   └── admin/                  # Tampilan AdminDashboard, DaftarLayanan, AdminDetailLayanan
-│   │   ├── utils/                      # api.js (Axios interceptor) & PrivateRoute.js (RBAC guard)
-│   │   ├── App.js                      # Root component & konfigurasi React Router v6
-│   │   ├── App.css                     # Gaya CSS responsif global
-│   │   └── index.js                    # Mount React DOM
-│   ├── .dockerignore                   # Berkas pengabaian build Docker frontend
-│   ├── Dockerfile                      # Multi-stage build frontend dengan Nginx
-│   ├── nginx.conf                      # Konfigurasi reverse proxy Nginx untuk SPA
-│   └── package.json                    # Dependensi frontend
-├── docker-compose.yml                  # Orkestrasi multi-kontainer MySQL, backend, & frontend
-├── jalankan_aplikasi.bat               # Skrip batch otomatisasi eksekusi ganda Windows
-├── powershell.bat                      # Utilitas peluncur PowerShell
-├── .env.example                        # Template konfigurasi environment root
-├── .gitignore                          # Pengabaian git (.env, node_modules, build)
-└── README.md                           # Dokumentasi komprehensif proyek
-```
-
----
-
-## Masalah yang Diselesaikan
-
-1. **Hambatan Mobilitas & Waktu** — Pelanggan aktif kesulitan menyisihkan waktu di jam kerja untuk datang langsung ke toko optik fisik hanya untuk perbaikan frame atau ganti lensa.
-2. **Pencatatan Terfragmentasi** — Formulir keluhan lensa, ukuran minus/silinder, dan alamat kurir konvensional menggunakan nota kertas yang rawan hilang atau tertukar.
-3. **Ketiadaan Transparansi Status** — Pelanggan tidak mengetahui perkembangan proses reparasi kacamata tanpa menelepon toko secara berulang.
-4. **Penjadwalan Kurir Manual** — Koordinasi waktu penjemputan dan pengantaran kacamata sering bentrok karena tidak tercatat dalam jadwal terpusat.
-
----
-
-## Target Pengguna (2 Role RBAC)
-
-| Peran | Tanggung Jawab Utama |
-| :--- | :--- |
-| `admin` | Manajemen seluruh permintaan layanan, verifikasi jadwal penjemputan kurir, pembaruan status siklus servis kacamata |
-| `pelanggan` | Pendaftaran akun, pengajuan layanan antar-jemput, penentuan jadwal & alamat, pelacakan perkembangan status kacamata secara mandiri |
-
----
-
-## Fitur Inti
-
-Status ditandai jujur: **[Ada]** = sudah terimplementasi di kode, **[Rencana]** = masih dalam rencana pengembangan.
-
-1. **[Ada] Autentikasi & RBAC Multi-Role** — Sesi login dengan JSON Web Token (JWT), 2 role (`pelanggan` & `admin`), proteksi rute halaman via `PrivateRoute`
-2. **[Ada] Pengajuan Layanan Antar-Jemput** — Formulir jenis servis (perbaikan frame atau penggantian lensa), keluhan, alamat lengkap, tanggal & jam penjemputan
-3. **[Ada] Rincian Spesifikasi Kacamata** — Pencatatan model frame, detail perbaikan teknis, dan catatan ukuran lensa
-4. **[Ada] Siklus Status Layanan (State Machine)** — 6 tahapan status terstruktur: `pengajuan` -> `dijadwalkan` -> `diambil` -> `diproses` -> `selesai` -> `diantar`
-5. **[Ada] Dasbor Pelanggan & Admin** — Pemantauan status pesanan pribadi dan tabel manajemen terpusat untuk administrator
-6. **[Ada] Pembatalan & Hapus Layanan** — Penghapusan pesanan dengan cascading delete terintegrasi pada relasi database
-7. **[Rencana] Notifikasi Otomatis WhatsApp / Email** — Pemberitahuan otomatis saat status kacamata berganti tahapan
-8. **[Rencana] Integrasi Payment Gateway** — Pembayaran digital ongkir kurir dan biaya perbaikan via QRIS / transfer
-9. **[Rencana] Pelacakan Kurir Langsung (Live GPS)** — Pemantauan rute kurir antar-jemput pada peta digital real-time
-10. **[Rencana] Unggah Foto Kacamata & Resep Optik** — Upload foto kerusakan frame kacamata dan foto kartu resep dokter
-
----
-
-## Fitur yang Tidak Dikerjakan (Di Luar Ruang Lingkup 12 Pertemuan)
-
-1. **Integrasi Gerbang Pembayaran Otomatis:** Pembayaran tidak diproses via gateway pihak ketiga (Midtrans/Xendit); transaksi biaya dilakukan secara langsung saat pengantaran.
-2. **Notifikasi Real-time Berbasis Socket:** Sistem tidak menggunakan WebSocket; pembaruan status dapat dilihat saat memuat atau me-refresh halaman dashboard.
-3. **Pelacakan Posisi GPS Kurir secara Langsung:** Tidak menyertakan integrasi peta langsung (Google Maps API) untuk memantau posisi armada kurir secara real-time.
-4. **Sistem Pesan Obrolan Langsung (In-App Chat):** Komunikasi klarifikasi antara pelanggan dan staf optik dilakukan via telepon atau WhatsApp.
-5. **Multi-Cabang Optik (Multi-Tenancy):** Sistem dikhususkan untuk operasional satu toko optik (single tenant).
-6. **Grafik Analitik Tingkat Lanjut (Chart / BI Dashboard):** Dasbor fokus pada metrik angka ringkas dan tabel operasional tanpa komponen chart visual.
-
----
-
-## Alur Sistem
-
-Berikut adalah alur pengerjaan layanan antar-jemput kacamata dari awal hingga selesai:
-
-```text
+================================================================================
+
+DESKRIPSI
+--------------------------------------------------------------------------------
+Sistem Informasi Layanan Antar-Jemput Kacamata merupakan aplikasi berbasis web yang dibuat untuk membantu pelanggan dalam melakukan permintaan layanan perbaikan kacamata atau penggantian lensa tanpa harus datang langsung ke toko optik.
+
+Pelanggan dapat mengajukan permintaan layanan melalui website dengan mengisi informasi kacamata, memilih jenis layanan, serta menentukan jadwal pengambilan kacamata.
+
+Admin dapat mengelola permintaan pelanggan, mengatur jadwal pengambilan, dan memperbarui status layanan sampai kacamata selesai diperbaiki atau lensanya diganti.
+
+--------------------------------------------------------------------------------
+TUJUAN
+--------------------------------------------------------------------------------
+Sistem ini dibuat dengan tujuan:
+- Mempermudah pelanggan dalam mengajukan layanan perbaikan atau penggantian lensa.
+- Mempermudah proses pengambilan dan pengantaran kacamata.
+- Membantu admin mengelola data permintaan pelanggan.
+- Menyediakan informasi status layanan kepada pelanggan.
+- Membuat proses layanan menjadi lebih terorganisir.
+
+--------------------------------------------------------------------------------
+MANFAAT
+--------------------------------------------------------------------------------
+Bagi Pelanggan:
+- Tidak perlu datang langsung ke toko hanya untuk mengajukan layanan.
+- Dapat mengajukan perbaikan atau penggantian lensa secara online.
+- Dapat menentukan jadwal pengambilan.
+- Dapat melihat status layanan.
+
+Bagi Admin:
+- Mempermudah pengelolaan permintaan layanan.
+- Dapat melihat data pelanggan dan detail kacamata.
+- Dapat mengatur jadwal pengambilan.
+- Dapat memperbarui status layanan.
+
+--------------------------------------------------------------------------------
+PENGGUNA SISTEM
+--------------------------------------------------------------------------------
+Sistem memiliki 2 jenis pengguna:
+
+1. Pelanggan
+Pelanggan dapat:
+- Register dan Login.
+- Mengajukan layanan.
+- Memilih jenis layanan.
+- Mengisi alamat pengambilan.
+- Memilih jadwal pengambilan.
+- Melihat status layanan.
+
+2. Admin
+Admin dapat:
+- Login.
+- Melihat permintaan layanan.
+- Melihat detail pelanggan.
+- Mengatur jadwal pengambilan.
+- Mengubah status layanan.
+
+--------------------------------------------------------------------------------
+FITUR UTAMA
+--------------------------------------------------------------------------------
+1. Login dan Register
+Pelanggan dapat membuat akun dan login ke dalam sistem.
+
+2. Pengajuan Layanan
+Pelanggan dapat memilih jenis layanan:
+- Perbaikan kacamata
+- Penggantian lensa
+
+Kemudian mengisi informasi seperti:
+- Nama pelanggan
+- Nomor telepon
+- Alamat pengambilan
+- Jenis layanan
+- Keluhan atau kebutuhan
+- Jadwal pengambilan
+
+3. Penjadwalan Antar-Jemput
+Pelanggan dapat menentukan jadwal pengambilan kacamata.
+Admin dapat melihat dan mengatur jadwal yang telah diajukan.
+
+4. Status Layanan
+Pelanggan dapat melihat perkembangan layanan.
+
+Contoh status:
+Pengajuan -> Dijadwalkan -> Kacamata Diambil -> Sedang Diproses -> Selesai -> Diantar
+
+5. Pengelolaan Layanan oleh Admin
+Admin dapat:
+- Melihat daftar permintaan.
+- Melihat detail layanan.
+- Mengubah status layanan.
+- Mengatur jadwal pengambilan.
+- Melihat riwayat layanan.
+
+--------------------------------------------------------------------------------
+ALUR SISTEM
+--------------------------------------------------------------------------------
 Pelanggan
-    │
-    ▼
+  │
+  ▼
 Login / Register
-    │
-    ▼
+  │
+  ▼
 Mengajukan Layanan
-    │
-    ▼
+  │
+  ▼
 Memilih Jenis Layanan
-    │
-    ▼
-Mengisi Alamat & Jadwal
-    │
-    ▼
+  │
+  ▼
+Mengisi Alamat dan Jadwal
+  │
+  ▼
 Mengirim Permintaan
-    │
-    ▼
+  │
+  ▼
 Admin Memeriksa
-    │
-    ▼
+  │
+  ▼
 Menentukan Jadwal
-    │
-    ▼
+  │
+  ▼
 Kacamata Diambil
-    │
-    ▼
+  │
+  ▼
 Kacamata Diproses
-    │
-    ▼
+  │
+  ▼
 Layanan Selesai
-    │
-    ▼
+  │
+  ▼
 Kacamata Diantar
-```
 
-### Tahapan Status Layanan (State Machine)
+--------------------------------------------------------------------------------
+DATABASE
+--------------------------------------------------------------------------------
+Database dibuat sederhana dengan beberapa tabel utama.
 
-```text
-pengajuan -> dijadwalkan -> diambil -> diproses -> selesai -> diantar
-```
+Tabel users:
+id
+nama
+email
+password
+role
+no_telepon
 
----
+Tabel layanan:
+id
+user_id
+jenis_layanan
+keluhan
+alamat
+tanggal_jemput
+jam_jemput
+status
 
-## Dokumen Arsitektur Aplikasi
+Tabel detail_layanan:
+id
+layanan_id
+jenis_kacamata
+detail_perbaikan
+keterangan
 
-```text
-┌──────────────────────────────────────────────────────────────┐
-│                    KLIEN (FRONTEND)                          │
-│                   React.js (Port 3000)                       │
-│                                                              │
-│  ┌──────────────┐    ┌───────────────┐    ┌───────────────┐  │
-│  │ UI Pages     │    │ Components    │    │ PrivateRoute  │  │
-│  │ (Views)      │◄──►│ (Navbar, Form)│◄──►│ (RBAC Guard)  │  │
-│  └──────┬───────┘    └───────────────┘    └───────────────┘  │
-│         │                                                    │
-│         ▼                                                    │
-│  ┌────────────────────────────────────────────────────────┐  │
-│  │ Axios HTTP Client (Interceptors & Auth Bearer Header)  │  │
-│  └──────────────────────────────┬─────────────────────────┘  │
-└─────────────────────────────────┼────────────────────────────┘
-                                  │ JSON over HTTP REST
-                                  ▼
-┌──────────────────────────────────────────────────────────────┐
-│                    SERVER (BACKEND)                          │
-│                  Express.js (Port 5000)                      │
-│                                                              │
-│  ┌────────────────────────────────────────────────────────┐  │
-│  │ Global Middleware (CORS, Express.JSON, Logger)         │  │
-│  └──────────────────────────────┬─────────────────────────┘  │
-│                                 ▼                            │
-│  ┌────────────────────────────────────────────────────────┐  │
-│  │ Routes Layer (/api/auth, /api/layanan, ...)            │  │
-│  └──────────────────────────────┬─────────────────────────┘  │
-│                                 ▼                            │
-│  ┌────────────────────────────────────────────────────────┐  │
-│  │ Security Middleware (JWT Auth Verification & RBAC)    │  │
-│  └──────────────────────────────┬─────────────────────────┘  │
-│                                 ▼                            │
-│  ┌────────────────────────────────────────────────────────┐  │
-│  │ Controllers Layer (Business Logic & Validation)        │  │
-│  └──────────────────────────────┬─────────────────────────┘  │
-│                                 ▼                            │
-│  ┌────────────────────────────────────────────────────────┐  │
-│  │ Data Access Layer (mysql2 Connection Pool)             │  │
-│  └──────────────────────────────┬─────────────────────────┘  │
-└─────────────────────────────────┼────────────────────────────┘
-                                  │ SQL Queries (TCP 3306)
-                                  ▼
-┌──────────────────────────────────────────────────────────────┐
-│                 BASIS DATA (DATABASE)                        │
-│                 MySQL Server (db_kacamata)                   │
-│                                                              │
-│  ┌──────────────┐    ┌───────────────┐    ┌───────────────┐  │
-│  │ users        │1  *│ layanan       │1  *│ detail_       │  │
-│  │ (Akun & Role)├────┤ (Transaksi)   ├────┤ layanan       │  │
-│  └──────────────┘    └───────────────┘    └───────────────┘  │
-└──────────────────────────────────────────────────────────────┘
-```
-
-### Alur Data (Data Flow)
-
-```text
-[Browser] -> React App (View) -> Axios HTTP Request
-                                      ↓
-                            Express Router (/api/endpoint)
-                                      ↓
-                            Middleware (JWT Auth & Role Check)
-                                      ↓
-                            Controller (Logika Bisnis & Validasi)
-                                      ↓
-                            mysql2 Connection Pool -> Eksekusi Query MySQL
-                                      ↓
-                            Response JSON -> Axios -> Render State di React UI
-```
-
----
-
-## Database
-
-Database dibuat sederhana dengan tiga tabel utama yang ternormalisasi:
-
-### 1. Tabel `users`
-
-| Kolom | Tipe Data | Keterangan |
-| :--- | :--- | :--- |
-| `id` | INT AUTO_INCREMENT | Primary Key |
-| `nama` | VARCHAR(100) NOT NULL | Nama lengkap pengguna |
-| `email` | VARCHAR(100) UNIQUE NOT NULL | Email akun pengguna |
-| `password` | VARCHAR(255) NOT NULL | Password terenkripsi BCrypt |
-| `role` | ENUM('pelanggan', 'admin') | Peran otorisasi (default: 'pelanggan') |
-| `no_telepon` | VARCHAR(20) | Nomor telepon / WhatsApp |
-| `created_at` | TIMESTAMP | Waktu pendaftaran akun |
-
-### 2. Tabel `layanan`
-
-| Kolom | Tipe Data | Keterangan |
-| :--- | :--- | :--- |
-| `id` | INT AUTO_INCREMENT | Primary Key |
-| `user_id` | INT NOT NULL | Foreign Key ke `users.id` (ON DELETE CASCADE) |
-| `jenis_layanan` | ENUM('perbaikan', 'penggantian_lensa') | Jenis permohonan servis |
-| `keluhan` | TEXT NOT NULL | Deskripsi kerusakan atau kebutuhan lensa |
-| `alamat` | TEXT NOT NULL | Alamat penjemputan dan pengantaran |
-| `tanggal_jemput` | DATE NOT NULL | Tanggal penjemputan frame |
-| `jam_jemput` | TIME NOT NULL | Waktu penjemputan frame |
-| `status` | ENUM('pengajuan', 'dijadwalkan', 'diambil', 'diproses', 'selesai', 'diantar') | Status pengerjaan servis (default: 'pengajuan') |
-| `created_at` | TIMESTAMP | Waktu transaksi dibuat |
-
-### 3. Tabel `detail_layanan`
-
-| Kolom | Tipe Data | Keterangan |
-| :--- | :--- | :--- |
-| `id` | INT AUTO_INCREMENT | Primary Key |
-| `layanan_id` | INT NOT NULL | Foreign Key ke `layanan.id` (ON DELETE CASCADE) |
-| `jenis_kacamata` | VARCHAR(100) NOT NULL | Model atau tipe frame kacamata |
-| `detail_perbaikan` | TEXT | Tindakan servis atau rincian lensa baru |
-| `keterangan` | TEXT | Catatan instruksi khusus |
-
-### Relasi Basis Data
-
-```text
+Relasi:
 users
   │
   │ 1
   │
-  │ *
+  │ banyak
   ▼
 layanan
   │
   │ 1
   │
-  │ *
+  │ banyak
   ▼
 detail_layanan
-```
 
----
+--------------------------------------------------------------------------------
+HALAMAN SISTEM
+--------------------------------------------------------------------------------
+Pelanggan:
+- Login
+- Register
+- Dashboard
+- Pengajuan Layanan
+- Jadwal Antar-Jemput
+- Status Layanan
+- Riwayat Layanan
 
-## Daftar Lengkap API Endpoint
+Admin:
+- Login
+- Dashboard Admin
+- Daftar Layanan
+- Detail Layanan
+- Pengaturan Jadwal
+- Update Status Layanan
 
-Seluruh endpoint menerima dan mengembalikan data dalam format JSON. Endpoint bertanda `[Auth]` mewajibkan header `Authorization: Bearer <token_jwt>`.
+--------------------------------------------------------------------------------
+TEKNOLOGI
+--------------------------------------------------------------------------------
+Frontend:
+- React.js
+- HTML
+- CSS
+- JavaScript
 
-### 1. Autentikasi (`/api/auth`)
+Backend:
+- Node.js
+- Express.js
+- REST API
 
-| Method | Endpoint | Akses | Deskripsi & Payload Request |
-| :--- | :--- | :--- | :--- |
-| `POST` | `/api/auth/register` | Publik | Mendaftarkan akun pelanggan baru.<br>`Body: { "nama", "email", "password", "no_telepon" }` |
-| `POST` | `/api/auth/login` | Publik | Otentikasi login dan menerbitkan token JWT.<br>`Body: { "email", "password" }` |
-| `GET` | `/api/auth/me` | `[Auth]` | Mengambil data profil pengguna yang sedang login dari token JWT. |
+Database:
+- MySQL
 
-### 2. Layanan Antar-Jemput (`/api/layanan`)
+Tools:
+- Git
+- GitHub
+- Visual Studio Code
+- Postman
 
-| Method | Endpoint | Akses | Deskripsi & Payload Request |
-| :--- | :--- | :--- | :--- |
-| `GET` | `/api/layanan` | `[Auth]` | Mengambil daftar pesanan (Admin: semua pesanan; Pelanggan: milik sendiri). |
-| `GET` | `/api/layanan/:id` | `[Auth]` | Mengambil rincian lengkap satu transaksi layanan beserta detail kacamata. |
-| `POST` | `/api/layanan` | `[Auth]` | Membuat permohonan servis antar-jemput baru.<br>`Body: { "jenis_layanan", "keluhan", "alamat", "tanggal_jemput", "jam_jemput", "jenis_kacamata", "detail_perbaikan", "keterangan" }` |
-| `PUT` | `/api/layanan/:id/status` | `[Auth Admin]` | Memperbarui tahapan status pengerjaan servis.<br>`Body: { "status": "pengajuan|dijadwalkan|diambil|diproses|selesai|diantar" }` |
-| `DELETE` | `/api/layanan/:id` | `[Auth]` | Membatalkan / menghapus rekaman pesanan layanan. |
+--------------------------------------------------------------------------------
+METODE PENGEMBANGAN
+--------------------------------------------------------------------------------
+Project dikembangkan menggunakan konsep Rekayasa Perangkat Lunak (RPL) melalui beberapa tahapan:
+1. Analisis kebutuhan
+2. Perancangan sistem
+3. Perancangan database
+4. Perancangan UI
+5. Implementasi
+6. Pengujian
+7. Evaluasi
 
-### 3. Detail Kacamata (`/api/detail-layanan`)
+--------------------------------------------------------------------------------
+PENGUJIAN
+--------------------------------------------------------------------------------
+Pengujian dilakukan untuk memastikan fitur sistem berjalan sesuai kebutuhan.
+Fitur yang diuji meliputi:
+- Login dan Register
+- Pengajuan layanan
+- Pemilihan jenis layanan
+- Penjadwalan pengambilan
+- Perubahan status layanan
+- Pengelolaan layanan oleh admin
 
-| Method | Endpoint | Akses | Deskripsi & Payload Request |
-| :--- | :--- | :--- | :--- |
-| `GET` | `/api/detail-layanan/layanan/:layanan_id` | `[Auth]` | Mengambil data detail kacamata berdasarkan ID induk transaksi layanan. |
-| `GET` | `/api/detail-layanan/:id` | `[Auth]` | Mengambil spesifikasi teknis kacamata berdasarkan ID detail. |
-| `POST` | `/api/detail-layanan` | `[Auth]` | Menambahkan data detail kacamata baru ke suatu pesanan. |
-| `PUT` | `/api/detail-layanan/:id` | `[Auth]` | Memperbarui rincian frame atau catatan perbaikan kacamata. |
-| `DELETE` | `/api/detail-layanan/:id` | `[Auth]` | Menghapus data rincian teknis kacamata. |
+--------------------------------------------------------------------------------
+STATUS PROJECT
+--------------------------------------------------------------------------------
+Status: Dalam Pengembangan
+Project ini dibuat sebagai tugas Mata Kuliah Rekayasa Perangkat Lunak (RPL).
 
-### 4. Health Check
+================================================================================
+DOKUMEN ARSITEKTUR DAN PANDUAN PENGEMBANGAN LENGKAP
+================================================================================
 
-| Method | Endpoint | Akses | Deskripsi |
-| :--- | :--- | :--- | :--- |
-| `GET` | `/` | Publik | Menampilkan pesan selamat datang, status server, dan daftar endpoint. |
-| `GET` | `/api/health` | Publik | Monitoring kesiapan server (mengembalikan `{ "status": "UP" }`). |
+--------------------------------------------------------------------------------
+FITUR YANG TIDAK DIKERJAKAN (DI LUAR RUANG LINGKUP 12 PERTEMUAN)
+--------------------------------------------------------------------------------
+1. Integrasi Gerbang Pembayaran Otomatis (Payment Gateway): Pembayaran tidak diproses secara otomatis via gateway pihak ketiga; transaksi biaya dilakukan langsung secara manual saat pengantaran.
+2. Notifikasi Real-time Berbasis Socket / Web Push: Sistem tidak menggunakan WebSocket; pembaruan status dapat dilihat saat memuat atau me-refresh halaman dashboard.
+3. Pelacakan Posisi GPS Kurir secara Langsung (Live GPS Tracking): Tidak menyertakan integrasi peta langsung untuk memantau posisi fisik armada penjemput.
+4. Sistem Pesan Obrolan Langsung (In-App Chat): Komunikasi klarifikasi antara pelanggan dan staf optik dilakukan via telepon atau WhatsApp.
+5. Multi-Cabang Optik (Multi-Tenancy): Sistem dikhususkan untuk operasional satu toko optik (single tenant).
+6. Grafik Analitik Tingkat Lanjut (Chart / BI Dashboard): Dasbor fokus pada metrik angka ringkas dan tabel operasional tanpa komponen chart grafik visual.
+7. Unggah Foto Kerusakan Frame dan Kartu Resep: Input spesifikasi kacamata dan ukuran resep dicatat dalam bentuk teks terstruktur.
+8. Sistem Rating dan Ulasan Layanan: Belum menyertakan modul review dan rating kepuasan pelanggan.
 
----
+--------------------------------------------------------------------------------
+DOKUMEN ARSITEKTUR APLIKASI
+--------------------------------------------------------------------------------
+Aplikasi dibangun menggunakan arsitektur Client-Server Terpisah (Decoupled SPA + RESTful API) dengan menerapkan pola Model-View-Controller (MVC) pada sisi backend:
 
-## Halaman Sistem (Frontend Routing)
+KLIEN (FRONTEND) - React.js (Port 3000)
+- UI Pages (Views)
+- Components (Navbar, Form)
+- PrivateRoute (RBAC Guard)
+- Axios HTTP Client (Interceptors dan Auth Bearer Header)
+       │
+       ▼ JSON over HTTP REST
+SERVER (BACKEND) - Express.js (Port 5000)
+- Global Middleware (CORS, Express.JSON, Logger)
+- Routes Layer (/api/auth, /api/layanan, /api/detail-layanan)
+- Security Middleware (JWT Auth Verification dan RBAC)
+- Controllers Layer (Business Logic dan Validation)
+- Data Access Layer (mysql2 Connection Pool)
+       │
+       ▼ SQL Queries (TCP 3306)
+BASIS DATA (DATABASE) - MySQL Server (db_kacamata)
+- users (Akun dan Role)
+- layanan (Transaksi Servis)
+- detail_layanan (Rincian Teknis Kacamata dan Lensa)
 
-| Rute URL | Nama Tampilan | Deskripsi Komponen | Hak Akses |
-| :--- | :--- | :--- | :--- |
-| `/` | Beranda (Landing Page) | Halaman pengenalan layanan optik (`Home.js`) | Publik |
-| `/login` | Login | Formulir login pengguna dan admin (`Login.js`) | Publik |
-| `/register` | Register | Formulir pendaftaran akun pelanggan baru (`Register.js`) | Publik |
-| `/dashboard` | Dashboard Pelanggan | Ringkasan kartu status dan riwayat pesanan (`Dashboard.js`) | Pelanggan |
-| `/layanan/buat` | Pengajuan Layanan | Formulir pemesanan layanan antar-jemput (`BuatLayanan.js`) | Pelanggan |
-| `/layanan/:id` | Detail Layanan | Informasi lengkap status pesanan pelanggan (`DetailLayanan.js`) | Pelanggan |
-| `/admin/dashboard` | Dashboard Admin | Ringkasan statistik dan metrik antrean optik (`AdminDashboard.js`) | Admin |
-| `/admin/layanan` | Daftar Layanan | Tabel manajemen seluruh pesanan pelanggan (`DaftarLayanan.js`) | Admin |
-| `/admin/layanan/:id` | Detail Layanan Admin | Panel kontrol perubahan status pengerjaan (`AdminDetailLayanan.js`) | Admin |
+Alur Data (Data Flow):
+Browser -> React App (View) -> Axios HTTP Request
+  -> Express Router (/api/endpoint)
+  -> Middleware (JWT Auth dan Role Check)
+  -> Controller (Logika Bisnis dan Validasi)
+  -> mysql2 Connection Pool -> Eksekusi Query MySQL
+  -> Response JSON -> Axios -> Render State di React UI
 
----
+--------------------------------------------------------------------------------
+TECH STACK LENGKAP
+--------------------------------------------------------------------------------
+Layer           Teknologi         Versi        Peran dalam Sistem
+--------------------------------------------------------------------------------
+Backend         Node.js           >= 16.x      Lingkungan runtime eksekusi JavaScript sisi server
+Framework API   Express.js        4.19.2       Routing HTTP, middleware pipeline, RESTful API
+Database Driver mysql2            3.9.7        Komunikasi query MySQL dengan Connection Pooling
+Keamanan Auth   jsonwebtoken      9.0.2        Penerbitan dan validasi token sesi stateless (JWT)
+Enkripsi Sandi  bcryptjs          2.4.3        Hashing password dengan salt sebelum simpan database
+Frontend UI     React.js          18.2.0       Pustaka antarmuka pengguna interaktif (SPA)
+Perutean        React Router DOM  6.22.3       Navigasi halaman sisi klien dan proteksi rute privat
+HTTP Client     Axios             1.6.8        Pengiriman request asynchronous ke backend
+Database        MySQL / MariaDB   8.0 / 10.4+  Sistem Manajemen Basis Data Relasional (RDBMS)
+Kontainerisasi  Docker dan Compose v2+         Orkestrasi kontainer database MySQL opsional
 
-## Keamanan
+--------------------------------------------------------------------------------
+PREREQUISITES (PERSYARATAN SISTEM)
+--------------------------------------------------------------------------------
+Kebutuhan        Keterangan
+--------------------------------------------------------------------------------
+Node.js          Versi >= 16.x (disarankan LTS 18.x/20.x). Cek dengan node --version.
+npm              Node Package Manager. Cek dengan npm --version.
+MySQL / MariaDB  Melalui XAMPP, Laragon, MySQL Server standalone, atau Docker.
+Port Bebas       Port 3000 (React), 5000 (Express), dan 3306 (MySQL) tidak dipakai aplikasi lain.
+Git              Untuk pelacakan source code dan kolaborasi tim.
 
-- Autentikasi JWT via Bearer Token pada Authorization Header
-- Role-Based Access Control (RBAC) middleware di backend (`auth.js` dan `adminAuth.js`) + proteksi `PrivateRoute.js` di frontend
-- Hashing password dengan BCrypt (salt rounds terstandar)
-- Parameterized SQL Queries untuk mencegah SQL Injection pada pustaka `mysql2`
-- Environment variables terisolasi di `.env` (tidak di-commit ke Git)
+Catatan untuk pengguna Windows: Seluruh perintah dapat dijalankan di PowerShell, Command Prompt (CMD), atau Git Bash. Jika menggunakan CMD, perintah cp diganti dengan copy.
 
----
+--------------------------------------------------------------------------------
+QUICK START (DOCKER) - UNTUK MYSQL
+--------------------------------------------------------------------------------
+Jika menggunakan Docker Desktop:
+1. Jalankan container MySQL dengan database dan seed data otomatis:
+   docker compose up -d
 
-## Target Keberhasilan
+2. Cek status container:
+   docker compose ps
+   Container kacamata-mysql harus berstatus Up pada port 3306.
 
-Target berikut adalah sasaran produk aplikasi tugas RPL. Yang sudah terpenuhi ditandai:
+--------------------------------------------------------------------------------
+QUICK START (LOCAL) - CARA TERMUDAH DAN DISARANKAN
+--------------------------------------------------------------------------------
+1. Masuk ke Folder Project:
+   cd RPLApp
 
-- Aplikasi bersifat Runnable: Backend (Port 5000) dan Frontend (Port 3000) berhasil dijalankan tanpa error kompilasi — **terpenuhi**
-- UI berhasil muncul: Seluruh halaman antarmuka pengguna dapat dibuka dan ditampilkan di browser — **terpenuhi**
-- Autentikasi dan RBAC: Register, login, penerbitan JWT, serta pembatasan peran admin dan pelanggan bekerja — **terpenuhi**
-- CRUD Transaksi dan Detail: Data tersimpan dan terbaca secara konsisten dari basis data MySQL — **terpenuhi**
-- Alur State Machine Status: Admin dapat memperbarui tahapan status layanan secara berurutan dan terlihat oleh pelanggan — **terpenuhi**
-- Desain Responsif: Tata letak antarmuka tetap rapi pada layar monitor desktop maupun perangkat mobile — **terpenuhi**
+2. Siapkan Basis Data MySQL (XAMPP / Laragon):
+   - Nyalakan modul MySQL pada XAMPP/Laragon (port 3306).
+   - Buka phpMyAdmin (http://localhost/phpmyadmin) atau terminal MySQL.
+   - Impor berkas: backend/database/schema.sql
+   - Atau via terminal: mysql -u root -p < backend/database/schema.sql
+
+3. Konfigurasi File Environment (.env):
+   cd backend
+   copy .env.example .env
+   cd ..
+
+   Isi file backend/.env:
+   PORT=5000
+   DB_HOST=localhost
+   DB_USER=root
+   DB_PASSWORD=
+   DB_NAME=db_kacamata
+   DB_PORT=3306
+   JWT_SECRET=super_secret_jwt_kacamata_key_2026_universitas
+   JWT_EXPIRES_IN=24h
+
+4. Instalasi Dependencies:
+   cd backend
+   npm install
+   cd ../frontend
+   npm install
+   cd ..
+
+5. Jalankan Aplikasi:
+   - Cara Otomatis: Klik ganda berkas jalankan_aplikasi.bat
+   - Cara Manual (2 Terminal):
+     Terminal 1: cd backend && npm run dev
+     Terminal 2: cd frontend && npm start
+
+6. Verifikasi Service Aktif:
+   curl http://localhost:5000/api/health
+   Respons: { "status": "UP", "timestamp": "2026-10-02T..." }
+
+7. Akses Aplikasi dan Akun Pengujian:
+   Buka browser di: http://localhost:3000
+
+   Akun demo siap pakai (password: admin123):
+   - Admin: admin@optik.com (password: admin123)
+     Hak akses: Dashboard admin, verifikasi jadwal kurir, pembaruan status servis
+   - Pelanggan: bahrul@gmail.com (password: admin123)
+     Hak akses: Pengajuan servis frame/lensa, penentuan alamat dan jadwal, pelacakan status
+
+8. Menghentikan Aplikasi:
+   Tekan Ctrl + C pada jendela terminal yang berjalan, atau tutup jendela terminal jalankan_aplikasi.bat.
+
+--------------------------------------------------------------------------------
+TROUBLESHOOTING
+--------------------------------------------------------------------------------
+1. Masalah: port 5000 is already allocated
+   Penyebab: Port 5000 dipakai proses lain
+   Solusi: Matikan proses via Task Manager, atau ubah PORT=5001 di backend/.env
+
+2. Masalah: port 3000 is already allocated
+   Penyebab: Port 3000 terpakai aplikasi lain
+   Solusi: Saat ditanya run on another port, ketik Y (akan berjalan di port 3001)
+
+3. Masalah: FATAL ER_ACCESS_DENIED_ERROR
+   Penyebab: Kredensial MySQL salah di .env
+   Solusi: Periksa nilai DB_USER dan DB_PASSWORD pada file backend/.env
+
+4. Masalah: FATAL ER_BAD_DB_ERROR
+   Penyebab: Database db_kacamata belum diimpor
+   Solusi: Buka phpMyAdmin, impor ulang file backend/database/schema.sql
+
+5. Masalah: Cannot find module express
+   Penyebab: Folder node_modules backend belum ada
+   Solusi: Masuk ke folder backend lalu jalankan perintah npm install
+
+6. Masalah: Cannot find module react
+   Penyebab: Folder node_modules frontend belum ada
+   Solusi: Masuk ke folder frontend lalu jalankan perintah npm install
+
+7. Masalah: Halaman blank atau Failed to fetch
+   Penyebab: Server backend belum aktif
+   Solusi: Pastikan terminal backend running di port 5000 sebelum membuka browser
+
+8. Masalah: Perubahan kode tidak muncul
+   Penyebab: Cache peramban
+   Solusi: Lakukan hard refresh browser dengan menekan tombol Ctrl + Shift + R
+
+9. Masalah: Gagal Login atau User tidak ada
+   Penyebab: Seed data belum masuk ke database
+   Solusi: Jalankan query baris 51-131 pada file backend/database/schema.sql
+
+--------------------------------------------------------------------------------
+STRUKTUR PROJECT LENGKAP
+--------------------------------------------------------------------------------
+RPLApp/
+├── backend/                            Server RESTful API (Node.js & Express)
+│   ├── config/                         Konfigurasi koneksi MySQL connection pool
+│   ├── controllers/                    Handler registrasi, login, layanan, dan detail kacamata
+│   ├── database/                       DDL skema database & seed data akun
+│   ├── middleware/                     Middleware verifikasi Bearer Token JWT & RBAC admin
+│   ├── routes/                         Rute endpoint otentikasi, layanan, detail kacamata
+│   ├── .env.example                    Template konfigurasi variabel lingkungan backend
+│   ├── package.json                    Dependensi server Express
+│   ├── server.js                       Titik masuk utama aplikasi backend
+│   └── README.md                       Dokumentasi teknis backend API
+├── frontend/                           Aplikasi Klien SPA (React.js)
+│   ├── public/                         Template HTML utama
+│   ├── src/
+│   │   ├── components/                 Komponen navigasi bar global
+│   │   ├── pages/                      Landing page, Login, Register, Dashboard, BuatLayanan
+│   │   │   └── admin/                  Dasbor monitoring admin, DaftarLayanan, AdminDetailLayanan
+│   │   ├── utils/                      Axios client dengan interceptor & PrivateRoute RBAC
+│   │   ├── App.js                      Root component dan konfigurasi perutean
+│   │   ├── App.css                     Gaya CSS responsif global
+│   │   └── index.js                    Inisialisasi React DOM
+│   └── package.json                    Dependensi frontend (proxy ke port 5000)
+├── docker-compose.yml                  Orkestrasi container MySQL opsional
+├── jalankan_aplikasi.bat               Skrip eksekusi satu-klik untuk Windows
+├── powershell.bat                      Utilitas peluncur PowerShell
+├── .env.example                        Template konfigurasi environment root
+├── .gitignore                          Pengabaian git (.env, node_modules, build)
+└── README.md                           Dokumentasi arsitektur dan panduan lengkap
+
+--------------------------------------------------------------------------------
+SECURITY NOTES (KEAMANAN SISTEM)
+--------------------------------------------------------------------------------
+- Isolasi Variabel Lingkungan: File .env bersifat rahasia dan tidak pernah di-commit ke Git (terdaftar di .gitignore). Template publik aman disediakan melalui .env.example.
+- Kriptografi Password: Kata sandi pengguna tidak disimpan dalam bentuk teks polos, melainkan dienkripsi dengan algoritma BCrypt menggunakan salt rounds terstandar.
+- Otentikasi Stateless JWT: Token otentikasi ditandatangani menggunakan JWT_SECRET dengan masa berlaku 24 jam (JWT_EXPIRES_IN=24h).
+- Proteksi Akses Ganda (RBAC):
+  Pada Backend: Middleware auth.js memvalidasi tanda tangan token, sedangkan adminAuth.js memblokir akses jika role bukan admin.
+  Pada Frontend: Komponen PrivateRoute.js mencegat navigasi yang tidak berhak dan mengalihkan pengguna ke halaman login.
+- Mitigasi SQL Injection: Seluruh query basis data dieksekusi menggunakan Prepared Statements / Parameterized Queries via pustaka mysql2.
+
+--------------------------------------------------------------------------------
+DOKUMEN LENGKAP PROYEK
+--------------------------------------------------------------------------------
+Dokumen Produk dan Ide:
+- LAPORAN_IMPLEMENTASI_P3.docx: Laporan formal implementasi P3 dalam format Microsoft Word
+- LAPORAN_IMPLEMENTASI_P3.md: Laporan implementasi tugas P3 (spesifikasi, arsitektur, dan kode sumber)
+- backend/database/schema.sql: Skrip lengkap DDL tabel basis data dan seed data awal pengujian
+- backend/README.md: Dokumentasi teknis endpoint API, panduan instalasi, dan payload backend
+
+Dokumen Panduan Pengembangan:
+- CATATAN_PERBAIKAN_ERROR.md: Log pencatatan error, identifikasi penyebab, dan solusi perbaikan kode
+- PERBANDINGAN_KODE_ERROR_DAN_FIX.md: Komparasi kode sebelum dan sesudah perbaikan bug
+- docker-compose.yml: Konfigurasi kontainerisasi database MySQL terisolasi
+- jalankan_aplikasi.bat: Skrip otomatisasi sekali-klik untuk menjalankan backend dan frontend serentak
+
+--------------------------------------------------------------------------------
+TARGET PENGGUNA DAN TANGGUNG JAWAB (2 ROLE RBAC)
+--------------------------------------------------------------------------------
+1. Peran: pelanggan
+   Profil: Pengguna kacamata minus/silinder/plus yang memerlukan servis atau ganti lensa
+   Tanggung Jawab:
+   - Registrasi akun dan otentikasi login.
+   - Mengajukan permohonan layanan antar-jemput baru.
+   - Mengisi alamat lengkap penjemputan dan memilih tanggal serta jam jemput.
+   - Menginput spesifikasi frame dan keluhan perbaikan kacamata.
+   - Memantau progres pengerjaan servis secara mandiri.
+   - Melihat histori seluruh pesanan servis yang pernah diajukan.
+
+2. Peran: admin
+   Profil: Staf operasional, manajemen optik, dan teknisi laboratorium
+   Tanggung Jawab:
+   - Masuk ke sistem menggunakan kredensial admin terverifikasi.
+   - Memantau antrean pesanan masuk dan statistik pada Dasbor Admin.
+   - Memeriksa keluhan frame dan ukuran resep lensa pelanggan.
+   - Mengonfirmasi jadwal penjemputan kurir.
+   - Memperbarui status siklus pengerjaan secara bertahap.
+   - Mengelola dan membatalkan pesanan jika terdapat kendala operasional.
+
+--------------------------------------------------------------------------------
+DAFTAR FITUR INTI (STATUS KEJUJURAN KODE)
+--------------------------------------------------------------------------------
+Status ditandai secara transparan: [Ada] = selesai diimplementasikan pada kode sumber; [Rencana] = dirancang untuk pengembangan fase berikutnya.
+
+- [Ada] Autentikasi dan RBAC Multi-Role: Registrasi pelanggan baru, login dengan token JWT, proteksi rute halaman via PrivateRoute, pembatasan endpoint API via middleware.
+- [Ada] Formulir Pengajuan Servis: Pemilihan jenis layanan (perbaikan atau penggantian lensa), keluhan, alamat penjemputan, tanggal dan jam pengambilan.
+- [Ada] Spesifikasi Teknis Kacamata: Input jenis kacamata/frame, detail perbaikan teknis, catatan ukuran lensa minus/silinder.
+- [Ada] Siklus Status Layanan (State Machine): Alur status 6 tahap terstruktur:
+  pengajuan -> dijadwalkan -> diambil -> diproses -> selesai -> diantar.
+- [Ada] Dasbor Mandiri Pelanggan: Panel pemantau status aktif untuk setiap pesanan pelanggan dengan indikator status.
+- [Ada] Dasbor Kendali Administrator: Tabel seluruh pesanan dari semua pelanggan dilengkapi kontrol pembaruan status pengerjaan.
+- [Ada] Pembatalan dan Hapus Layanan: Penghapusan pesanan dengan cascading delete terintegrasi pada relasi database.
+- [Rencana] Notifikasi Otomatis WhatsApp / Email: Pemberitahuan otomatis saat status kacamata berganti tahapan.
+- [Rencana] Integrasi Payment Gateway: Pembayaran digital ongkir dan biaya servis via transfer / QRIS secara online.
+- [Rencana] Pelacakan Kurir Langsung (Live GPS): Pelacakan posisi kurir antar-jemput pada peta digital real-time.
+- [Rencana] Unggah Foto Kacamata dan Resep Optik: Fasilitas upload foto kerusakan frame kacamata dan foto resep dokter.
+
+--------------------------------------------------------------------------------
+DAFTAR LENGKAP API ENDPOINT
+--------------------------------------------------------------------------------
+Seluruh endpoint menerima dan mengembalikan data dalam format JSON. Endpoint bertanda [Auth] mewajibkan header Authorization: Bearer <token_jwt>.
+
+1. Autentikasi (/api/auth)
+POST /api/auth/register
+- Akses: Publik
+- Deskripsi: Mendaftarkan akun pelanggan baru
+- Payload Body: { "nama", "email", "password", "no_telepon" }
+
+POST /api/auth/login
+- Akses: Publik
+- Deskripsi: Otentikasi login dan menerbitkan token JWT
+- Payload Body: { "email", "password" }
+
+GET /api/auth/me
+- Akses: [Auth]
+- Deskripsi: Mengambil data profil pengguna yang sedang login dari token JWT
+
+2. Layanan Antar-Jemput (/api/layanan)
+GET /api/layanan
+- Akses: [Auth]
+- Deskripsi: Mengambil daftar pesanan (Admin: semua pesanan; Pelanggan: milik sendiri)
+
+GET /api/layanan/:id
+- Akses: [Auth]
+- Deskripsi: Mengambil rincian lengkap satu transaksi layanan beserta detail kacamata
+
+POST /api/layanan
+- Akses: [Auth]
+- Deskripsi: Membuat permohonan servis antar-jemput baru
+- Payload Body: { "jenis_layanan", "keluhan", "alamat", "tanggal_jemput", "jam_jemput", "jenis_kacamata", "detail_perbaikan", "keterangan" }
+
+PUT /api/layanan/:id/status
+- Akses: [Auth Admin]
+- Deskripsi: Memperbarui tahapan status pengerjaan servis
+- Payload Body: { "status": "pengajuan|dijadwalkan|diambil|diproses|selesai|diantar" }
+
+DELETE /api/layanan/:id
+- Akses: [Auth]
+- Deskripsi: Membatalkan / menghapus rekaman pesanan layanan
+
+3. Detail Kacamata (/api/detail-layanan)
+GET /api/detail-layanan/layanan/:layanan_id
+- Akses: [Auth]
+- Deskripsi: Mengambil data detail kacamata berdasarkan ID induk transaksi layanan
+
+GET /api/detail-layanan/:id
+- Akses: [Auth]
+- Deskripsi: Mengambil spesifikasi teknis kacamata berdasarkan ID detail
+
+POST /api/detail-layanan
+- Akses: [Auth]
+- Deskripsi: Menambahkan data detail kacamata baru ke suatu pesanan
+
+PUT /api/detail-layanan/:id
+- Akses: [Auth]
+- Deskripsi: Memperbarui rincian frame atau catatan perbaikan kacamata
+
+DELETE /api/detail-layanan/:id
+- Akses: [Auth]
+- Deskripsi: Menghapus data rincian teknis kacamata
+
+4. Health Check
+GET /
+- Akses: Publik
+- Deskripsi: Menampilkan pesan selamat datang, status server, dan daftar endpoint
+
+GET /api/health
+- Akses: Publik
+- Deskripsi: Monitoring kesiapan server (mengembalikan { "status": "UP" })
+
+--------------------------------------------------------------------------------
+SKEMA BASIS DATA TERPERINCI
+--------------------------------------------------------------------------------
+Tabel users:
+- PK id: INT AUTO_INCREMENT
+- nama: VARCHAR(100) NOT NULL
+- email: VARCHAR(100) UNIQUE
+- password: VARCHAR(255) NOT NULL
+- role: ENUM('pelanggan', 'admin') DEFAULT 'pelanggan'
+- no_telepon: VARCHAR(20)
+- created_at: TIMESTAMP
+
+Tabel layanan:
+- PK id: INT AUTO_INCREMENT
+- FK user_id: INT NOT NULL (referensi ke users.id ON DELETE CASCADE)
+- jenis_layanan: ENUM('perbaikan', 'penggantian_lensa') NOT NULL
+- keluhan: TEXT NOT NULL
+- alamat: TEXT NOT NULL
+- tanggal_jemput: DATE NOT NULL
+- jam_jemput: TIME NOT NULL
+- status: ENUM('pengajuan', 'dijadwalkan', 'diambil', 'diproses', 'selesai', 'diantar') DEFAULT 'pengajuan'
+- created_at: TIMESTAMP
+
+Tabel detail_layanan:
+- PK id: INT AUTO_INCREMENT
+- FK layanan_id: INT NOT NULL (referensi ke layanan.id ON DELETE CASCADE)
+- jenis_kacamata: VARCHAR(100) NOT NULL
+- detail_perbaikan: TEXT
+- keterangan: TEXT
+
+--------------------------------------------------------------------------------
+TARGET DAN KRITERIA KEBERHASILAN APLIKASI
+--------------------------------------------------------------------------------
+Target berikut adalah sasaran produk aplikasi tugas RPL:
+- Aplikasi bersifat Runnable: Backend (Port 5000) dan Frontend (Port 3000) berhasil dijalankan tanpa error kompilasi (Terpenuhi)
+- UI berhasil muncul: Seluruh halaman antarmuka pengguna dapat dibuka dan ditampilkan di browser (Terpenuhi)
+- Autentikasi dan RBAC: Register, login, penerbitan JWT, serta pembatasan peran admin dan pelanggan bekerja (Terpenuhi)
+- CRUD Transaksi dan Detail: Data tersimpan dan terbaca secara konsisten dari basis data MySQL (Terpenuhi)
+- Alur State Machine Status: Admin dapat memperbarui tahapan status layanan secara berurutan dan terlihat oleh pelanggan (Terpenuhi)
+- Desain Responsif: Tata letak antarmuka tetap rapi pada layar monitor desktop maupun perangkat mobile (Terpenuhi)
 - Waktu respons API: Target < 300 ms (belum diuji secara formal di bawah beban tinggi)
 - Efisiensi waktu pelanggan: Terpangkas >= 80% dibandingkan harus datang fisik ke optik (sasaran produk)
 
----
+--------------------------------------------------------------------------------
+HASIL VERIFIKASI PENGUJIAN SISTEM
+--------------------------------------------------------------------------------
+1. Modul: Backend API (npm run dev)
+   Hasil: Server mendengarkan koneksi di port 5000 (Berhasil)
 
-## Hasil Verifikasi Pengujian Sistem
+2. Modul: Frontend React (npm start)
+   Hasil: Webpack mengompilasi dan membuka browser di port 3000 (Berhasil)
 
-| No | Modul / Skenario Pengujian | Hasil yang Diharapkan | Status |
-| :---: | :--- | :--- | :---: |
-| 1 | Backend API (`npm run dev`) | Server mendengarkan koneksi di port 5000 | **Berhasil** |
-| 2 | Frontend React (`npm start`) | Webpack mengompilasi dan membuka browser di port 3000 | **Berhasil** |
-| 3 | Koneksi Basis Data MySQL | Driver `mysql2` tersambung ke database `db_kacamata` | **Berhasil** |
-| 4 | Health Check Endpoint | Endpoint `GET /api/health` membalas JSON `{ "status": "UP" }` | **Berhasil** |
-| 5 | Registrasi Akun Pelanggan | Pengguna baru tersimpan di tabel `users` dengan sandi terenkripsi | **Berhasil** |
-| 6 | Login dan Penerbitan JWT | Kredensial valid menghasilkan token dan mengarahkan ke dashboard | **Berhasil** |
-| 7 | Pengajuan Servis Baru | Data tersimpan serentak pada tabel `layanan` dan `detail_layanan` | **Berhasil** |
-| 8 | Proteksi Rute Administratif | Pelanggan biasa diblokir saat mencoba mengakses rute admin | **Berhasil** |
-| 9 | Perubahan Status Servis | Admin dapat mengubah status pengerjaan dan terlihat oleh pelanggan | **Berhasil** |
+3. Modul: Koneksi Basis Data MySQL
+   Hasil: Driver mysql2 tersambung ke database db_kacamata (Berhasil)
 
----
+4. Modul: Health Check Endpoint
+   Hasil: Endpoint GET /api/health membalas JSON { "status": "UP" } (Berhasil)
 
-## Status Project
+5. Modul: Registrasi Akun Pelanggan
+   Hasil: Pengguna baru tersimpan di tabel users dengan sandi terenkripsi (Berhasil)
 
-**Status:** Aplikasi Runnable — UI Berhasil Muncul & Terverifikasi Penuh
+6. Modul: Login dan Penerbitan JWT
+   Hasil: Kredensial valid menghasilkan token dan mengarahkan ke dashboard (Berhasil)
 
-Project ini dibuat dan diselesaikan sebagai tugas **Mata Kuliah Rekayasa Perangkat Lunak (RPL)**. Seluruh fungsionalitas inti, dokumentasi arsitektur, dan basis kode telah siap digunakan untuk presentasi dan pengujian live demo.
+7. Modul: Pengajuan Servis Baru
+   Hasil: Data tersimpan serentak pada tabel layanan dan detail_layanan (Berhasil)
+
+8. Modul: Proteksi Rute Administratif
+   Hasil: Pelanggan biasa diblokir saat mencoba mengakses rute admin (Berhasil)
+
+9. Modul: Perubahan Status Servis
+   Hasil: Admin dapat mengubah status pengerjaan dan terlihat oleh pelanggan (Berhasil)
+
+--------------------------------------------------------------------------------
+KESIMPULAN DAN STATUS AKHIR
+--------------------------------------------------------------------------------
+Status: Aplikasi Runnable - UI Berhasil Muncul dan Terverifikasi Penuh
+
+Aplikasi Sistem Informasi Layanan Antar-Jemput Kacamata telah berhasil diimplementasikan secara menyeluruh dengan arsitektur terpisah (Decoupled React + Express + MySQL), dilengkapi skema database berelasi, seed data pengujian, mekanisme keamanan JWT dan RBAC, serta skrip otomatisasi eksekusi untuk presentasi dan pengujian tugas mata kuliah Rekayasa Perangkat Lunak (RPL).
