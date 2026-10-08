@@ -9,7 +9,8 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 
 // Muat variabel lingkungan
-dotenv.config();
+const path = require('path');
+dotenv.config({ path: path.join(__dirname, '.env') });
 
 // Inisialisasi koneksi database
 require('./config/db');
@@ -56,7 +57,6 @@ app.get('/api/health', (req, res) => {
 // Pendaftaran Endpoint Rute API
 app.use('/api/auth', authRoutes);
 app.use('/api/layanan', layananRoutes);
-app.use('/api/admin/layanan', layananRoutes);
 app.use('/api/detail-layanan', detailLayananRoutes);
 
 // Handler untuk Rute 404 (Tidak Ditemukan)

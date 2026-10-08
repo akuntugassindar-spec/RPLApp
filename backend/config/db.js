@@ -7,7 +7,8 @@ const mysql = require('mysql2/promise');
 const dotenv = require('dotenv');
 
 // Muat variabel lingkungan dari file .env
-dotenv.config();
+const path = require('path');
+dotenv.config({ path: path.join(__dirname, '..', '.env') });
 
 // Buat pool koneksi database MySQL
 const pool = mysql.createPool({

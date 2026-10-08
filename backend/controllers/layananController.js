@@ -3,7 +3,73 @@
  * Menangani pembuatan pengajuan, pembacaan data, pembaruan status oleh admin, dan penghapusan
  */
 
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 const db = require('../config/db');
+let nodemailer;
+try {
+  nodemailer = require('nodemailer');
+} catch (err) {
+  nodemailer = null;
+}
+
+// Helper function untuk kirim email notifikasi
+const sendEmailNotification = async (emailTo, nama, status) => {
+  if (!nodemailer) {
+    console.log('[Email] Info: Pustaka "nodemailer" belum terpasang. Jalankan "npm install nodemailer" di folder backend untuk mengaktifkan notifikasi email.');
+    return;
+  }
+  try {
+    let transporter;
+    if (!process.env.EMAIL_USER) {
+      console.log('[Email] Membuat akun email testing Ethereal...');
+      const testAccount = await nodemailer.createTestAccount();
+      transporter = nodemailer.createTransport({
+        host: 'smtp.ethereal.email',
+        port: 587,
+        secure: false,
+        auth: {
+          user: testAccount.user,
+          pass: testAccount.pass,
+        },
+      });
+    } else {
+      transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASS
+        }
+      });
+    }
+
+    const mailOptions = {
+      from: '"OptikExpress" <' + (process.env.EMAIL_USER || 'no-reply@optikexpress.com') + '>',
+      to: emailTo,
+      subject: 'Update Status Layanan Kacamata: ' + status.toUpperCase(),
+      html: '<h3>Halo ' + nama + ',</h3><p>Status pesanan kacamata Anda saat ini telah diperbarui menjadi: <strong>' + status.toUpperCase() + '</strong>.</p><p>Silakan login ke dashboard untuk rincian lebih lanjut.</p><br/><p>Terima kasih,<br/>Tim OptikExpress</p>'
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log('[Email] Notifikasi terkirim ke ' + emailTo + ' (Status: ' + status + ')');
+    if (!process.env.EMAIL_USER) {
+      console.log('[Email Preview]: ' + nodemailer.getTestMessageUrl(info));
+    }
+  } catch (err) {
+    console.error('[Email Error]: Gagal mengirim email:', err.message);
+  }
+};
+
+// Helper function simulasi WhatsApp Mock
+const sendWANotification = async (noHp, nama, status) => {
+  console.log('\n======================================================');
+  console.log('[WhatsApp Mock] MENGIRIM PESAN WA KE PELANGGAN...');
+  console.log('Kepada  : ' + (noHp || '-') + ' (' + nama + ')');
+  console.log('Pesan   : "Halo ' + nama + ', layanan kacamata Anda kini berstatus: *' + status.toUpperCase() + '*."');
+  console.log('Status  : TERKIRIM (Mock)');
+  console.log('======================================================\n');
+};
+
 
 // Daftar status yang valid sesuai spesifikasi sistem
 const VALID_STATUSES = [
@@ -281,7 +347,7 @@ const createLayanan = async (req, res) => {
 const updateStatusLayanan = async (req, res) => {
   try {
     const layananId = req.params.id;
-    const { status, total_biaya, catatan_admin } = req.body;
+    const { status } = req.body;
 
     // Validasi keberadaan status pada body
     if (!status) {
@@ -299,9 +365,12 @@ const updateStatusLayanan = async (req, res) => {
       });
     }
 
-    // Periksa apakah data layanan yang ingin diubah statusnya ada
+    // Periksa apakah data layanan yang ingin diubah statusnya ada (ambil juga data user)
     const [checkRows] = await db.query(
-      'SELECT id, status FROM layanan WHERE id = ?',
+      `SELECT l.id, l.status, u.email, u.nama, u.no_telepon 
+       FROM layanan l 
+       JOIN users u ON l.user_id = u.id 
+       WHERE l.id = ?`,
       [layananId]
     );
 
@@ -314,23 +383,17 @@ const updateStatusLayanan = async (req, res) => {
 
     const statusSebelumnya = checkRows[0].status;
 
-    // Perbarui status di database beserta biaya & catatan jika disertakan
-    let updateSql = 'UPDATE layanan SET status = ?';
-    const updateParams = [status];
+    // Perbarui status di database
+    await db.query(
+      'UPDATE layanan SET status = ? WHERE id = ?',
+      [status, layananId]
+    );
 
-    if (total_biaya !== undefined) {
-      updateSql += ', total_biaya = ?';
-      updateParams.push(total_biaya);
+    // Kirim notifikasi Email dan WhatsApp jika status berubah
+    if (statusSebelumnya !== status) {
+      sendEmailNotification(checkRows[0].email, checkRows[0].nama, status);
+      sendWANotification(checkRows[0].no_telepon, checkRows[0].nama, status);
     }
-    if (catatan_admin !== undefined) {
-      updateSql += ', catatan_admin = ?';
-      updateParams.push(catatan_admin);
-    }
-
-    updateSql += ' WHERE id = ?';
-    updateParams.push(layananId);
-
-    await db.query(updateSql, updateParams);
 
     return res.status(200).json({
       success: true,
@@ -338,9 +401,7 @@ const updateStatusLayanan = async (req, res) => {
       data: {
         id: parseInt(layananId, 10),
         status_sebelumnya: statusSebelumnya,
-        status_terbaru: status,
-        total_biaya: totalBiayaOrUndefined(total_biaya),
-        catatan_admin
+        status_terbaru: status
       }
     });
   } catch (error) {
@@ -350,146 +411,6 @@ const updateStatusLayanan = async (req, res) => {
       message: 'Terjadi kesalahan saat memperbarui status layanan.',
       error: error.message
     });
-  }
-};
-
-const totalBiayaOrUndefined = (val) => (val !== undefined ? val : null);
-
-/**
- * @route   PUT /api/layanan/:id
- * @desc    Memperbarui data pengajuan layanan (oleh pelanggan saat pengajuan) atau status & biaya (oleh admin)
- * @access  Privat (Pemilik Layanan / Admin)
- */
-const updateLayanan = async (req, res) => {
-  const connection = await db.getConnection();
-  try {
-    await connection.beginTransaction();
-
-    const layananId = req.params.id;
-    const { role, id: userId } = req.user;
-    const {
-      jenis_layanan,
-      keluhan,
-      alamat,
-      tanggal_jemput,
-      jam_jemput,
-      jenis_kacamata,
-      detail_perbaikan,
-      keterangan,
-      status,
-      total_biaya,
-      catatan_admin
-    } = req.body;
-
-    const [layananRows] = await connection.query(
-      'SELECT id, user_id, status FROM layanan WHERE id = ?',
-      [layananId]
-    );
-
-    if (layananRows.length === 0) {
-      await connection.rollback();
-      return res.status(404).json({
-        success: false,
-        message: 'Layanan tidak ditemukan.'
-      });
-    }
-
-    const currentLayanan = layananRows[0];
-
-    // Cek otorisasi
-    if (role !== 'admin' && currentLayanan.user_id !== userId) {
-      await connection.rollback();
-      return res.status(403).json({
-        success: false,
-        message: 'Akses ditolak. Anda tidak berhak mengubah pesanan ini.'
-      });
-    }
-
-    if (role !== 'admin' && currentLayanan.status !== 'pengajuan') {
-      await connection.rollback();
-      return res.status(400).json({
-        success: false,
-        message: 'Pesanan hanya dapat diubah saat berstatus pengajuan.'
-      });
-    }
-
-    if (jenis_layanan && !VALID_JENIS_LAYANAN.includes(jenis_layanan)) {
-      await connection.rollback();
-      return res.status(400).json({
-        success: false,
-        message: `Jenis layanan tidak valid. Pilihan: ${VALID_JENIS_LAYANAN.join(', ')}`
-      });
-    }
-
-    // Update field tabel layanan
-    const updateFields = [];
-    const updateValues = [];
-
-    if (jenis_layanan) { updateFields.push('jenis_layanan = ?'); updateValues.push(jenis_layanan); }
-    if (keluhan) { updateFields.push('keluhan = ?'); updateValues.push(keluhan); }
-    if (alamat) { updateFields.push('alamat = ?'); updateValues.push(alamat); }
-    if (tanggal_jemput) { updateFields.push('tanggal_jemput = ?'); updateValues.push(tanggal_jemput); }
-    if (jam_jemput) { updateFields.push('jam_jemput = ?'); updateValues.push(jam_jemput); }
-
-    if (role === 'admin') {
-      if (status && VALID_STATUSES.includes(status)) { updateFields.push('status = ?'); updateValues.push(status); }
-      if (total_biaya !== undefined) { updateFields.push('total_biaya = ?'); updateValues.push(total_biaya); }
-      if (catatan_admin !== undefined) { updateFields.push('catatan_admin = ?'); updateValues.push(catatan_admin); }
-    }
-
-    if (updateFields.length > 0) {
-      updateValues.push(layananId);
-      await connection.query(
-        `UPDATE layanan SET ${updateFields.join(', ')} WHERE id = ?`,
-        updateValues
-      );
-    }
-
-    // Update detail_layanan jika ada field terkait
-    if (jenis_kacamata !== undefined || detail_perbaikan !== undefined || keterangan !== undefined) {
-      const [existingDetail] = await connection.query(
-        'SELECT id FROM detail_layanan WHERE layanan_id = ?',
-        [layananId]
-      );
-
-      if (existingDetail.length > 0) {
-        const detailFields = [];
-        const detailValues = [];
-        if (jenis_kacamata !== undefined) { detailFields.push('jenis_kacamata = ?'); detailValues.push(jenis_kacamata); }
-        if (detail_perbaikan !== undefined) { detailFields.push('detail_perbaikan = ?'); detailValues.push(detail_perbaikan); }
-        if (keterangan !== undefined) { detailFields.push('keterangan = ?'); detailValues.push(keterangan); }
-
-        if (detailFields.length > 0) {
-          detailValues.push(layananId);
-          await connection.query(
-            `UPDATE detail_layanan SET ${detailFields.join(', ')} WHERE layanan_id = ?`,
-            detailValues
-          );
-        }
-      } else {
-        await connection.query(
-          'INSERT INTO detail_layanan (layanan_id, jenis_kacamata, detail_perbaikan, keterangan) VALUES (?, ?, ?, ?)',
-          [layananId, jenis_kacamata || '-', detail_perbaikan || '-', keterangan || '-']
-        );
-      }
-    }
-
-    await connection.commit();
-
-    return res.status(200).json({
-      success: true,
-      message: 'Data layanan berhasil diperbarui.'
-    });
-  } catch (error) {
-    await connection.rollback();
-    console.error('[Error updateLayanan]:', error);
-    return res.status(500).json({
-      success: false,
-      message: 'Terjadi kesalahan saat memperbarui data layanan.',
-      error: error.message
-    });
-  } finally {
-    connection.release();
   }
 };
 
@@ -552,10 +473,13 @@ const deleteLayanan = async (req, res) => {
 };
 
 module.exports = {
+  VALID_STATUSES,
+  VALID_JENIS_LAYANAN,
+  sendEmailNotification,
+  sendWANotification,
   getAllLayanan,
   getLayananById,
   createLayanan,
   updateStatusLayanan,
-  updateLayanan,
   deleteLayanan
 };
