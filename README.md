@@ -232,8 +232,12 @@ RPLApp/
 │   ├── public/                         # index.html & aset publik
 │   ├── src/
 │   │   ├── components/                 # Komponen antarmuka global (Navbar.js)
-│   │   ├── pages/                      # Tampilan Home, Login, Register, Dashboard, BuatLayanan, DetailLayanan
-│   │   │   └── admin/                  # Tampilan AdminDashboard, DaftarLayanan, AdminDetailLayanan
+│   │   ├── pages/                      # Tampilan antarmuka sistem (Views)
+│   │   │   ├── admin/                  # Halaman Administrator (AdminDashboard, DaftarLayanan, AdminDetailLayanan)
+│   │   │   ├── user/                   # Halaman Pelanggan / User (Dashboard, BuatLayanan, DetailLayanan)
+│   │   │   ├── Home.js                 # Beranda landing page publik
+│   │   │   ├── Login.js                # Formulir login pengguna & admin
+│   │   │   └── Register.js             # Formulir pendaftaran akun pelanggan baru
 │   │   ├── utils/                      # api.js (Axios interceptor) & PrivateRoute.js (RBAC guard)
 │   │   ├── App.js                      # Root component & konfigurasi React Router v6
 │   │   ├── App.css                     # Gaya CSS responsif global
@@ -526,15 +530,15 @@ Seluruh endpoint menerima dan mengembalikan data dalam format JSON. Endpoint ber
 
 | Rute URL | Nama Tampilan | Deskripsi Komponen | Hak Akses |
 | :--- | :--- | :--- | :--- |
-| `/` | Beranda (Landing Page) | Halaman pengenalan layanan optik (`Home.js`) | Publik |
-| `/login` | Login | Formulir login pengguna dan admin (`Login.js`) | Publik |
-| `/register` | Register | Formulir pendaftaran akun pelanggan baru (`Register.js`) | Publik |
-| `/dashboard` | Dashboard Pelanggan | Ringkasan kartu status dan riwayat pesanan (`Dashboard.js`) | Pelanggan |
-| `/layanan/buat` | Pengajuan Layanan | Formulir pemesanan layanan antar-jemput (`BuatLayanan.js`) | Pelanggan |
-| `/layanan/:id` | Detail Layanan | Informasi lengkap status pesanan pelanggan (`DetailLayanan.js`) | Pelanggan |
-| `/admin/dashboard` | Dashboard Admin | Ringkasan statistik dan metrik antrean optik (`AdminDashboard.js`) | Admin |
-| `/admin/layanan` | Daftar Layanan | Tabel manajemen seluruh pesanan pelanggan (`DaftarLayanan.js`) | Admin |
-| `/admin/layanan/:id` | Detail Layanan Admin | Panel kontrol perubahan status pengerjaan (`AdminDetailLayanan.js`) | Admin |
+| `/` | Beranda (Landing Page) | Halaman pengenalan layanan optik (`pages/Home.js`) | Publik |
+| `/login` | Login | Formulir login pengguna dan admin (`pages/Login.js`) | Publik |
+| `/register` | Register | Formulir pendaftaran akun pelanggan baru (`pages/Register.js`) | Publik |
+| `/dashboard` | Dashboard Pelanggan | Ringkasan kartu status dan riwayat pesanan (`pages/user/Dashboard.js`) | Pelanggan |
+| `/layanan/buat` | Pengajuan Layanan | Formulir pemesanan layanan antar-jemput (`pages/user/BuatLayanan.js`) | Pelanggan |
+| `/layanan/:id` | Detail Layanan | Informasi lengkap status pesanan pelanggan (`pages/user/DetailLayanan.js`) | Pelanggan |
+| `/admin/dashboard` | Dashboard Admin | Ringkasan statistik dan metrik antrean optik (`pages/admin/AdminDashboard.js`) | Admin |
+| `/admin/layanan` | Daftar Layanan | Tabel manajemen seluruh pesanan pelanggan (`pages/admin/DaftarLayanan.js`) | Admin |
+| `/admin/layanan/:id` | Detail Layanan Admin | Panel kontrol perubahan status pengerjaan (`pages/admin/AdminDetailLayanan.js`) | Admin |
 
 ---
 

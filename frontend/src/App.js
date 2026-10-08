@@ -10,10 +10,10 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
 
-// Halaman Pelanggan (Terproteksi)
-import Dashboard from './pages/Dashboard';
-import BuatLayanan from './pages/BuatLayanan';
-import DetailLayanan from './pages/DetailLayanan';
+// Halaman Pelanggan / User (Terproteksi)
+import Dashboard from './pages/user/Dashboard';
+import BuatLayanan from './pages/user/BuatLayanan';
+import DetailLayanan from './pages/user/DetailLayanan';
 
 // Halaman Administrator (Terproteksi Khusus Admin)
 import AdminDashboard from './pages/admin/AdminDashboard';
