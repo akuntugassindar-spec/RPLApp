@@ -278,27 +278,30 @@ RPLApp/
 
 Status ditandai jujur: **[Ada]** = sudah terimplementasi di kode, **[Rencana]** = masih dalam rencana pengembangan.
 
-1. **[Ada] Autentikasi & RBAC Multi-Role** — Sesi login dengan JSON Web Token (JWT), 2 role (`pelanggan` & `admin`), proteksi rute halaman via `PrivateRoute`
-2. **[Ada] Pengajuan Layanan Antar-Jemput** — Formulir jenis servis (perbaikan frame atau penggantian lensa), keluhan, alamat lengkap, tanggal & jam penjemputan
-3. **[Ada] Rincian Spesifikasi Kacamata** — Pencatatan model frame, detail perbaikan teknis, dan catatan ukuran lensa
-4. **[Ada] Siklus Status Layanan (State Machine)** — 6 tahapan status terstruktur: `pengajuan` -> `dijadwalkan` -> `diambil` -> `diproses` -> `selesai` -> `diantar`
-5. **[Ada] Dasbor Pelanggan & Admin** — Pemantauan status pesanan pribadi dan tabel manajemen terpusat untuk administrator
-6. **[Ada] Pembatalan & Hapus Layanan** — Penghapusan pesanan dengan cascading delete terintegrasi pada relasi database
-7. **[Rencana] Notifikasi Otomatis WhatsApp / Email** — Pemberitahuan otomatis saat status kacamata berganti tahapan
-8. **[Rencana] Integrasi Payment Gateway** — Pembayaran digital ongkir kurir dan biaya perbaikan via QRIS / transfer
-9. **[Rencana] Pelacakan Kurir Langsung (Live GPS)** — Pemantauan rute kurir antar-jemput pada peta digital real-time
-10. **[Rencana] Unggah Foto Kacamata & Resep Optik** — Upload foto kerusakan frame kacamata dan foto kartu resep dokter
+1. **[Ada] Autentikasi & RBAC Multi-Role** — Sesi login stateless dengan JSON Web Token (JWT), pembedaan 2 role (`pelanggan` & `admin`), serta proteksi rute halaman via `PrivateRoute`
+2. **[Ada] Pengajuan Layanan Antar-Jemput Fleksibel** — Formulir lengkap dengan 3 pilihan jenis servis (`perbaikan`, `penggantian_lensa`, `perbaikan_dan_lensa`), keluhan, alamat lengkap, serta penentuan tanggal & jam penjemputan
+3. **[Ada] Rincian Spesifikasi Kacamata** — Pencatatan model frame, tindakan servis teknis, dan catatan ukuran kacamata/resep pada tabel relasional `detail_layanan`
+4. **[Ada] Siklus Status Layanan (State Machine)** — 6 tahapan status terstruktur dan berurutan: `pengajuan` ➔ `dijadwalkan` ➔ `diambil` ➔ `diproses` ➔ `selesai` ➔ `diantar`
+5. **[Ada] Dasbor Terpisah Pelanggan & Administrator** — Pemantauan status pesanan pribadi bagi pelanggan (`pages/user/Dashboard.js`) dan tabel manajemen terpusat dengan filter status & pencarian bagi administrator (`pages/admin/AdminDashboard.js`, `DaftarLayanan.js`)
+6. **[Ada] Pembatalan & Hapus Layanan** — Penghapusan transaksi pesanan dengan penghapusan bertingkat (*cascading delete*) terintegrasi pada relasi database MySQL
+7. **[Ada] Notifikasi Otomatis Status (Email SMTP & WhatsApp Mock)** — Integrasi notifikasi otomatis saat admin mengubah tahapan status servis, mencakup pengiriman email via `nodemailer` (dukungan Gmail SMTP & testing Ethereal) serta pencatatan log simulasi pesan WhatsApp ke nomor telepon pelanggan
+8. **[Ada] Arsitektur Frontend Modular (Pemisahan Modul Admin & User)** — Pengelompokan struktur folder terpisah antara modul antarmuka `pages/admin/` dan `pages/user/` yang dilengkapi *barrel export* (`index.js`) demi kemudahan pemeliharaan dan keterbacaan kode
+9. **[Ada] Otomasi Pengujian Unit Backend (Unit Testing Suite)** — Pengujian otomatis menggunakan Node.js Test Runner bawaan (`npm test`) untuk memvalidasi enum jenis layanan, state machine 6 status, dan handler pengiriman notifikasi WhatsApp Mock
+10. **[Rencana] Integrasi Gerbang Pembayaran Digital (Payment Gateway)** — Pembayaran biaya ongkir kurir dan servis lensa via QRIS, Virtual Account, atau e-Wallet terintegrasi
+11. **[Rencana] Pelacakan Kurir Langsung (Live GPS Tracking)** — Pemantauan lokasi armada kurir antar-jemput secara *real-time* di atas peta digital interaktif
+12. **[Rencana] Unggah Berkas Foto Kacamata & Resep Optik** — Fitur upload bukti foto fisik kerusakan frame kacamata dan foto kartu resep dokter spesialis mata ke penyimpanan awan
 
 ---
 
 ## Fitur yang Tidak Dikerjakan (Di Luar Ruang Lingkup 12 Pertemuan)
 
-1. **Integrasi Gerbang Pembayaran Otomatis:** Pembayaran tidak diproses via gateway pihak ketiga (Midtrans/Xendit); transaksi biaya dilakukan secara langsung saat pengantaran.
-2. **Notifikasi Real-time Berbasis Socket:** Sistem tidak menggunakan WebSocket; pembaruan status dapat dilihat saat memuat atau me-refresh halaman dashboard.
-3. **Pelacakan Posisi GPS Kurir secara Langsung:** Tidak menyertakan integrasi peta langsung (Google Maps API) untuk memantau posisi armada kurir secara real-time.
-4. **Sistem Pesan Obrolan Langsung (In-App Chat):** Komunikasi klarifikasi antara pelanggan dan staf optik dilakukan via telepon atau WhatsApp.
-5. **Multi-Cabang Optik (Multi-Tenancy):** Sistem dikhususkan untuk operasional satu toko optik (single tenant).
-6. **Grafik Analitik Tingkat Lanjut (Chart / BI Dashboard):** Dasbor fokus pada metrik angka ringkas dan tabel operasional tanpa komponen chart visual.
+1. **Integrasi Gerbang Pembayaran Otomatis (Payment Gateway Third-Party):** Pembayaran tidak diproses via gateway pihak ketiga (Midtrans/Xendit); transaksi biaya perbaikan dan ongkos kirim diselesaikan secara langsung (COD/tunai/transfer manual) saat pengantaran kacamata.
+2. **Notifikasi Real-time Berbasis Socket (WebSocket / Push Notification Browser):** Sistem tidak menggunakan WebSocket atau Service Worker push notification; pembaruan status pada antarmuka didapat saat pelanggan memuat atau me-refresh dashboard, didukung notifikasi asynchronous di sisi server via Email SMTP dan WhatsApp log mock.
+3. **Pelacakan Posisi GPS Kurir secara Langsung (Live Map Tracking):** Tidak menyertakan integrasi peta langsung (Google Maps / Mapbox API) untuk pelacakan pergerakan kurir secara interaktif real-time di antarmuka.
+4. **Sistem Pesan Obrolan Langsung di Aplikasi (In-App Live Chat):** Sistem tidak menyediakan ruang percakapan instan (*in-app chat room*); komunikasi klarifikasi antara pelanggan dan staf optik dilakukan secara langsung melalui kontak telepon atau WhatsApp.
+5. **Multi-Cabang Toko Optik (Multi-Tenancy):** Sistem dikhususkan untuk operasional satu gerai toko optik (*single tenant*), bukan sistem multi-cabang terdistribusi.
+6. **Grafik Analitik Tingkat Lanjut (Visual BI Dashboard / Charting Library):** Dasbor berfokus pada metrik angka ringkas dan tabel operasional tabular tanpa komponen chart/grafik visual kompleks.
+7. **Penyimpanan Berkas Gambar ke Cloud Storage:** Sistem belum mengimplementasikan upload berkas biner/foto kerusakan fisik kacamata ke cloud bucket storage (S3/Cloudinary); identifikasi spesifikasi mengandalkan catatan teks keluhan dan ukuran lensa.
 
 ---
 
@@ -580,6 +583,9 @@ Target berikut adalah sasaran produk aplikasi tugas RPL. Yang sudah terpenuhi di
 | 7 | Pengajuan Servis Baru | Data tersimpan serentak pada tabel `layanan` dan `detail_layanan` | **Berhasil** |
 | 8 | Proteksi Rute Administratif | Pelanggan biasa diblokir saat mencoba mengakses rute admin | **Berhasil** |
 | 9 | Perubahan Status Servis | Admin dapat mengubah status pengerjaan dan terlihat oleh pelanggan | **Berhasil** |
+| 10 | Notifikasi Otomatis Status | Pengiriman email via SMTP dan simulasi WhatsApp log terpicu | **Berhasil** |
+| 11 | Unit Testing Suite Backend | Validasi jenis layanan, alur status, dan notifikasi via `npm test` | **Berhasil** |
+| 12 | Arsitektur Modular Frontend | Pemisahan folder `admin` dan `user` terkompilasi bersih (`npm run build`) | **Berhasil** |
 
 ---
 
