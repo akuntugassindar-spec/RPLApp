@@ -35,6 +35,19 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleDelete = async (itemId) => {
+    if (window.confirm('Apakah Anda yakin ingin menghapus pesanan #' + itemId + '? Data akan dihapus secara permanen.')) {
+      try {
+        await api.delete('/layanan/' + itemId);
+        alert('Pesanan #' + itemId + ' berhasil dihapus.');
+        setLayananList((prev) => prev.filter((item) => (item.id || item._id) !== itemId));
+      } catch (err) {
+        console.error('Gagal menghapus pesanan:', err);
+        alert('Gagal menghapus pesanan: ' + (err.response?.data?.message || err.message));
+      }
+    }
+  };
+
   useEffect(() => {
     fetchAllLayanan();
   }, []);
@@ -182,12 +195,30 @@ const AdminDashboard = () => {
                     </td>
                     <td>{renderBadge(item.status)}</td>
                     <td>
-                      <Link
-                        to={`/admin/layanan/${item.id || item._id}`}
-                        className="btn btn-primary btn-sm"
-                      >
-                        Kelola
-                      </Link>
+                      <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
+                        <Link
+                          to={`/admin/layanan/${item.id || item._id}`}
+                          className="btn btn-primary btn-sm"
+                        >
+                          Kelola
+                        </Link>
+                        <button
+                          type="button"
+                          className="btn btn-sm"
+                          style={{
+                            backgroundColor: '#ef4444',
+                            color: '#ffffff',
+                            border: 'none',
+                            padding: '0.25rem 0.6rem',
+                            borderRadius: '4px',
+                            fontWeight: 600,
+                            cursor: 'pointer'
+                          }}
+                          onClick={() => handleDelete(item.id || item._id)}
+                        >
+                          🗑️ Hapus
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}

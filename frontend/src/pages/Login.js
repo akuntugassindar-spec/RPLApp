@@ -44,13 +44,16 @@ const Login = () => {
         throw new Error('Token autentikasi tidak ditemukan dalam respon server.');
       }
 
-      // Bersihkan sesi lama dan simpan kredensial baru ke localStorage
-      localStorage.clear();
+      // Simpan kredensial ke localStorage
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(user));
 
-      // Redirect langsung agar state navbar dan sesi sinkron
-      window.location.href = user?.role === 'admin' ? '/admin/dashboard' : '/dashboard';
+      // Redirect berdasarkan role
+      if (user?.role === 'admin') {
+        navigate('/admin/dashboard');
+      } else {
+        navigate('/dashboard');
+      }
     } catch (err) {
       console.error('Login error:', err);
       const message =

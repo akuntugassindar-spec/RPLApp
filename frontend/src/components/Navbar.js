@@ -21,8 +21,9 @@ const Navbar = () => {
 
   const handleLogout = () => {
     // Bersihkan sesi di localStorage
-    localStorage.clear();
-    window.location.href = '/login';
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    navigate('/login');
   };
 
   const isActive = (path) => {

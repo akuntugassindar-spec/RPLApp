@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import api from '../../utils/api';
 
 /**
@@ -10,12 +10,26 @@ import api from '../../utils/api';
  */
 const AdminDetailLayanan = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
 
   const [layanan, setLayanan] = useState(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+
+  const handleHapusPesanan = async () => {
+    if (window.confirm('Apakah Anda yakin ingin menghapus pesanan #' + id + '? Data akan dihapus secara permanen.')) {
+      try {
+        await api.delete('/layanan/' + id);
+        alert('Pesanan #' + id + ' berhasil dihapus.');
+        navigate('/admin/layanan');
+      } catch (err) {
+        console.error('Gagal menghapus pesanan:', err);
+        alert('Gagal menghapus pesanan: ' + (err.response?.data?.message || err.message));
+      }
+    }
+  };
 
   // State untuk form update status
   const [statusDipilih, setStatusDipilih] = useState('');
@@ -170,6 +184,22 @@ const AdminDetailLayanan = () => {
           {renderBadge(layanan?.status)}
           <button onClick={fetchDetail} className="btn btn-outline btn-sm">
             🔄 Refresh
+          </button>
+          <button
+            type="button"
+            onClick={handleHapusPesanan}
+            className="btn btn-sm"
+            style={{
+              backgroundColor: '#ef4444',
+              color: '#ffffff',
+              border: 'none',
+              padding: '0.25rem 0.65rem',
+              borderRadius: '4px',
+              fontWeight: 600,
+              cursor: 'pointer'
+            }}
+          >
+            🗑️ Hapus Pesanan
           </button>
         </div>
       </div>

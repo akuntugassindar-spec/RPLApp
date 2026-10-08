@@ -32,8 +32,6 @@ CREATE TABLE IF NOT EXISTS layanan (
     tanggal_jemput DATE NOT NULL,
     jam_jemput TIME NOT NULL,
     status ENUM('pengajuan', 'dijadwalkan', 'diambil', 'diproses', 'selesai', 'diantar') DEFAULT 'pengajuan',
-    total_biaya DECIMAL(10,2) DEFAULT NULL,
-    catatan_admin TEXT DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_layanan_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -56,12 +54,13 @@ CREATE TABLE IF NOT EXISTS detail_layanan (
 -- Akun Administrator Optik Default
 -- Email: admin@optik.com
 -- Password: admin123 (Terenkripsi BCrypt)
+-- Hash: $2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi
 INSERT INTO users (id, nama, email, password, role, no_telepon)
 VALUES (
     1,
     'Administrator Optik',
     'admin@optik.com',
-    '$2a$10$RxJyZ9i.KPmo6E128OFTjOyO6W6m1/qbLLa/.Niu7dq5/CIFbl/Za',
+    '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
     'admin',
     '081234567890'
 ) ON DUPLICATE KEY UPDATE 
@@ -77,13 +76,12 @@ VALUES (
     2,
     'Bahrul Ulum',
     'bahrul@gmail.com',
-    '$2a$10$RxJyZ9i.KPmo6E128OFTjOyO6W6m1/qbLLa/.Niu7dq5/CIFbl/Za',
+    '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
     'pelanggan',
     '089876543210'
 ) ON DUPLICATE KEY UPDATE 
     nama = VALUES(nama),
-    role = VALUES(role),
-    password = VALUES(password);
+    role = VALUES(role);
 
 -- Contoh Transaksi Layanan 1 (Perbaikan Gagang Patah)
 INSERT INTO layanan (id, user_id, jenis_layanan, keluhan, alamat, tanggal_jemput, jam_jemput, status)
