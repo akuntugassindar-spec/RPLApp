@@ -79,12 +79,23 @@ app.use((err, req, res, next) => {
 
 // Jalankan Server pada Port yang Ditentukan
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log('====================================================');
   console.log(` Server Layanan Kacamata berjalan aktif`);
   console.log(` URL: http://localhost:${PORT}`);
   console.log(` Mode: ${process.env.NODE_ENV || 'development'}`);
   console.log('====================================================');
+});
+
+server.on('error', (err) => {
+  if (err.code === 'EADDRINUSE') {
+    console.error(`\n[Server Error]: Port ${PORT} sedang digunakan oleh proses lain (EADDRINUSE).`);
+    console.error(`Tips: Pastikan tidak ada terminal atau proses Node.js lain yang sedang berjalan di port ${PORT}.\n`);
+    process.exit(1);
+  } else {
+    console.error('[Server Error]:', err);
+    process.exit(1);
+  }
 });
 
 module.exports = app;
