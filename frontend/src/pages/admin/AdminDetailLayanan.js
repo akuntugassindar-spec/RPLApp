@@ -4,9 +4,11 @@ import api from '../../utils/api';
 
 /**
  * Halaman Detail & Manajemen Layanan (Admin)
- * Menyediakan tampilan komprehensif data pesanan pelanggan,
- * visualisasi alur timeline pengerjaan, serta formulir pembaruan status
- * dan penyesuaian biaya layanan.
+ * Menyediakan:
+ * 1. Manajemen data pesanan pelanggan & timeline status
+ * 2. Tampilan foto kacamata rusak & foto resep dokter dengan modal lightbox
+ * 3. Manajemen biaya layanan, status pembayaran, dan metode transaksi
+ * 4. Penugasan armada kurir (nama, telepon, status perjalanan) serta visualisasi Live GPS tracking
  */
 const AdminDetailLayanan = () => {
   const { id } = useParams();
@@ -17,24 +19,20 @@ const AdminDetailLayanan = () => {
   const [updating, setUpdating] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [selectedPhoto, setSelectedPhoto] = useState(null);
 
-  const handleHapusPesanan = async () => {
-    if (window.confirm('Apakah Anda yakin ingin menghapus pesanan #' + id + '? Data akan dihapus secara permanen.')) {
-      try {
-        await api.delete('/layanan/' + id);
-        alert('Pesanan #' + id + ' berhasil dihapus.');
-        navigate('/admin/layanan');
-      } catch (err) {
-        console.error('Gagal menghapus pesanan:', err);
-        alert('Gagal menghapus pesanan: ' + (err.response?.data?.message || err.message));
-      }
-    }
-  };
-
-  // State untuk form update status
+  // State Form Status & Biaya
   const [statusDipilih, setStatusDipilih] = useState('');
   const [totalBiaya, setTotalBiaya] = useState('');
+  const [statusPembayaran, setStatusPembayaran] = useState('belum_bayar');
+  const [metodePembayaran, setMetodePembayaran] = useState('qris');
   const [catatanAdmin, setCatatanAdmin] = useState('');
+
+  // State Form Penugasan Kurir & Live Tracking
+  const [kurirNama, setKurirNama] = useState('');
+  const [kurirTelepon, setKurirTelepon] = useState('');
+  const [trackingStatus, setTrackingStatus] = useState('');
+  const [trackingData, setTrackingData] = useState(null);
 
   const fetchDetail = useCallback(async () => {
     setLoading(true);
@@ -52,7 +50,12 @@ const AdminDetailLayanan = () => {
       if (data) {
         setStatusDipilih(data.status || 'pengajuan');
         setTotalBiaya(data.total_biaya || data.biaya || '');
+        setStatusPembayaran(data.status_pembayaran || 'belum_bayar');
+        setMetodePembayaran(data.metode_pembayaran || 'qris');
         setCatatanAdmin(data.catatan_admin || '');
+        setKurirNama(data.kurir_nama || '');
+        setKurirTelepon(data.kurir_telepon || '');
+        setTrackingStatus(data.tracking_status || '');
       }
     } catch (err) {
       console.error('Gagal mengambil data detail admin:', err);
@@ -62,9 +65,19 @@ const AdminDetailLayanan = () => {
     }
   }, [id]);
 
+  const fetchTracking = useCallback(async () => {
+    try {
+      const response = await api.get(`/layanan/${id}/tracking`);
+      setTrackingData(response.data?.data || null);
+    } catch (err) {
+      console.error('Gagal memuat tracking kurir:', err);
+    }
+  }, [id]);
+
   useEffect(() => {
     fetchDetail();
-  }, [fetchDetail]);
+    fetchTracking();
+  }, [fetchDetail, fetchTracking]);
 
   const handleUpdateStatus = async (e) => {
     e.preventDefault();
@@ -75,48 +88,71 @@ const AdminDetailLayanan = () => {
     try {
       const payload = {
         status: statusDipilih,
-        total_biaya: totalBiaya ? Number(totalBiaya) : undefined,
+        total_biaya: totalBiaya ? Number(totalBiaya) : 0,
+        status_pembayaran: statusPembayaran,
+        metode_pembayaran: metodePembayaran,
         catatan_admin: catatanAdmin,
+        kurir_nama: kurirNama,
+        kurir_telepon: kurirTelepon,
+        tracking_status: trackingStatus,
       };
 
-      // Coba endpoint update status khusus atau update umum
-      let res;
       try {
-        res = await api.put(`/layanan/${id}/status`, payload);
+        await api.put(`/layanan/${id}/status`, payload);
       } catch (err1) {
         try {
-          res = await api.put(`/layanan/${id}`, payload);
+          await api.put(`/layanan/${id}`, payload);
         } catch (err2) {
-          res = await api.put(`/admin/layanan/${id}`, payload);
+          await api.put(`/admin/layanan/${id}`, payload);
         }
       }
 
-      setSuccess('Status layanan berhasil diperbarui!');
-      // Update state lokal
-      const updated = res.data?.data || res.data;
-      if (updated && typeof updated === 'object') {
-        setLayanan((prev) => ({ ...prev, ...updated, status: statusDipilih }));
-      } else {
-        setLayanan((prev) => ({
-          ...prev,
-          status: statusDipilih,
-          total_biaya: totalBiaya,
-          catatan_admin: catatanAdmin,
-        }));
-      }
+      setSuccess('Seluruh data layanan & kurir berhasil diperbarui!');
+      fetchTracking();
     } catch (err) {
       console.error('Gagal memperbarui status:', err);
-      const msg =
-        err.response?.data?.message ||
-        err.response?.data?.error ||
-        'Gagal memperbarui status layanan. Periksa koneksi backend.';
-      setError(msg);
+      setError(err.response?.data?.message || 'Gagal memperbarui status layanan.');
     } finally {
       setUpdating(false);
     }
   };
 
-  // Tahapan urutan timeline status
+  const handleTandaiLunas = async () => {
+    if (!window.confirm('Tandai pembayaran pesanan ini sebagai LUNAS?')) return;
+    setUpdating(true);
+    try {
+      await api.post(`/layanan/${id}/pembayaran/konfirmasi`);
+      setSuccess('Pembayaran berhasil ditandai LUNAS!');
+      setStatusPembayaran('lunas');
+      setLayanan((prev) => ({ ...prev, status_pembayaran: 'lunas' }));
+    } catch (err) {
+      console.error('Gagal konfirmasi pembayaran:', err);
+      alert('Gagal menandai lunas: ' + (err.response?.data?.message || err.message));
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const handleHapusPesanan = async () => {
+    if (window.confirm(`Apakah Anda yakin ingin menghapus pesanan #${id}? Data akan dihapus secara permanen.`)) {
+      try {
+        await api.delete(`/layanan/${id}`);
+        alert(`Pesanan #${id} berhasil dihapus.`);
+        navigate('/admin/layanan');
+      } catch (err) {
+        console.error('Gagal menghapus pesanan:', err);
+        alert('Gagal menghapus pesanan: ' + (err.response?.data?.message || err.message));
+      }
+    }
+  };
+
+  const getImageUrl = (pathStr) => {
+    if (!pathStr) return '';
+    if (pathStr.startsWith('http://') || pathStr.startsWith('https://')) return pathStr;
+    const base = process.env.REACT_APP_API_URL ? process.env.REACT_APP_API_URL.replace(/\/api$/, '') : '';
+    return `${base}${pathStr}`;
+  };
+
   const steps = [
     { key: 'pengajuan', label: '1. Diajukan', desc: 'Menunggu konfirmasi' },
     { key: 'diambil', label: '2. Penjemputan', desc: 'Kurir menjemput kacamata' },
@@ -135,9 +171,7 @@ const AdminDetailLayanan = () => {
   };
 
   const currentStep = layanan ? getCurrentStepIndex(layanan.status) : 0;
-  const isCancelled =
-    layanan?.status?.toLowerCase().includes('batal') ||
-    layanan?.status?.toLowerCase().includes('tolak');
+  const isCancelled = layanan?.status?.toLowerCase().includes('batal') || layanan?.status?.toLowerCase().includes('tolak');
 
   const renderBadge = (status) => {
     const s = (status || '').toLowerCase();
@@ -161,43 +195,30 @@ const AdminDetailLayanan = () => {
     return (
       <div style={{ maxWidth: '800px', margin: '2rem auto' }}>
         <div className="alert alert-danger">{error}</div>
-        <Link to="/admin/layanan" className="btn btn-outline">
-          ← Kembali ke Daftar Layanan
-        </Link>
+        <Link to="/admin/layanan" className="btn btn-outline">← Kembali ke Daftar Layanan</Link>
       </div>
     );
   }
 
+  const isLunas = statusPembayaran === 'lunas';
+
   return (
-    <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
-      {/* Header & Aksi Atas */}
+    <div style={{ maxWidth: '1060px', margin: '0 auto' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <Link to="/admin/layanan" className="btn btn-outline btn-sm">
-            ← Kembali ke Daftar
-          </Link>
+          <Link to="/admin/layanan" className="btn btn-outline btn-sm">← Kembali ke Daftar</Link>
           <h1 style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--dark)' }}>
             Kelola Pesanan #{layanan?.id || id}
           </h1>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
           {renderBadge(layanan?.status)}
-          <button onClick={fetchDetail} className="btn btn-outline btn-sm">
-            🔄 Refresh
-          </button>
+          <button onClick={() => { fetchDetail(); fetchTracking(); }} className="btn btn-outline btn-sm">🔄 Refresh</button>
           <button
             type="button"
             onClick={handleHapusPesanan}
             className="btn btn-sm"
-            style={{
-              backgroundColor: '#ef4444',
-              color: '#ffffff',
-              border: 'none',
-              padding: '0.25rem 0.65rem',
-              borderRadius: '4px',
-              fontWeight: 600,
-              cursor: 'pointer'
-            }}
+            style={{ backgroundColor: '#ef4444', color: '#ffffff', border: 'none', padding: '0.35rem 0.75rem', borderRadius: '6px', fontWeight: 600, cursor: 'pointer' }}
           >
             🗑️ Hapus Pesanan
           </button>
@@ -207,15 +228,11 @@ const AdminDetailLayanan = () => {
       {error && <div className="alert alert-danger">{error}</div>}
       {success && <div className="alert alert-success">{success}</div>}
 
-      {/* Visualisasi Timeline Status */}
+      {/* Timeline Status */}
       <div className="card">
-        <h2 className="card-title" style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>
-          Visualisasi Progres Pengerjaan
-        </h2>
+        <h2 className="card-title" style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>Visualisasi Progres Pengerjaan</h2>
         {isCancelled ? (
-          <div className="alert alert-danger" style={{ marginTop: '1rem' }}>
-            Pesanan ini berstatus BATAL atau DITOLAK.
-          </div>
+          <div className="alert alert-danger" style={{ marginTop: '1rem' }}>Pesanan ini berstatus BATAL atau DITOLAK.</div>
         ) : (
           <div className="timeline-container">
             <div className="timeline">
@@ -223,12 +240,9 @@ const AdminDetailLayanan = () => {
                 let statusClass = '';
                 if (idx < currentStep) statusClass = 'completed';
                 else if (idx === currentStep) statusClass = 'active';
-
                 return (
                   <div key={step.key} className={`timeline-step ${statusClass}`}>
-                    <div className="timeline-icon">
-                      {idx < currentStep ? '✓' : idx + 1}
-                    </div>
+                    <div className="timeline-icon">{idx < currentStep ? '✓' : idx + 1}</div>
                     <div className="timeline-title">{step.label}</div>
                     <div className="timeline-desc">{step.desc}</div>
                   </div>
@@ -239,20 +253,180 @@ const AdminDetailLayanan = () => {
         )}
       </div>
 
-      {/* Grid Informasi Layanan & Pembaruan Status */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem', marginBottom: '1.5rem' }}>
-        {/* Panel Form Update Status (Khusus Admin) */}
-        <div className="card" style={{ borderLeft: '4px solid var(--secondary)' }}>
+      {/* Pemantauan Kurir GPS */}
+      {trackingData && (
+        <div className="card" style={{ border: '2px solid #bae6fd', backgroundColor: '#f0f9ff' }}>
+          <div className="card-header" style={{ borderColor: '#bae6fd' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+              <span style={{ fontSize: '1.4rem' }}>🛵</span>
+              <div>
+                <h3 className="card-title" style={{ fontSize: '1.15rem', color: '#0369a1' }}>Pemantauan Kurir GPS (Live Courier Tracking)</h3>
+                <small style={{ color: '#0284c7' }}>Pantau posisi pergerakan armada penjemputan dan pengantaran kacamata</small>
+              </div>
+            </div>
+            <span style={{ backgroundColor: '#e0f2fe', color: '#0369a1', padding: '0.25rem 0.65rem', borderRadius: '999px', fontSize: '0.8rem', fontWeight: 700 }}>
+              ⏱️ Estimasi Tiba: {trackingData.estimasi_tiba}
+            </span>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.25rem', marginTop: '0.5rem' }}>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem', background: '#fff', padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px solid #e0f2fe' }}>
+                <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#0284c7', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.3rem', fontWeight: 800 }}>
+                  🏍️
+                </div>
+                <div>
+                  <h4 style={{ fontWeight: 700, color: 'var(--dark)' }}>{kurirNama || trackingData.kurir?.nama || 'Belum Ditugaskan'}</h4>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{trackingData.kurir?.kendaraan}</p>
+                  <p style={{ fontSize: '0.85rem', color: '#0369a1', fontWeight: 600 }}>📞 {kurirTelepon || trackingData.kurir?.telepon || '-'}</p>
+                </div>
+              </div>
+
+              <div style={{ marginBottom: '1rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem', color: '#0369a1' }}>
+                  <span>Progres Rute Kurir</span>
+                  <span>{trackingData.persentase_perjalanan}%</span>
+                </div>
+                <div style={{ width: '100%', height: '8px', background: '#e2e8f0', borderRadius: '999px', overflow: 'hidden' }}>
+                  <div style={{ width: `${trackingData.persentase_perjalanan}%`, height: '100%', background: 'linear-gradient(90deg, #0284c7, #0d9488)', borderRadius: '999px', transition: 'width 0.5s ease' }} />
+                </div>
+                <p style={{ fontSize: '0.85rem', color: '#334155', marginTop: '0.5rem', fontStyle: 'italic' }}>
+                  📍 {trackingStatus || trackingData.status_deskripsi}
+                </p>
+              </div>
+
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                {(kurirTelepon || trackingData.kurir?.telepon) && (
+                  <a
+                    href={`https://wa.me/${(kurirTelepon || trackingData.kurir?.telepon).replace(/\D/g, '')}?text=Halo%20kurir%20${encodeURIComponent(kurirNama || trackingData.kurir?.nama)},%20update%20pesanan%20kacamata%20%23${id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-sm"
+                    style={{ backgroundColor: '#22c55e', color: '#fff', flex: 1, textDecoration: 'none' }}
+                  >
+                    💬 WA Kurir
+                  </a>
+                )}
+                {(layanan?.no_telepon_pelanggan || layanan?.pelanggan?.no_telepon || layanan?.no_telepon) && (
+                  <a
+                    href={`https://wa.me/${(layanan.no_telepon_pelanggan || layanan.pelanggan?.no_telepon || layanan.no_telepon).replace(/\D/g, '')}?text=Halo%20${encodeURIComponent(layanan.nama_pelanggan || 'Pelanggan')},%20informasi%20layanan%20kacamata%20OptikExpress%20%23${id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-sm btn-outline"
+                    style={{ flex: 1 }}
+                  >
+                    💬 WA Pelanggan
+                  </a>
+                )}
+              </div>
+            </div>
+
+            <div style={{ background: '#ffffff', borderRadius: 'var(--radius-md)', padding: '1rem', border: '1px solid #e0f2fe', position: 'relative', overflow: 'hidden', minHeight: '190px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#64748b' }}>PETA RUTE PENGIRIMAN LIVE</span>
+                <span style={{ fontSize: '0.75rem', background: '#dcfce7', color: '#15803d', padding: '0.15rem 0.5rem', borderRadius: '4px', fontWeight: 600 }}>● GPS AKTIF</span>
+              </div>
+
+              <svg viewBox="0 0 320 140" style={{ width: '100%', height: '130px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                <path d="M 30 70 Q 110 20, 160 70 T 290 70" fill="none" stroke="#cbd5e1" strokeWidth="8" strokeLinecap="round" />
+                <path d="M 30 70 Q 110 20, 160 70 T 290 70" fill="none" stroke="#0284c7" strokeWidth="4" strokeDasharray="6,4" strokeLinecap="round" />
+                <circle cx="30" cy="70" r="12" fill="#0369a1" />
+                <text x="30" y="74" textAnchor="middle" fill="#fff" fontSize="10" fontWeight="bold">🏪</text>
+                <text x="30" y="98" textAnchor="middle" fill="#0f172a" fontSize="9" fontWeight="bold">Lab Optik</text>
+                {(() => {
+                  const p = (trackingData.persentase_perjalanan || 50) / 100;
+                  const kurirX = 30 + (290 - 30) * p;
+                  const kurirY = 70 + Math.sin(p * Math.PI) * -35;
+                  return (
+                    <g transform={`translate(${kurirX}, ${kurirY})`}>
+                      <circle cx="0" cy="0" r="16" fill="#0284c7" fillOpacity="0.2">
+                        <animate attributeName="r" values="12;20;12" dur="2s" repeatCount="indefinite" />
+                      </circle>
+                      <circle cx="0" cy="0" r="11" fill="#0d9488" stroke="#fff" strokeWidth="2" />
+                      <text x="0" y="4" textAnchor="middle" fill="#fff" fontSize="10">🛵</text>
+                      <text x="0" y="-15" textAnchor="middle" fill="#0369a1" fontSize="8" fontWeight="bold">Kurir</text>
+                    </g>
+                  );
+                })()}
+                <circle cx="290" cy="70" r="12" fill="#10b981" />
+                <text x="290" y="74" textAnchor="middle" fill="#fff" fontSize="10" fontWeight="bold">🏠</text>
+                <text x="290" y="98" textAnchor="middle" fill="#0f172a" fontSize="9" fontWeight="bold">Pelanggan</text>
+              </svg>
+
+              <div style={{ marginTop: '0.5rem', display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: '#64748b' }}>
+                <span>🏪 {trackingData.lokasi_optik?.nama}</span>
+                <span>🏠 {layanan?.alamat ? layanan.alamat.slice(0, 20) + '...' : 'Tujuan Pelanggan'}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Lampiran Foto */}
+      {(layanan?.foto_kacamata || layanan?.foto_resep) ? (
+        <div className="card">
           <div className="card-header">
-            <h3 className="card-title" style={{ fontSize: '1.1rem' }}>
-              ⚙️ Pembaruan Status & Biaya
-            </h3>
+            <h3 className="card-title" style={{ fontSize: '1.1rem' }}>📷 Foto Kacamata & Resep yang Diunggah Pelanggan</h3>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.5rem' }}>
+            {layanan.foto_kacamata && (
+              <div style={{ background: '#f8fafc', padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)', textAlign: 'center' }}>
+                <p style={{ fontWeight: 600, fontSize: '0.9rem', marginBottom: '0.5rem', color: 'var(--dark)' }}>👓 Foto Fisik / Kerusakan Frame</p>
+                <img
+                  src={getImageUrl(layanan.foto_kacamata)}
+                  alt="Foto Kerusakan Kacamata"
+                  onClick={() => setSelectedPhoto(getImageUrl(layanan.foto_kacamata))}
+                  style={{ width: '100%', maxHeight: '220px', objectFit: 'cover', borderRadius: '8px', cursor: 'pointer', border: '1px solid #cbd5e1' }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setSelectedPhoto(getImageUrl(layanan.foto_kacamata))}
+                  className="btn btn-outline btn-sm"
+                  style={{ marginTop: '0.5rem', width: '100%' }}
+                >
+                  🔍 Perbesar Foto Kacamata
+                </button>
+              </div>
+            )}
+
+            {layanan.foto_resep && (
+              <div style={{ background: '#f8fafc', padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)', textAlign: 'center' }}>
+                <p style={{ fontWeight: 600, fontSize: '0.9rem', marginBottom: '0.5rem', color: 'var(--dark)' }}>📋 Foto Kartu Resep Dokter</p>
+                <img
+                  src={getImageUrl(layanan.foto_resep)}
+                  alt="Foto Resep Dokter"
+                  onClick={() => setSelectedPhoto(getImageUrl(layanan.foto_resep))}
+                  style={{ width: '100%', maxHeight: '220px', objectFit: 'cover', borderRadius: '8px', cursor: 'pointer', border: '1px solid #cbd5e1' }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setSelectedPhoto(getImageUrl(layanan.foto_resep))}
+                  className="btn btn-outline btn-sm"
+                  style={{ marginTop: '0.5rem', width: '100%' }}
+                >
+                  🔍 Perbesar Foto Resep
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      ) : (
+        <div className="card" style={{ padding: '1.25rem', backgroundColor: '#f8fafc' }}>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', margin: 0 }}>
+            ℹ️ Pelanggan tidak mengunggah lampiran foto kacamata atau resep dokter untuk pesanan ini.
+          </p>
+        </div>
+      )}
+
+      {/* Grid: Form Update & Info Pelanggan */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem', marginBottom: '1.5rem' }}>
+        <div className="card" style={{ borderLeft: '4px solid var(--primary)' }}>
+          <div className="card-header">
+            <h3 className="card-title" style={{ fontSize: '1.1rem' }}>⚙️ Pengaturan Status, Biaya & Kurir</h3>
           </div>
           <form onSubmit={handleUpdateStatus}>
             <div className="form-group">
-              <label className="form-label" htmlFor="statusDipilih">
-                Ubah Status Pesanan
-              </label>
+              <label className="form-label" htmlFor="statusDipilih">Status Alur Layanan</label>
               <select
                 id="statusDipilih"
                 className="form-control"
@@ -260,36 +434,106 @@ const AdminDetailLayanan = () => {
                 onChange={(e) => setStatusDipilih(e.target.value)}
                 required
               >
-                <option value="pengajuan">Menunggu Konfirmasi</option>
-                <option value="dijadwalkan">Penjemputan Dijadwalkan</option>
-                <option value="diambil">Sedang Dijemput Kurir</option>
-                <option value="diproses">Sedang Dikerjakan di Optik</option>
-                <option value="diantar">Sedang Diantar ke Pelanggan</option>
-                <option value="selesai">Selesai</option>
+                <option value="pengajuan">Menunggu Konfirmasi (pengajuan)</option>
+                <option value="dijadwalkan">Penjemputan Dijadwalkan (dijadwalkan)</option>
+                <option value="diambil">Sedang Dijemput Kurir (diambil)</option>
+                <option value="diproses">Sedang Dikerjakan di Optik (diproses)</option>
+                <option value="diantar">Sedang Diantar ke Pelanggan (diantar)</option>
+                <option value="selesai">Selesai (selesai)</option>
               </select>
             </div>
 
-            <div className="form-group">
-              <label className="form-label" htmlFor="totalBiaya">
-                Total Biaya Layanan (Rp)
-              </label>
-              <input
-                type="number"
-                id="totalBiaya"
-                className="form-control"
-                placeholder="Contoh: 150000"
-                value={totalBiaya}
-                onChange={(e) => setTotalBiaya(e.target.value)}
-              />
-              <small style={{ color: 'var(--text-muted)' }}>
-                Termasuk biaya lensa, perbaikan frame, dan transport
-              </small>
+            <div className="form-grid">
+              <div className="form-group">
+                <label className="form-label" htmlFor="totalBiaya">Total Biaya (Rp)</label>
+                <input
+                  type="number"
+                  id="totalBiaya"
+                  className="form-control"
+                  placeholder="Contoh: 150000"
+                  value={totalBiaya}
+                  onChange={(e) => setTotalBiaya(e.target.value)}
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label" htmlFor="statusPembayaran">Status Pembayaran</label>
+                <select
+                  id="statusPembayaran"
+                  className="form-control"
+                  value={statusPembayaran}
+                  onChange={(e) => setStatusPembayaran(e.target.value)}
+                >
+                  <option value="belum_bayar">Belum Bayar</option>
+                  <option value="menunggu_pembayaran">Menunggu Pembayaran</option>
+                  <option value="lunas">Lunas</option>
+                </select>
+              </div>
             </div>
 
             <div className="form-group">
-              <label className="form-label" htmlFor="catatanAdmin">
-                Catatan Internal Teknisi / Optik
-              </label>
+              <label className="form-label" htmlFor="metodePembayaran">Metode Pembayaran</label>
+              <select
+                id="metodePembayaran"
+                className="form-control"
+                value={metodePembayaran}
+                onChange={(e) => setMetodePembayaran(e.target.value)}
+              >
+                <option value="qris">QRIS (Gopay, OVO, Dana, ShopeePay)</option>
+                <option value="bca_va">BCA Virtual Account</option>
+                <option value="bni_va">BNI Virtual Account</option>
+                <option value="bri_va">BRI Virtual Account</option>
+                <option value="mandiri_va">Mandiri Bill Payment</option>
+                <option value="gopay">GoPay Direct</option>
+                <option value="shopeepay">ShopeePay Direct</option>
+                <option value="cod">Cash on Delivery (Bayar Tunai ke Kurir)</option>
+              </select>
+            </div>
+
+            <div style={{ borderTop: '1px solid var(--border)', paddingTop: '1rem', marginTop: '0.5rem' }}>
+              <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#0369a1', marginBottom: '0.75rem' }}>
+                🛵 Penugasan Armada Kurir
+              </h4>
+              <div className="form-grid">
+                <div className="form-group">
+                  <label className="form-label" htmlFor="kurirNama">Nama Kurir</label>
+                  <input
+                    type="text"
+                    id="kurirNama"
+                    className="form-control"
+                    placeholder="Contoh: Agus Pratama"
+                    value={kurirNama}
+                    onChange={(e) => setKurirNama(e.target.value)}
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label" htmlFor="kurirTelepon">No. Telepon / WA Kurir</label>
+                  <input
+                    type="text"
+                    id="kurirTelepon"
+                    className="form-control"
+                    placeholder="Contoh: 081234567890"
+                    value={kurirTelepon}
+                    onChange={(e) => setKurirTelepon(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label" htmlFor="trackingStatus">Deskripsi Status Posisi Kurir</label>
+                <input
+                  type="text"
+                  id="trackingStatus"
+                  className="form-control"
+                  placeholder="Contoh: Kurir menuju alamat penjemputan"
+                  value={trackingStatus}
+                  onChange={(e) => setTrackingStatus(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label className="form-label" htmlFor="catatanAdmin">Catatan Internal Teknisi / Optik</label>
               <textarea
                 id="catatanAdmin"
                 className="form-control"
@@ -300,65 +544,97 @@ const AdminDetailLayanan = () => {
               />
             </div>
 
-            <button
-              type="submit"
-              className="btn btn-primary"
-              style={{ width: '100%' }}
-              disabled={updating}
-            >
-              {updating ? 'Menyimpan Perubahan...' : 'Simpan Pembaruan'}
-            </button>
+            <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginTop: '1rem' }}>
+              <button
+                type="submit"
+                className="btn btn-primary"
+                style={{ flex: 1 }}
+                disabled={updating}
+              >
+                {updating ? 'Menyimpan...' : '💾 Simpan Seluruh Perubahan'}
+              </button>
+              {!isLunas && (
+                <button
+                  type="button"
+                  onClick={handleTandaiLunas}
+                  className="btn btn-outline"
+                  disabled={updating}
+                  style={{ borderColor: 'var(--success)', color: 'var(--success)' }}
+                >
+                  ✓ Tandai Lunas
+                </button>
+              )}
+            </div>
           </form>
         </div>
 
-        {/* Informasi Pelanggan & Alamat */}
-        <div className="card">
-          <div className="card-header">
-            <h3 className="card-title" style={{ fontSize: '1.1rem' }}>
-              👤 Informasi Pelanggan
-            </h3>
+        <div>
+          <div className="card" style={{ marginBottom: '1.5rem' }}>
+            <div className="card-header">
+              <h3 className="card-title" style={{ fontSize: '1.1rem' }}>👤 Informasi Pelanggan</h3>
+            </div>
+            <table style={{ width: '100%', fontSize: '0.95rem' }}>
+              <tbody>
+                <tr>
+                  <td style={{ padding: '0.45rem 0', color: 'var(--text-muted)', width: '38%' }}>Nama:</td>
+                  <td style={{ padding: '0.45rem 0', fontWeight: 600 }}>
+                    {layanan?.pelanggan?.nama || layanan?.nama_pelanggan || layanan?.user?.nama || '-'}
+                  </td>
+                </tr>
+                <tr>
+                  <td style={{ padding: '0.45rem 0', color: 'var(--text-muted)' }}>Telepon / WA:</td>
+                  <td style={{ padding: '0.45rem 0', fontWeight: 600 }}>
+                    {layanan?.pelanggan?.no_telepon || layanan?.no_telepon_pelanggan || layanan?.no_telepon || '-'}
+                  </td>
+                </tr>
+                <tr>
+                  <td style={{ padding: '0.45rem 0', color: 'var(--text-muted)' }}>Email:</td>
+                  <td style={{ padding: '0.45rem 0' }}>
+                    {layanan?.pelanggan?.email || layanan?.email_pelanggan || layanan?.email || '-'}
+                  </td>
+                </tr>
+                <tr>
+                  <td style={{ padding: '0.45rem 0', color: 'var(--text-muted)', verticalAlign: 'top' }}>Jadwal Jemput:</td>
+                  <td style={{ padding: '0.45rem 0', fontWeight: 600 }}>
+                    {layanan?.tanggal_jemput || '-'} ({layanan?.jam_jemput || '-'})
+                  </td>
+                </tr>
+                <tr>
+                  <td style={{ padding: '0.45rem 0', color: 'var(--text-muted)', verticalAlign: 'top' }}>Alamat Jemput:</td>
+                  <td style={{ padding: '0.45rem 0' }}>{layanan?.alamat || '-'}</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
-          <table style={{ width: '100%', fontSize: '0.95rem' }}>
-            <tbody>
-              <tr>
-                <td style={{ padding: '0.45rem 0', color: 'var(--text-muted)', width: '38%' }}>Nama:</td>
-                <td style={{ padding: '0.45rem 0', fontWeight: 600 }}>
-                  {layanan?.pelanggan?.nama || layanan?.nama_pelanggan || layanan?.user?.nama || '-'}
-                </td>
-              </tr>
-              <tr>
-                <td style={{ padding: '0.45rem 0', color: 'var(--text-muted)' }}>Telepon / WA:</td>
-                <td style={{ padding: '0.45rem 0', fontWeight: 600 }}>
-                  {layanan?.pelanggan?.no_telepon || layanan?.no_telepon || '-'}
-                </td>
-              </tr>
-              <tr>
-                <td style={{ padding: '0.45rem 0', color: 'var(--text-muted)' }}>Email:</td>
-                <td style={{ padding: '0.45rem 0' }}>
-                  {layanan?.pelanggan?.email || layanan?.email || '-'}
-                </td>
-              </tr>
-              <tr>
-                <td style={{ padding: '0.45rem 0', color: 'var(--text-muted)', verticalAlign: 'top' }}>Jadwal Jemput:</td>
-                <td style={{ padding: '0.45rem 0', fontWeight: 600 }}>
-                  {layanan?.tanggal_jemput || '-'} ({layanan?.jam_jemput || '-'})
-                </td>
-              </tr>
-              <tr>
-                <td style={{ padding: '0.45rem 0', color: 'var(--text-muted)', verticalAlign: 'top' }}>Alamat Jemput:</td>
-                <td style={{ padding: '0.45rem 0' }}>{layanan?.alamat || '-'}</td>
-              </tr>
-            </tbody>
-          </table>
+
+          <div className="card" style={{ backgroundColor: isLunas ? '#f0fdf4' : '#fffbeb' }}>
+            <div className="card-header" style={{ borderColor: isLunas ? '#bbf7d0' : '#fde68a' }}>
+              <h3 className="card-title" style={{ fontSize: '1.1rem', color: isLunas ? '#166534' : '#92400e' }}>
+                💳 Status Pembayaran
+              </h3>
+              <span className={`badge ${isLunas ? 'badge-selesai' : 'badge-pending'}`}>
+                {isLunas ? '✓ LUNAS' : '⏳ BELUM LUNAS'}
+              </span>
+            </div>
+            <p style={{ fontSize: '0.9rem', marginBottom: '0.5rem' }}>
+              Total Tagihan: <strong>Rp {totalBiaya ? Number(totalBiaya).toLocaleString('id-ID') : '0'}</strong>
+            </p>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+              Metode: <strong style={{ textTransform: 'uppercase' }}>{metodePembayaran}</strong>
+            </p>
+            {layanan?.id_transaksi_pembayaran && (
+              <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
+                ID Transaksi Midtrans: <code>{layanan.id_transaksi_pembayaran}</code>
+              </p>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Rincian Kacamata & Keluhan */}
+      {/* Rincian Kacamata */}
       <div className="card">
         <div className="card-header">
-          <h3 className="card-title" style={{ fontSize: '1.1rem' }}>
-            👓 Detail Kacamata & Kerusakan
-          </h3>
+          <h3 className="card-title" style={{ fontSize: '1.1rem' }}>👓 Detail Kacamata & Keluhan Kerusakan</h3>
         </div>
         <div className="form-grid">
           <div>
@@ -388,6 +664,32 @@ const AdminDetailLayanan = () => {
           </div>
         )}
       </div>
+
+      {/* Modal Lightbox Foto */}
+      {selectedPhoto && (
+        <div
+          onClick={() => setSelectedPhoto(null)}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.85)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 10000,
+            padding: '2rem',
+          }}
+        >
+          <img
+            src={selectedPhoto}
+            alt="Perbesar Foto"
+            style={{ maxWidth: '90%', maxHeight: '90%', borderRadius: '8px', boxShadow: '0 0 20px rgba(0,0,0,0.5)' }}
+          />
+        </div>
+      )}
     </div>
   );
 };

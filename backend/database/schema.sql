@@ -32,6 +32,18 @@ CREATE TABLE IF NOT EXISTS layanan (
     tanggal_jemput DATE NOT NULL,
     jam_jemput TIME NOT NULL,
     status ENUM('pengajuan', 'dijadwalkan', 'diambil', 'diproses', 'selesai', 'diantar') DEFAULT 'pengajuan',
+    foto_kacamata VARCHAR(255) DEFAULT NULL,
+    foto_resep VARCHAR(255) DEFAULT NULL,
+    total_biaya INT DEFAULT 0,
+    status_pembayaran ENUM('belum_bayar', 'menunggu_pembayaran', 'lunas') DEFAULT 'belum_bayar',
+    metode_pembayaran VARCHAR(50) DEFAULT NULL,
+    id_transaksi_pembayaran VARCHAR(100) DEFAULT NULL,
+    catatan_admin TEXT DEFAULT NULL,
+    kurir_nama VARCHAR(100) DEFAULT NULL,
+    kurir_telepon VARCHAR(20) DEFAULT NULL,
+    kurir_lat DECIMAL(10,8) DEFAULT NULL,
+    kurir_lng DECIMAL(11,8) DEFAULT NULL,
+    tracking_status VARCHAR(100) DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_layanan_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

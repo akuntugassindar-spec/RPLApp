@@ -188,6 +188,7 @@ const DaftarLayanan = () => {
                   <th>Detail Kacamata</th>
                   <th>Tanggal Jemput</th>
                   <th>Status</th>
+                  <th>Biaya & Bayar</th>
                   <th>Aksi</th>
                 </tr>
               </thead>
@@ -225,6 +226,18 @@ const DaftarLayanan = () => {
                       <small style={{ color: 'var(--text-muted)' }}>{item.jam_jemput || ''}</small>
                     </td>
                     <td>{renderBadge(item.status)}</td>
+                    <td>
+                      <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>
+                        Rp {Number(item.total_biaya || 0).toLocaleString('id-ID')}
+                      </div>
+                      <small>
+                        {item.status_pembayaran === 'lunas' ? (
+                          <span style={{ color: '#16a34a', fontWeight: 700 }}>✓ Lunas</span>
+                        ) : (
+                          <span style={{ color: '#d97706', fontWeight: 600 }}>⏳ Belum Lunas</span>
+                        )}
+                      </small>
+                    </td>
                     <td>
                       <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                         <Link

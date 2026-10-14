@@ -22,11 +22,41 @@ const pool = mysql.createPool({
   queueLimit: 0
 });
 
+// Fungsi untuk memastikan kolom-kolom fitur baru telah tersedia pada tabel
+const ensureTableColumns = async (connection) => {
+  const columnsToAdd = [
+    { name: 'foto_kacamata', type: 'VARCHAR(255) DEFAULT NULL' },
+    { name: 'foto_resep', type: 'VARCHAR(255) DEFAULT NULL' },
+    { name: 'total_biaya', type: 'INT DEFAULT 0' },
+    { name: 'status_pembayaran', type: "ENUM('belum_bayar', 'menunggu_pembayaran', 'lunas') DEFAULT 'belum_bayar'" },
+    { name: 'metode_pembayaran', type: 'VARCHAR(50) DEFAULT NULL' },
+    { name: 'id_transaksi_pembayaran', type: 'VARCHAR(100) DEFAULT NULL' },
+    { name: 'catatan_admin', type: 'TEXT DEFAULT NULL' },
+    { name: 'kurir_nama', type: 'VARCHAR(100) DEFAULT NULL' },
+    { name: 'kurir_telepon', type: 'VARCHAR(20) DEFAULT NULL' },
+    { name: 'kurir_lat', type: 'DECIMAL(10,8) DEFAULT NULL' },
+    { name: 'kurir_lng', type: 'DECIMAL(11,8) DEFAULT NULL' },
+    { name: 'tracking_status', type: 'VARCHAR(100) DEFAULT NULL' },
+  ];
+
+  for (const col of columnsToAdd) {
+    try {
+      await connection.query(`ALTER TABLE layanan ADD COLUMN ${col.name} ${col.type}`);
+    } catch (err) {
+      // Error code 1060 / ER_DUP_FIELDNAME diabaikan karena kolom sudah ada
+      if (err.errno !== 1060 && err.code !== 'ER_DUP_FIELDNAME') {
+        // Kolom belum ada atau error lainnya
+      }
+    }
+  }
+};
+
 // Fungsi untuk menguji koneksi ke database saat server dijalankan
 const testConnection = async () => {
   try {
     const connection = await pool.getConnection();
     console.log(`[Database] Berhasil terhubung ke database MySQL: ${process.env.DB_NAME || 'db_kacamata'}`);
+    await ensureTableColumns(connection);
     connection.release();
   } catch (error) {
     console.error('[Database Error] Gagal terhubung ke database MySQL:', error.message);
