@@ -1,4 +1,5 @@
 # 📚 Dokumentasi Proyek: OptikExpress
+
 **Mata Kuliah:** Rekayasa Perangkat Lunak (RPL)  
 **Aplikasi:** Sistem Informasi Layanan Antar-Jemput Perbaikan Kacamata & Penggantian Lensa  
 **Repositori GitHub:** [https://github.com/akuntugassindar-spec/RPLApp.git](https://github.com/akuntugassindar-spec/RPLApp.git)
@@ -7,26 +8,22 @@
 
 ## 📌 Indeks Dokumentasi Perkuliahan (Pertemuan 1 s/d 6)
 
-Folder ini memuat dokumentasi komprehensif perjalanan rekayasa perangkat lunak dari awal mula ide, perancangan arsitektur, pembuatan kode dengan AI, hingga pengujian dan penyempurnaan MVP:
+Folder ini memuat dokumentasi terstruktur dari seluruh rangkaian pengerjaan proyek rekayasa perangkat lunak dari awal mula ide hingga penyempurnaan MVP:
 
-| Berkas Dokumen | Pertemuan / Topik | Rangkuman Isi Dokumen |
-| :--- | :--- | :--- |
-| **[`00_README_UTAMA_PROYEK.md`](./00_README_UTAMA_PROYEK.md)** | Panduan Proyek Utama | Salinan resmi dokumentasi utama, panduan setup, Quick Start, dan environment variables. |
-| **[`00_PERTEMUAN_1_DAN_2_TEMA_PROJEK.md`](./00_PERTEMUAN_1_DAN_2_TEMA_PROJEK.md)** | **Pertemuan 1 & 2** | Eksplorasi 3 alternatif tema, penentuan tema mengerucut OptikExpress, profil target pengguna, manfaat, in/out of scope, dan kriteria sukses. |
-| **[`01_SPESIFIKASI_ARSITEKTUR_P3.md`](./01_SPESIFIKASI_ARSITEKTUR_P3.md)** | **Pertemuan 3** | Dokumen arsitektur lengkap: Tech stack, Code rules, 6 Entitas utama, Database rules, Fitur backend/frontend, API endpoints, dan struktur direktori. |
-| **[`01_ARSITEKTUR_SISTEM.md`](./01_ARSITEKTUR_SISTEM.md)** | Arsitektur & ERD | Diagram arsitektur 3-tier, Entity-Relationship Diagram (ERD 6 tabel Mermaid), state machine 6 status, dan keamanan. |
-| **[`02_PERTEMUAN_4_SCAFFOLD_RUNNABLE.md`](./02_PERTEMUAN_4_SCAFFOLD_RUNNABLE.md)** | **Pertemuan 4** | Pemanfaatan AI Gemini untuk code generation, pemahaman alur data antar-komponen, troubleshooting (CORS, Pool MySQL, JWT), dan verifikasi aplikasi runnable. |
-| **[`02_PROGRESS_HISTORI.md`](./02_PROGRESS_HISTORI.md)** | Histori Evolusi | Kronologi progres lengkap dari awal mula proyek hingga implementasi mutakhir hari ini. |
-| **[`03_PERTEMUAN_5_MVP1.md`](./03_PERTEMUAN_5_MVP1.md)** | **Pertemuan 5** | Laporan MVP Version 1: 2 Fitur Inti MVP, metodologi Brief $\rightarrow$ Plan $\rightarrow$ Build $\rightarrow$ Verify $\rightarrow$ Commit, dan evaluasi mahasiswa. |
-| **[`04_PERTEMUAN_6_MVP2.md`](./04_PERTEMUAN_6_MVP2.md)** | **Pertemuan 6** | Penyempurnaan MVP: 5 User Stories + AC, 5 berkas unit test, dan status eksekusi 48/48 all passed (100%). |
-| **[`TUGAS_PERTEMUAN_6.md`](./TUGAS_PERTEMUAN_6.md)** | Laporan Tugas P6 | Dokumen laporan resmi pengumpulan Tugas Pertemuan 6 (Review MVP, User Stories, AC, Bukti Test, & Commit History). |
-| **[`05_FITUR_HARI_INI.md`](./05_FITUR_HARI_INI.md)** | Fitur Terkini | Implementasi peta interaktif Leaflet OSM, direct Google Maps turn-by-turn, auto-assign kurir Gojek-style, simulasi Midtrans QRIS/VA, dan database 3NF. |
+| Berkas Dokumen | Pertemuan | Topik & Cakupan Dokumen |
+| :--- | :---: | :--- |
+| **[`PERTEMUAN_1.md`](./PERTEMUAN_1.md)** | **Pertemuan 1** | **Eksplorasi Tema:** 3 alternatif tema aplikasi, analisis perbandingan, dan alasan pemilihan OptikExpress. |
+| **[`PERTEMUAN_2.md`](./PERTEMUAN_2.md)** | **Pertemuan 2** | **Perumusan Tema Mengerucut:** Masalah nyata, 4 profil persona pengguna, manfaat aplikasi, daftar fitur inti, batasan out-of-scope, dan kriteria sukses. |
+| **[`PERTEMUAN_3.md`](./PERTEMUAN_3.md)** | **Pertemuan 3** | **Arsitektur Sistem & Spesifikasi:** Arsitektur 3-tier, tech stack, code rules, ERD 6 tabel relasional 3NF (Mermaid), fitur backend, halaman frontend, dan daftar rute API. |
+| **[`PERTEMUAN_4.md`](./PERTEMUAN_4.md)** | **Pertemuan 4** | **AI Code Generation & Runnable UI:** Scaffolding awal menggunakan Gemini, pemetaan aliran data antar-komponen, troubleshooting mandiri (CORS, Pool MySQL, JWT), dan verifikasi aplikasi runnable. |
+| **[`PERTEMUAN_5.md`](./PERTEMUAN_5.md)** | **Pertemuan 5** | **Pembangunan MVP Version 1:** 2 Fitur Inti MVP, metodologi Brief $\rightarrow$ Plan $\rightarrow$ Build $\rightarrow$ Verify $\rightarrow$ Commit, bukti acceptance criteria, dan Q&A evaluasi mahasiswa. |
+| **[`PERTEMUAN_6.md`](./PERTEMUAN_6.md)** | **Pertemuan 6** | **Penyempurnaan MVP Version 2:** Review MVP, 5 User Stories + AC, 5 berkas unit test, bukti eksekusi 48 unit tests (100% all passed), implementasi live map GPS Leaflet OSM, pembayaran digital, dan riwayat commit. |
 
 ---
 
-## 🚀 Ringkasan Singkat Aplikasi
-* **Backend:** Node.js, Express.js, MySQL (mysql2/promise), JWT Auth, BCrypt.js.
-* **Frontend:** React.js, React Router DOM v6, Leaflet (OpenStreetMap), Axios.
-* **Pengujian Otomatis:** Node.js Native Test Runner (`node:test`, `node:assert/strict`) — 48 passing unit tests (100% lulus).
-* **Database:** `db_kacamata` (6 tabel relasional 3NF: `users`, `kurir`, `layanan`, `detail_layanan`, `pembayaran`, `riwayat_status_layanan`).
+## 🚀 Ringkasan Singkat Arsitektur & Teknologi
 
+* **Backend:** Node.js, Express.js REST API, MySQL (`mysql2/promise`), JWT Auth, BCrypt.js.
+* **Frontend:** React.js 18.2.0, React Router DOM v6, Leaflet (OpenStreetMap), Axios.
+* **Pengujian Otomatis:** Node.js Test Runner (`node:test`, `node:assert/strict`) — 48 passing unit tests (100% lulus, 0 fail).
+* **Basis Data:** `db_kacamata` (6 tabel relasional 3NF: `users`, `kurir`, `layanan`, `detail_layanan`, `pembayaran`, `riwayat_status_layanan`).
