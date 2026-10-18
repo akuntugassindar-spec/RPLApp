@@ -54,12 +54,12 @@ const DaftarLayanan = () => {
 
   const renderBadge = (status) => {
     const s = (status || '').toLowerCase();
-    if (s.includes('selesai')) return <span className="badge badge-selesai">✓ Selesai</span>;
-    if (s.includes('batal') || s.includes('tolak')) return <span className="badge badge-batal">✕ Batal</span>;
-    if (s.includes('antar')) return <span className="badge badge-antar">🚚 Sedang Diantar</span>;
-    if (s.includes('jemput')) return <span className="badge badge-jemput">🛵 Penjemputan</span>;
-    if (s.includes('proses') || s.includes('periksa')) return <span className="badge badge-proses">⚙️ Dikerjakan</span>;
-    return <span className="badge badge-pending">⏳ Menunggu</span>;
+    if (s.includes('selesai')) return <span className="badge badge-selesai">Selesai</span>;
+    if (s.includes('batal') || s.includes('tolak')) return <span className="badge badge-batal">Dibatalkan</span>;
+    if (s.includes('antar')) return <span className="badge badge-antar">Sedang Diantar</span>;
+    if (s.includes('jemput')) return <span className="badge badge-jemput">Penjemputan</span>;
+    if (s.includes('proses') || s.includes('periksa')) return <span className="badge badge-proses">Sedang Dikerjakan</span>;
+    return <span className="badge badge-pending">Menunggu</span>;
   };
 
   // Logika Filter & Pencarian
@@ -118,7 +118,7 @@ const DaftarLayanan = () => {
           </p>
         </div>
         <button onClick={fetchLayanan} className="btn btn-outline btn-sm">
-          🔄 Segarkan Data
+          Segarkan Data
         </button>
       </div>
 
@@ -203,7 +203,7 @@ const DaftarLayanan = () => {
                         </strong>
                       </div>
                       <small style={{ color: 'var(--text-muted)' }}>
-                        📞 {item.pelanggan?.no_telepon || item.no_telepon || '-'}
+                         {item.pelanggan?.no_telepon || item.no_telepon || '-'}
                       </small>
                     </td>
                     <td>
@@ -232,9 +232,9 @@ const DaftarLayanan = () => {
                       </div>
                       <small>
                         {item.status_pembayaran === 'lunas' ? (
-                          <span style={{ color: '#16a34a', fontWeight: 700 }}>✓ Lunas</span>
+                          <span style={{ color: '#16a34a', fontWeight: 700 }}>Lunas</span>
                         ) : (
-                          <span style={{ color: '#d97706', fontWeight: 600 }}>⏳ Belum Lunas</span>
+                          <span style={{ color: '#d97706', fontWeight: 600 }}> Belum Lunas</span>
                         )}
                       </small>
                     </td>
@@ -260,7 +260,7 @@ const DaftarLayanan = () => {
                           }}
                           onClick={() => handleDelete(item.id || item._id)}
                         >
-                          🗑️ Hapus
+                          Hapus
                         </button>
                       </div>
                     </td>

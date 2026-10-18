@@ -58,7 +58,7 @@ const LiveMapKurir = ({
         const optikIcon = window.L.divIcon({
           className: 'leaflet-optik-marker',
           html: `
-            <div style="background:#0284c7;color:#fff;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:15px;box-shadow:0 2px 6px rgba(0,0,0,0.3);border:2px solid #fff;">🏪</div>
+            <div style="background:#0284c7;color:#fff;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:15px;box-shadow:0 2px 6px rgba(0,0,0,0.3);border:2px solid #fff;"></div>
             <div style="background:#0f172a;color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;white-space:nowrap;margin-top:2px;box-shadow:0 1px 3px rgba(0,0,0,0.2);text-align:center;">OptikExpress</div>
           `,
           iconSize: [32, 50],
@@ -69,7 +69,7 @@ const LiveMapKurir = ({
         const destIcon = window.L.divIcon({
           className: 'leaflet-dest-marker',
           html: `
-            <div style="background:#10b981;color:#fff;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:15px;box-shadow:0 2px 6px rgba(0,0,0,0.3);border:2px solid #fff;">🏠</div>
+            <div style="background:#10b981;color:#fff;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:15px;box-shadow:0 2px 6px rgba(0,0,0,0.3);border:2px solid #fff;"></div>
             <div style="background:#065f46;color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;white-space:nowrap;margin-top:2px;box-shadow:0 1px 3px rgba(0,0,0,0.2);text-align:center;">Pelanggan</div>
           `,
           iconSize: [32, 50],
@@ -82,7 +82,7 @@ const LiveMapKurir = ({
           html: `
             <div style="position:relative;display:flex;align-items:center;justify-content:center;">
               <div class="pulse-ring"></div>
-              <div class="map-badge-icon" style="background:#0d9488;">🛵</div>
+              <div class="map-badge-icon" style="background:#0d9488;"></div>
             </div>
             <div style="background:#0d9488;color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;white-space:nowrap;margin-top:2px;box-shadow:0 1px 3px rgba(0,0,0,0.2);text-align:center;">${kurirNama || 'Kurir'}</div>
           `,
@@ -92,15 +92,15 @@ const LiveMapKurir = ({
 
         const optikMarker = window.L.marker([optikLat, optikLng], { icon: optikIcon })
           .addTo(map)
-          .bindPopup('<b>🏪 OptikExpress Store & Lab</b><br>Jl. Pemuda No. 48, Surabaya');
+          .bindPopup('<b> OptikExpress Store & Lab</b><br>Jl. Pemuda No. 48, Surabaya');
 
         const destMarker = window.L.marker([destLat, destLng], { icon: destIcon })
           .addTo(map)
-          .bindPopup(`<b>🏠 Tujuan Pelanggan</b><br>${alamatTujuan || 'Alamat Penerima'}`);
+          .bindPopup(`<b> Tujuan Pelanggan</b><br>${alamatTujuan || 'Alamat Penerima'}`);
 
         const kurirMarker = window.L.marker([validKurirLat, validKurirLng], { icon: kurirIcon })
           .addTo(map)
-          .bindPopup(`<b>🛵 Kurir: ${kurirNama}</b><br>Posisi Live: ${validKurirLat.toFixed(4)}, ${validKurirLng.toFixed(4)}`);
+          .bindPopup(`<b>Kurir: ${kurirNama}</b><br>Posisi Live: ${validKurirLat.toFixed(4)}, ${validKurirLng.toFixed(4)}`);
 
         // Polyline Rute Jalan
         const polyline = window.L.polyline([
@@ -136,7 +136,7 @@ const LiveMapKurir = ({
       const kurirMarker = markersRef.current?.kurir;
       if (kurirMarker) {
         kurirMarker.setLatLng([validKurirLat, validKurirLng]);
-        kurirMarker.setPopupContent(`<b>🛵 Kurir: ${kurirNama}</b><br>Posisi Live: ${validKurirLat.toFixed(4)}, ${validKurirLng.toFixed(4)}`);
+        kurirMarker.setPopupContent(`<b>Kurir: ${kurirNama}</b><br>Posisi Live: ${validKurirLat.toFixed(4)}, ${validKurirLng.toFixed(4)}`);
       }
       if (polylineRef.current) {
         polylineRef.current.setLatLngs([
@@ -180,7 +180,7 @@ const LiveMapKurir = ({
       >
         {!mapReady && (
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#64748b', fontSize: '0.9rem' }}>
-            🔄 Memuat peta jalan OpenStreetMap...
+             Memuat peta jalan OpenStreetMap...
           </div>
         )}
       </div>
@@ -189,7 +189,7 @@ const LiveMapKurir = ({
       {showGoogleMapsBtn && (
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.65rem', flexWrap: 'wrap', gap: '0.5rem' }}>
           <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
-            <span>🏪 <strong>Optik:</strong> Jl. Pemuda 48</span> &bull; <span>📍 <strong>Live GPS:</strong> {validKurirLat.toFixed(4)}, {validKurirLng.toFixed(4)}</span>
+            <span> <strong>Optik:</strong> Jl. Pemuda 48</span> &bull; <span> <strong>Live GPS:</strong> {validKurirLat.toFixed(4)}, {validKurirLng.toFixed(4)}</span>
           </div>
           <a
             href={googleMapsUrl}
@@ -210,7 +210,7 @@ const LiveMapKurir = ({
               boxShadow: '0 2px 4px rgba(2, 132, 199, 0.25)'
             }}
           >
-            🗺️ Buka Rute di Google Maps ↗
+            ️ Buka Rute di Google Maps 
           </a>
         </div>
       )}

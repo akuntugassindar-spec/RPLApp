@@ -58,7 +58,7 @@ const Home = () => {
 
         <div className="features-grid">
           <div className="feature-card">
-            <div className="feature-icon">🚗</div>
+            <div className="feature-icon"></div>
             <h3 style={{ marginBottom: '0.5rem', fontWeight: 700 }}>Antar-Jemput Tepat Waktu</h3>
             <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>
               Pilih waktu dan alamat penjemputan sesuai kenyamanan Anda. Kurir kami datang tepat waktu.
@@ -66,7 +66,7 @@ const Home = () => {
           </div>
 
           <div className="feature-card">
-            <div className="feature-icon">🔧</div>
+            <div className="feature-icon"></div>
             <h3 style={{ marginBottom: '0.5rem', fontWeight: 700 }}>Teknisi Optik Profesional</h3>
             <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>
               Penyetelan frame bengkok, pergantian nosepad, solder frame patah, dikerjakan dengan presisi tinggi.
@@ -74,7 +74,7 @@ const Home = () => {
           </div>
 
           <div className="feature-card">
-            <div className="feature-icon">👓</div>
+            <div className="feature-icon"></div>
             <h3 style={{ marginBottom: '0.5rem', fontWeight: 700 }}>Pilihan Lensa Lengkap</h3>
             <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>
               Lensa anti-radiasi, blueray, photochromic, hingga progresif dengan resep optik yang akurat.
@@ -82,7 +82,7 @@ const Home = () => {
           </div>
 
           <div className="feature-card">
-            <div className="feature-icon">📱</div>
+            <div className="feature-icon"></div>
             <h3 style={{ marginBottom: '0.5rem', fontWeight: 700 }}>Pantau Status Transparan</h3>
             <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>
               Lacak setiap tahapan pengerjaan kacamata Anda secara langsung dari dashboard sistem.

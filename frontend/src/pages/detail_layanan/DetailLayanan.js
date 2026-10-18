@@ -220,13 +220,13 @@ const DetailLayanan = () => {
 
   const renderBadge = (status) => {
     const s = (status || '').toLowerCase();
-    if (s.includes('selesai')) return <span className="badge badge-selesai">✓ Selesai</span>;
-    if (s.includes('batal') || s.includes('tolak')) return <span className="badge badge-batal">✕ Dibatalkan</span>;
-    if (s.includes('antar')) return <span className="badge badge-antar">🚚 Sedang Diantar</span>;
-    if (s.includes('jemput') || s === 'diambil') return <span className="badge badge-jemput">🛵 Kurir Menjemput</span>;
-    if (s === 'dijadwalkan') return <span className="badge badge-jemput">📅 Kurir Ditugaskan</span>;
-    if (s.includes('proses')) return <span className="badge badge-proses">⚙️ Sedang Dikerjakan</span>;
-    return <span className="badge badge-pending">⏳ Menunggu Verifikasi</span>;
+    if (s.includes('selesai')) return <span className="badge badge-selesai">Selesai</span>;
+    if (s.includes('batal') || s.includes('tolak')) return <span className="badge badge-batal">Dibatalkan</span>;
+    if (s.includes('antar')) return <span className="badge badge-antar">Sedang Diantar</span>;
+    if (s.includes('jemput') || s === 'diambil') return <span className="badge badge-jemput">Kurir Menjemput</span>;
+    if (s === 'dijadwalkan') return <span className="badge badge-jemput"> Kurir Ditugaskan</span>;
+    if (s.includes('proses')) return <span className="badge badge-proses">Sedang Dikerjakan</span>;
+    return <span className="badge badge-pending">Menunggu Verifikasi</span>;
   };
 
   const isLunas = layanan?.status_pembayaran === 'lunas';
@@ -294,7 +294,7 @@ const DetailLayanan = () => {
       <div style={{ maxWidth: '800px', margin: '2rem auto' }}>
         <div className="alert alert-danger">{error}</div>
         <Link to="/dashboard" className="btn btn-outline">
-          ← Kembali ke Dashboard
+          Kembali ke Dashboard
         </Link>
       </div>
     );
@@ -306,7 +306,7 @@ const DetailLayanan = () => {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <Link to="/dashboard" className="btn btn-outline btn-sm">
-            ← Kembali
+            Kembali
           </Link>
           <h1 style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--dark)' }}>
             Detail Pesanan #{layanan?.id || id}
@@ -315,7 +315,7 @@ const DetailLayanan = () => {
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
           {renderBadge(layanan?.status)}
           <button onClick={() => { fetchDetail(); fetchTracking(); }} className="btn btn-outline btn-sm">
-            🔄 Refresh Status
+            Refresh Status
           </button>
         </div>
       </div>
@@ -343,7 +343,7 @@ const DetailLayanan = () => {
                 return (
                   <div key={step.key} className={`timeline-step ${stepClass}`}>
                     <div className="timeline-icon">
-                      {idx < currentStep ? '✓' : idx + 1}
+                      {idx < currentStep ? '' : idx + 1}
                     </div>
                     <div className="timeline-title">{step.label}</div>
                     <div className="timeline-desc">{step.desc}</div>
@@ -361,7 +361,7 @@ const DetailLayanan = () => {
       <div className="card" style={{ border: '2px solid #38bdf8', backgroundColor: '#f0f9ff', marginBottom: '1.5rem', boxShadow: '0 4px 12px rgba(2, 132, 199, 0.08)' }}>
         <div className="card-header" style={{ borderColor: '#bae6fd', flexWrap: 'wrap', gap: '0.75rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-            <span style={{ fontSize: '1.6rem' }}>🛵</span>
+            <span style={{ fontSize: '1.6rem' }}></span>
             <div>
               <h3 className="card-title" style={{ fontSize: '1.2rem', color: '#0369a1', margin: 0 }}>
                 Pelacakan Langsung Armada Kurir (Live GPS Radar)
@@ -373,7 +373,7 @@ const DetailLayanan = () => {
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
             <span style={{ backgroundColor: '#e0f2fe', color: '#0369a1', padding: '0.35rem 0.85rem', borderRadius: '999px', fontSize: '0.85rem', fontWeight: 800 }}>
-              ⏱️ Estimasi Tiba: {displayEta}
+              Estimasi Tiba: {displayEta}
             </span>
             <button
               type="button"
@@ -389,7 +389,7 @@ const DetailLayanan = () => {
                 cursor: 'pointer'
               }}
             >
-              {simulasiBerjalan ? '⏹️ Stop Simulasi' : '⚡ Simulasikan Perjalanan Kurir'}
+              {simulasiBerjalan ? 'Hentikan Simulasi' : 'Simulasikan Perjalanan Kurir'}
             </button>
           </div>
         </div>
@@ -399,7 +399,7 @@ const DetailLayanan = () => {
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem', background: '#fff', padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px solid #e0f2fe', boxShadow: '0 2px 4px rgba(0,0,0,0.03)' }}>
               <div style={{ width: '52px', height: '52px', borderRadius: '50%', background: 'linear-gradient(135deg, #0284c7, #0d9488)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', boxShadow: '0 2px 6px rgba(2, 132, 199, 0.3)' }}>
-                🏍️
+                ️
               </div>
               <div style={{ flex: 1 }}>
                 <h4 style={{ fontWeight: 800, margin: 0, color: 'var(--dark)' }}>{kurirNama}</h4>
@@ -411,7 +411,7 @@ const DetailLayanan = () => {
                     rel="noreferrer"
                     style={{ fontSize: '0.8rem', color: '#16a34a', fontWeight: 700, textDecoration: 'none', background: '#dcfce7', padding: '2px 8px', borderRadius: '4px' }}
                   >
-                    💬 WA: {kurirTelepon}
+                    WA: {kurirTelepon}
                   </a>
                 </div>
               </div>
@@ -427,7 +427,7 @@ const DetailLayanan = () => {
                 <div style={{ width: `${displayProgress}%`, height: '100%', background: 'linear-gradient(90deg, #0284c7 0%, #10b981 100%)', borderRadius: '999px', transition: 'width 0.6s ease' }} />
               </div>
               <p style={{ fontSize: '0.85rem', color: '#1e293b', marginTop: '0.65rem', marginBottom: '0.25rem', fontWeight: 600 }}>
-                📍 {displayDesc}
+                 {displayDesc}
               </p>
               <small style={{ color: '#64748b', fontSize: '0.75rem', display: 'block' }}>
                 Koordinat Live GPS: <strong>Lat {currentLat}, Lng {currentLng}</strong> &bull; Status: {displayProgress >= 100 ? 'Tiba di Lokasi' : 'Dalam Perjalanan (35 km/j)'}
@@ -453,7 +453,7 @@ const DetailLayanan = () => {
                     cursor: 'pointer'
                   }}
                 >
-                  🗺️ Peta Jalan Asli (OSM)
+                  Peta Jalan (OSM)
                 </button>
                 <button
                   type="button"
@@ -469,7 +469,7 @@ const DetailLayanan = () => {
                     cursor: 'pointer'
                   }}
                 >
-                  📡 Radar Vektor
+                  Radar Vektor
                 </button>
               </div>
               <span style={{ fontSize: '0.75rem', background: '#dcfce7', color: '#15803d', padding: '0.2rem 0.6rem', borderRadius: '999px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
@@ -497,7 +497,7 @@ const DetailLayanan = () => {
 
                   {/* Titik Awal: Lab Toko Optik */}
                   <circle cx="30" cy="70" r="14" fill="#0369a1" />
-                  <text x="30" y="74" textAnchor="middle" fill="#fff" fontSize="11" fontWeight="bold">🏪</text>
+                  <text x="30" y="74" textAnchor="middle" fill="#fff" fontSize="11" fontWeight="bold"></text>
                   <text x="30" y="98" textAnchor="middle" fill="#0f172a" fontSize="9" fontWeight="bold">OptikExpress</text>
 
                   {/* Ikon Kurir Bergerak Dinamis dengan Efek Radar Pulsing */}
@@ -506,18 +506,18 @@ const DetailLayanan = () => {
                       <animate attributeName="r" values="14;24;14" dur="1.8s" repeatCount="indefinite" />
                     </circle>
                     <circle cx="0" cy="0" r="12" fill="#0d9488" stroke="#ffffff" strokeWidth="2.5" />
-                    <text x="0" y="4" textAnchor="middle" fill="#fff" fontSize="10">🛵</text>
+                    <text x="0" y="4" textAnchor="middle" fill="#fff" fontSize="10"></text>
                   </g>
 
                   {/* Titik Akhir: Alamat Pelanggan */}
                   <circle cx="290" cy="70" r="14" fill="#10b981" />
-                  <text x="290" y="74" textAnchor="middle" fill="#fff" fontSize="11" fontWeight="bold">🏠</text>
+                  <text x="290" y="74" textAnchor="middle" fill="#fff" fontSize="11" fontWeight="bold"></text>
                   <text x="290" y="98" textAnchor="middle" fill="#0f172a" fontSize="9" fontWeight="bold">Tujuan Anda</text>
                 </svg>
 
                 <div style={{ marginTop: '0.6rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
                   <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
-                    <span>🏪 Jl. Pemuda 48</span> &bull; <span>🏠 {layanan?.alamat ? layanan.alamat.slice(0, 20) + '...' : 'Tujuan'}</span>
+                    <span> Jl. Pemuda 48</span> &bull; <span> {layanan?.alamat ? layanan.alamat.slice(0, 20) + '...' : 'Tujuan'}</span>
                   </div>
                   <a
                     href={`https://www.google.com/maps/dir/?api=1&origin=-7.2625,112.7485&destination=${currentLat},${currentLng}&travelmode=driving`}
@@ -534,7 +534,7 @@ const DetailLayanan = () => {
                       textDecoration: 'none'
                     }}
                   >
-                    🗺️ Google Maps ↗
+                    Google Maps
                   </a>
                 </div>
               </div>
@@ -551,7 +551,7 @@ const DetailLayanan = () => {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #e2e8f0', paddingBottom: '1rem', flexWrap: 'wrap', gap: '1rem' }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <span style={{ fontSize: '1.5rem' }}>💳</span>
+              <span style={{ fontSize: '1.5rem' }}></span>
               <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800, color: 'var(--dark)' }}>
                 Pembayaran & Tagihan Layanan
               </h3>
@@ -569,7 +569,7 @@ const DetailLayanan = () => {
               Rp {Number(totalBiaya).toLocaleString('id-ID')}
             </span>
             <span className={`badge ${isLunas ? 'badge-selesai' : 'badge-pending'}`} style={{ display: 'inline-block', marginTop: '0.25rem' }}>
-              {isLunas ? '✓ LUNAS' : '⏳ MENUNGGU PEMBAYARAN'}
+              {isLunas ? 'LUNAS' : ' MENUNGGU PEMBAYARAN'}
             </span>
           </div>
         </div>
@@ -578,7 +578,7 @@ const DetailLayanan = () => {
         {isLunas ? (
           <div style={{ padding: '1.5rem 0 0.5rem 0', textAlign: 'center' }}>
             <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '64px', height: '64px', borderRadius: '50%', background: '#dcfce7', color: '#16a34a', fontSize: '2rem', marginBottom: '0.75rem' }}>
-              ✓
+              
             </div>
             <h4 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#15803d', margin: 0 }}>
               Tagihan Berhasil Dibayar Lunas
@@ -613,7 +613,7 @@ const DetailLayanan = () => {
                   boxShadow: activeMetode === 'qris' ? '0 2px 8px rgba(2, 132, 199, 0.15)' : 'none'
                 }}
               >
-                <div style={{ fontSize: '1.6rem', marginBottom: '0.25rem' }}>📱</div>
+                <div style={{ fontSize: '1.6rem', marginBottom: '0.25rem' }}></div>
                 <strong style={{ fontSize: '0.9rem', color: activeMetode === 'qris' ? '#0369a1' : 'var(--dark)', display: 'block' }}>QRIS (Instan)</strong>
                 <small style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>GoPay, OVO, Dana, BCA, dll</small>
               </button>
@@ -633,7 +633,7 @@ const DetailLayanan = () => {
                   boxShadow: activeMetode === 'va' ? '0 2px 8px rgba(2, 132, 199, 0.15)' : 'none'
                 }}
               >
-                <div style={{ fontSize: '1.6rem', marginBottom: '0.25rem' }}>🏦</div>
+                <div style={{ fontSize: '1.6rem', marginBottom: '0.25rem' }}></div>
                 <strong style={{ fontSize: '0.9rem', color: activeMetode === 'va' ? '#0369a1' : 'var(--dark)', display: 'block' }}>Virtual Account</strong>
                 <small style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>BCA, BNI, BRI, Mandiri</small>
               </button>
@@ -653,7 +653,7 @@ const DetailLayanan = () => {
                   boxShadow: activeMetode === 'gopay' ? '0 2px 8px rgba(2, 132, 199, 0.15)' : 'none'
                 }}
               >
-                <div style={{ fontSize: '1.6rem', marginBottom: '0.25rem' }}>🟢</div>
+                <div style={{ fontSize: '1.6rem', marginBottom: '0.25rem' }}></div>
                 <strong style={{ fontSize: '0.9rem', color: activeMetode === 'gopay' ? '#0369a1' : 'var(--dark)', display: 'block' }}>e-Wallet Direct</strong>
                 <small style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>GoPay / ShopeePay</small>
               </button>
@@ -673,7 +673,7 @@ const DetailLayanan = () => {
                   boxShadow: activeMetode === 'cod' ? '0 2px 8px rgba(2, 132, 199, 0.15)' : 'none'
                 }}
               >
-                <div style={{ fontSize: '1.6rem', marginBottom: '0.25rem' }}>💵</div>
+                <div style={{ fontSize: '1.6rem', marginBottom: '0.25rem' }}></div>
                 <strong style={{ fontSize: '0.9rem', color: activeMetode === 'cod' ? '#0369a1' : 'var(--dark)', display: 'block' }}>COD (Tunai)</strong>
                 <small style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Bayar langsung ke kurir</small>
               </button>
@@ -717,7 +717,7 @@ const DetailLayanan = () => {
 
                     <div style={{ background: '#e0f2fe', padding: '0.75rem', borderRadius: '8px', marginBottom: '1rem', borderLeft: '4px solid #0284c7' }}>
                       <p style={{ margin: 0, fontSize: '0.85rem', color: '#0369a1' }}>
-                        💡 <strong>Simulasi Midtrans Sandbox:</strong> Setelah melakukan scan atau ingin langsung menandai lunas, klik tombol konfirmasi di bawah.
+                         <strong>Simulasi Midtrans Sandbox:</strong> Setelah melakukan scan atau ingin langsung menandai lunas, klik tombol konfirmasi di bawah.
                       </p>
                     </div>
 
@@ -728,7 +728,7 @@ const DetailLayanan = () => {
                       className="btn btn-primary"
                       style={{ width: '100%', padding: '0.75rem', fontSize: '0.95rem', background: 'linear-gradient(135deg, #16a34a, #15803d)', borderColor: '#16a34a', fontWeight: 700 }}
                     >
-                      {processingPay ? 'Memverifikasi...' : '✓ Simulasi: Saya Sudah Bayar via QRIS'}
+                      {processingPay ? 'Memverifikasi...' : ' Simulasi: Saya Sudah Bayar via QRIS'}
                     </button>
                   </div>
                 </div>
@@ -773,7 +773,7 @@ const DetailLayanan = () => {
                       className="btn btn-outline btn-sm"
                       style={{ padding: '0.35rem 0.75rem' }}
                     >
-                      {copiedText ? '✓ Tersalin!' : '📋 Salin'}
+                      {copiedText ? 'Tersalin!' : 'Salin'}
                     </button>
                   </div>
                   <small style={{ color: '#64748b' }}>Atas Nama: <strong>OptikExpress - Layanan #{id}</strong></small>
@@ -786,7 +786,7 @@ const DetailLayanan = () => {
                   className="btn btn-primary"
                   style={{ width: '100%', padding: '0.75rem', fontSize: '0.95rem', background: 'linear-gradient(135deg, #16a34a, #15803d)', borderColor: '#16a34a', fontWeight: 700 }}
                 >
-                  {processingPay ? 'Memverifikasi...' : '✓ Simulasi: Saya Sudah Transfer ke Virtual Account'}
+                  {processingPay ? 'Memverifikasi...' : ' Simulasi: Saya Sudah Transfer ke Virtual Account'}
                 </button>
               </div>
             )}
@@ -794,7 +794,7 @@ const DetailLayanan = () => {
             {/* KONTEN METODE: 3. E-WALLET */}
             {(activeMetode === 'gopay' || activeMetode === 'shopeepay') && (
               <div style={{ background: '#f8fafc', padding: '1.25rem', borderRadius: '10px', border: '1px solid #e2e8f0', textAlign: 'center' }}>
-                <span style={{ fontSize: '2.5rem' }}>🟢</span>
+                <span style={{ fontSize: '2.5rem' }}></span>
                 <h4 style={{ fontWeight: 800, margin: '0.5rem 0' }}>Pembayaran via GoPay / ShopeePay</h4>
                 <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', maxWidth: '420px', margin: '0 auto 1rem auto' }}>
                   Buka aplikasi e-wallet Anda atau lakukan simulasi pembayaran instan di bawah ini.
@@ -807,7 +807,7 @@ const DetailLayanan = () => {
                     className="btn btn-primary"
                     style={{ background: 'linear-gradient(135deg, #16a34a, #15803d)', borderColor: '#16a34a', fontWeight: 700 }}
                   >
-                    {processingPay ? 'Memverifikasi...' : '✓ Simulasi: Sukses Bayar di GoPay/ShopeePay'}
+                    {processingPay ? 'Memverifikasi...' : ' Simulasi: Sukses Bayar di GoPay/ShopeePay'}
                   </button>
                 </div>
               </div>
@@ -816,7 +816,7 @@ const DetailLayanan = () => {
             {/* KONTEN METODE: 4. COD */}
             {activeMetode === 'cod' && (
               <div style={{ background: '#f8fafc', padding: '1.25rem', borderRadius: '10px', border: '1px solid #e2e8f0', textAlign: 'center' }}>
-                <span style={{ fontSize: '2.5rem' }}>💵</span>
+                <span style={{ fontSize: '2.5rem' }}></span>
                 <h4 style={{ fontWeight: 800, margin: '0.5rem 0', color: '#166534' }}>Cash on Delivery (Bayar Tunai ke Kurir)</h4>
                 <p style={{ fontSize: '0.85rem', color: '#334155', maxWidth: '450px', margin: '0 auto 1rem auto', lineHeight: '1.5' }}>
                   Siapkan uang tunai sebesar <strong>Rp {Number(totalBiaya).toLocaleString('id-ID')}</strong> saat kurir OptikExpress mengantarkan kacamata ke alamat Anda.
@@ -828,7 +828,7 @@ const DetailLayanan = () => {
                   className="btn btn-primary"
                   style={{ background: 'linear-gradient(135deg, #16a34a, #15803d)', borderColor: '#16a34a', fontWeight: 700 }}
                 >
-                  {processingPay ? 'Memproses...' : '✓ Simulasi: Kurir Menerima Uang Tunai (LUNAS)'}
+                  {processingPay ? 'Memproses...' : ' Simulasi: Kurir Menerima Uang Tunai (LUNAS)'}
                 </button>
               </div>
             )}
@@ -844,7 +844,7 @@ const DetailLayanan = () => {
         <div className="card">
           <div className="card-header">
             <h3 className="card-title" style={{ fontSize: '1.1rem' }}>
-              👓 Informasi Kacamata & Keluhan
+              Informasi Kacamata & Keluhan
             </h3>
           </div>
           <table style={{ width: '100%', fontSize: '0.95rem' }}>
@@ -881,7 +881,7 @@ const DetailLayanan = () => {
         <div className="card">
           <div className="card-header">
             <h3 className="card-title" style={{ fontSize: '1.1rem' }}>
-              📍 Informasi Penjemputan
+               Informasi Penjemputan
             </h3>
           </div>
           <table style={{ width: '100%', fontSize: '0.95rem' }}>
@@ -921,7 +921,7 @@ const DetailLayanan = () => {
       <div className="card" style={{ marginBottom: '1.5rem' }}>
         <div className="card-header">
           <h3 className="card-title" style={{ fontSize: '1.1rem' }}>
-            📷 Foto Fisik Kacamata & Resep Dokter
+            Foto Fisik Kacamata & Resep Dokter
           </h3>
           <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Klik foto untuk memperbesar tampilan</span>
         </div>
@@ -929,7 +929,7 @@ const DetailLayanan = () => {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.5rem' }}>
             {layanan.foto_kacamata && (
               <div style={{ background: '#f8fafc', padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)', textAlign: 'center' }}>
-                <p style={{ fontWeight: 700, fontSize: '0.9rem', marginBottom: '0.5rem', color: '#0369a1' }}>👓 Foto Kondisi Fisik Kacamata</p>
+                <p style={{ fontWeight: 700, fontSize: '0.9rem', marginBottom: '0.5rem', color: '#0369a1' }}> Foto Kondisi Fisik Kacamata</p>
                 <img
                   src={getImageUrl(layanan.foto_kacamata)}
                   alt="Foto Kacamata"
@@ -942,13 +942,13 @@ const DetailLayanan = () => {
                   className="btn btn-outline btn-sm"
                   style={{ marginTop: '0.5rem', width: '100%' }}
                 >
-                  🔍 Klik untuk Perbesar Foto
+                  Perbesar Foto
                 </button>
               </div>
             )}
             {layanan.foto_resep && (
               <div style={{ background: '#f8fafc', padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)', textAlign: 'center' }}>
-                <p style={{ fontWeight: 700, fontSize: '0.9rem', marginBottom: '0.5rem', color: '#0369a1' }}>📋 Foto Resep Dokter / Optik</p>
+                <p style={{ fontWeight: 700, fontSize: '0.9rem', marginBottom: '0.5rem', color: '#0369a1' }}>Foto Resep Dokter / Optik</p>
                 <img
                   src={getImageUrl(layanan.foto_resep)}
                   alt="Foto Resep"
@@ -961,7 +961,7 @@ const DetailLayanan = () => {
                   className="btn btn-outline btn-sm"
                   style={{ marginTop: '0.5rem', width: '100%' }}
                 >
-                  🔍 Klik untuk Perbesar Foto
+                  Perbesar Foto
                 </button>
               </div>
             )}
@@ -969,7 +969,7 @@ const DetailLayanan = () => {
         ) : (
           <div style={{ textAlign: 'center', padding: '1.5rem', background: '#f8fafc', borderRadius: '8px' }}>
             <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-              ℹ️ Tidak ada lampiran foto untuk pesanan ini (pengguna memilih tidak mengunggah foto saat pengajuan).
+               Tidak ada lampiran foto untuk pesanan ini (pengguna memilih tidak mengunggah foto saat pengajuan).
             </p>
           </div>
         )}

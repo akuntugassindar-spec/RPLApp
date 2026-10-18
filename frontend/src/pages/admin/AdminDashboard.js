@@ -72,12 +72,12 @@ const AdminDashboard = () => {
 
   const renderBadge = (status) => {
     const s = (status || '').toLowerCase();
-    if (s.includes('selesai')) return <span className="badge badge-selesai">✓ Selesai</span>;
-    if (s.includes('batal') || s.includes('tolak')) return <span className="badge badge-batal">✕ Batal</span>;
-    if (s.includes('antar')) return <span className="badge badge-antar">🚚 Sedang Diantar</span>;
-    if (s.includes('jemput')) return <span className="badge badge-jemput">🛵 Penjemputan</span>;
-    if (s.includes('proses')) return <span className="badge badge-proses">⚙️ Dikerjakan</span>;
-    return <span className="badge badge-pending">⏳ Menunggu Konfirmasi</span>;
+    if (s.includes('selesai')) return <span className="badge badge-selesai">Selesai</span>;
+    if (s.includes('batal') || s.includes('tolak')) return <span className="badge badge-batal">Dibatalkan</span>;
+    if (s.includes('antar')) return <span className="badge badge-antar">Sedang Diantar</span>;
+    if (s.includes('jemput')) return <span className="badge badge-jemput">Penjemputan</span>;
+    if (s.includes('proses')) return <span className="badge badge-proses">Sedang Dikerjakan</span>;
+    return <span className="badge badge-pending">Menunggu Konfirmasi</span>;
   };
 
   // Ambil 5 pesanan terbaru
@@ -97,7 +97,7 @@ const AdminDashboard = () => {
         </div>
         <div style={{ display: 'flex', gap: '0.75rem' }}>
           <button onClick={fetchAllLayanan} className="btn btn-outline btn-sm">
-            🔄 Refresh Data
+            Refresh Data
           </button>
           <Link to="/admin/layanan" className="btn btn-primary btn-sm">
             Lihat Semua Layanan →
@@ -110,7 +110,7 @@ const AdminDashboard = () => {
       {/* Grid Metrik Statistik */}
       <div className="stats-grid">
         <div className="stat-card">
-          <div className="stat-icon blue">📋</div>
+          <div className="stat-icon blue"></div>
           <div className="stat-info">
             <h3>{totalLayanan}</h3>
             <p>Total Permintaan</p>
@@ -118,7 +118,7 @@ const AdminDashboard = () => {
         </div>
 
         <div className="stat-card">
-          <div className="stat-icon yellow">⏳</div>
+          <div className="stat-icon yellow"></div>
           <div className="stat-info">
             <h3>{pendingLayanan}</h3>
             <p>Menunggu Konfirmasi</p>
@@ -126,7 +126,7 @@ const AdminDashboard = () => {
         </div>
 
         <div className="stat-card">
-          <div className="stat-icon teal">🔧</div>
+          <div className="stat-icon teal"></div>
           <div className="stat-info">
             <h3>{inProgressLayanan}</h3>
             <p>Sedang Diproses</p>
@@ -134,7 +134,7 @@ const AdminDashboard = () => {
         </div>
 
         <div className="stat-card">
-          <div className="stat-icon green">✅</div>
+          <div className="stat-icon green"></div>
           <div className="stat-info">
             <h3>{completedLayanan}</h3>
             <p>Selesai Dikerjakan</p>
@@ -216,7 +216,7 @@ const AdminDashboard = () => {
                           }}
                           onClick={() => handleDelete(item.id || item._id)}
                         >
-                          🗑️ Hapus
+                          Hapus
                         </button>
                       </div>
                     </td>

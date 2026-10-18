@@ -53,24 +53,24 @@ const Dashboard = () => {
     const s = (status || '').toLowerCase();
 
     if (s.includes('selesai')) {
-      return <span className="badge badge-selesai">✓ Selesai</span>;
+      return <span className="badge badge-selesai">Selesai</span>;
     }
     if (s.includes('batal') || s.includes('tolak')) {
-      return <span className="badge badge-batal">✕ Dibatalkan</span>;
+      return <span className="badge badge-batal">Dibatalkan</span>;
     }
     if (s.includes('antar')) {
-      return <span className="badge badge-antar">🚚 Sedang Diantar</span>;
+      return <span className="badge badge-antar">Sedang Diantar</span>;
     }
     if (s.includes('jemput')) {
-      return <span className="badge badge-jemput">🛵 Penjemputan</span>;
+      return <span className="badge badge-jemput">Penjemputan</span>;
     }
     if (s.includes('proses') || s.includes('periksa') || s.includes('pengerjaan')) {
-      return <span className="badge badge-proses">⚙️ Sedang Dikerjakan</span>;
+      return <span className="badge badge-proses">Sedang Dikerjakan</span>;
     }
     if (s.includes('siap')) {
-      return <span className="badge badge-siap">📦 Siap Diantar</span>;
+      return <span className="badge badge-siap">Siap Diantar</span>;
     }
-    return <span className="badge badge-pending">⏳ Menunggu Konfirmasi</span>;
+    return <span className="badge badge-pending">Menunggu Konfirmasi</span>;
   };
 
   // Hitung ringkasan statistik sederhana
@@ -100,7 +100,7 @@ const Dashboard = () => {
       >
         <div>
           <h1 style={{ fontSize: '1.75rem', fontWeight: 800 }}>
-            Halo, {user?.nama || 'Pelanggan Setia'}! 👋
+            Halo, {user?.nama || 'Pelanggan Setia'}! 
           </h1>
           <p style={{ marginTop: '0.35rem', opacity: 0.9 }}>
             Pantau perbaikan kacamata dan jadwalkan penjemputan baru langsung dari sini.
@@ -114,21 +114,21 @@ const Dashboard = () => {
       {/* Ringkasan Metrik Pengguna */}
       <div className="stats-grid">
         <div className="stat-card">
-          <div className="stat-icon blue">👓</div>
+          <div className="stat-icon blue"></div>
           <div className="stat-info">
             <h3>{totalLayanan}</h3>
             <p>Total Permintaan</p>
           </div>
         </div>
         <div className="stat-card">
-          <div className="stat-icon yellow">⏳</div>
+          <div className="stat-icon yellow"></div>
           <div className="stat-info">
             <h3>{aktifLayanan}</h3>
             <p>Sedang Diproses</p>
           </div>
         </div>
         <div className="stat-card">
-          <div className="stat-icon green">✅</div>
+          <div className="stat-icon green"></div>
           <div className="stat-info">
             <h3>{selesaiLayanan}</h3>
             <p>Layanan Selesai</p>
@@ -141,7 +141,7 @@ const Dashboard = () => {
         <div className="card-header">
           <h2 className="card-title">Daftar Permintaan Layanan Saya</h2>
           <button onClick={fetchLayanan} className="btn btn-outline btn-sm">
-            🔄 Segarkan Data
+            Segarkan Data
           </button>
         </div>
 
@@ -153,7 +153,7 @@ const Dashboard = () => {
           </div>
         ) : layananList.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '3rem 1rem' }}>
-            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📭</div>
+            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}></div>
             <h3 style={{ fontWeight: 700, marginBottom: '0.5rem' }}>Belum Ada Permintaan Layanan</h3>
             <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem' }}>
               Kacamata Anda butuh perbaikan atau ganti lensa baru? Pesan penjemputan sekarang.
@@ -210,7 +210,7 @@ const Dashboard = () => {
                           Rp {Number(total).toLocaleString('id-ID')}
                         </div>
                         <span className={`badge ${isLunas ? 'badge-selesai' : 'badge-pending'}`} style={{ fontSize: '0.75rem', marginTop: '2px', display: 'inline-block' }}>
-                          {isLunas ? '✓ Lunas' : '⏳ Belum Bayar'}
+                          {isLunas ? 'Lunas' : 'Belum Bayar'}
                         </span>
                       </td>
                       <td>
@@ -219,7 +219,7 @@ const Dashboard = () => {
                           className="btn btn-primary btn-sm"
                           style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', whiteSpace: 'nowrap' }}
                         >
-                          🛵 Lacak & Bayar
+                          Lacak & Bayar
                         </Link>
                       </td>
                     </tr>

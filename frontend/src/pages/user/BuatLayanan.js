@@ -76,7 +76,7 @@ const BuatLayanan = () => {
     <div style={{ maxWidth: '800px', margin: '0 auto' }}>
       <div style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
         <Link to="/dashboard" className="btn btn-outline btn-sm">
-          ← Kembali ke Dashboard
+          Kembali ke Dashboard
         </Link>
         <h1 style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--dark)' }}>
           Pesan Layanan Antar-Jemput
