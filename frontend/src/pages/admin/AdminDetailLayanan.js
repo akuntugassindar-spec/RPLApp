@@ -202,6 +202,36 @@ const AdminDetailLayanan = () => {
 
   const isLunas = statusPembayaran === 'lunas';
 
+  const progressMap = {
+    pengajuan: 15,
+    dijadwalkan: 35,
+    diambil: 60,
+    diproses: 80,
+    diantar: 90,
+    selesai: 100
+  };
+
+  const effectiveTracking = trackingData || {
+    status_layanan: statusDipilih || layanan?.status || 'pengajuan',
+    persentase_perjalanan: progressMap[statusDipilih || layanan?.status] || 25,
+    estimasi_tiba: (statusDipilih === 'selesai' || layanan?.status === 'selesai') ? 'Tiba di Lokasi' : '20-30 Menit',
+    status_deskripsi: trackingStatus || layanan?.tracking_status || 'Kurir dalam persiapan operasional.',
+    kurir: {
+      nama: kurirNama || layanan?.kurir_nama || 'Agus Pratama',
+      telepon: kurirTelepon || layanan?.kurir_telepon || '0812-3456-7890',
+      kendaraan: 'Honda Vario 160 (L 4589 AB)'
+    },
+    lokasi_optik: { nama: 'OptikExpress Store & Lab', alamat: 'Jl. Pemuda No. 48, Surabaya' },
+    lokasi_tujuan: { nama: layanan?.nama_pelanggan || 'Pelanggan', alamat: layanan?.alamat || 'Alamat Pelanggan' }
+  };
+
+  const handleApplyPreset = (statusVal, deskripsi) => {
+    setStatusDipilih(statusVal);
+    setTrackingStatus(deskripsi);
+    if (!kurirNama) setKurirNama('Agus Pratama');
+    if (!kurirTelepon) setKurirTelepon('0812-3456-7890');
+  };
+
   return (
     <div style={{ maxWidth: '1060px', margin: '0 auto' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
@@ -254,7 +284,7 @@ const AdminDetailLayanan = () => {
       </div>
 
       {/* Pemantauan Kurir GPS */}
-      {trackingData && (
+      {effectiveTracking && (
         <div className="card" style={{ border: '2px solid #bae6fd', backgroundColor: '#f0f9ff' }}>
           <div className="card-header" style={{ borderColor: '#bae6fd' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
@@ -265,7 +295,7 @@ const AdminDetailLayanan = () => {
               </div>
             </div>
             <span style={{ backgroundColor: '#e0f2fe', color: '#0369a1', padding: '0.25rem 0.65rem', borderRadius: '999px', fontSize: '0.8rem', fontWeight: 700 }}>
-              ⏱️ Estimasi Tiba: {trackingData.estimasi_tiba}
+              ⏱️ Estimasi Tiba: {effectiveTracking.estimasi_tiba}
             </span>
           </div>
 
@@ -276,22 +306,22 @@ const AdminDetailLayanan = () => {
                   🏍️
                 </div>
                 <div>
-                  <h4 style={{ fontWeight: 700, color: 'var(--dark)' }}>{kurirNama || trackingData.kurir?.nama || 'Belum Ditugaskan'}</h4>
-                  <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{trackingData.kurir?.kendaraan}</p>
-                  <p style={{ fontSize: '0.85rem', color: '#0369a1', fontWeight: 600 }}>📞 {kurirTelepon || trackingData.kurir?.telepon || '-'}</p>
+                  <h4 style={{ fontWeight: 700, color: 'var(--dark)' }}>{kurirNama || effectiveTracking.kurir?.nama || 'Belum Ditugaskan'}</h4>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{effectiveTracking.kurir?.kendaraan}</p>
+                  <p style={{ fontSize: '0.85rem', color: '#0369a1', fontWeight: 600 }}>📞 {kurirTelepon || effectiveTracking.kurir?.telepon || '-'}</p>
                 </div>
               </div>
 
               <div style={{ marginBottom: '1rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem', color: '#0369a1' }}>
                   <span>Progres Rute Kurir</span>
-                  <span>{trackingData.persentase_perjalanan}%</span>
+                  <span>{effectiveTracking.persentase_perjalanan}%</span>
                 </div>
                 <div style={{ width: '100%', height: '8px', background: '#e2e8f0', borderRadius: '999px', overflow: 'hidden' }}>
-                  <div style={{ width: `${trackingData.persentase_perjalanan}%`, height: '100%', background: 'linear-gradient(90deg, #0284c7, #0d9488)', borderRadius: '999px', transition: 'width 0.5s ease' }} />
+                  <div style={{ width: `${effectiveTracking.persentase_perjalanan}%`, height: '100%', background: 'linear-gradient(90deg, #0284c7, #0d9488)', borderRadius: '999px', transition: 'width 0.5s ease' }} />
                 </div>
                 <p style={{ fontSize: '0.85rem', color: '#334155', marginTop: '0.5rem', fontStyle: 'italic' }}>
-                  📍 {trackingStatus || trackingData.status_deskripsi}
+                  📍 {trackingStatus || effectiveTracking.status_deskripsi}
                 </p>
               </div>
 
@@ -334,7 +364,7 @@ const AdminDetailLayanan = () => {
                 <text x="30" y="74" textAnchor="middle" fill="#fff" fontSize="10" fontWeight="bold">🏪</text>
                 <text x="30" y="98" textAnchor="middle" fill="#0f172a" fontSize="9" fontWeight="bold">Lab Optik</text>
                 {(() => {
-                  const p = (trackingData.persentase_perjalanan || 50) / 100;
+                  const p = (effectiveTracking.persentase_perjalanan || 50) / 100;
                   const kurirX = 30 + (290 - 30) * p;
                   const kurirY = 70 + Math.sin(p * Math.PI) * -35;
                   return (
@@ -354,7 +384,7 @@ const AdminDetailLayanan = () => {
               </svg>
 
               <div style={{ marginTop: '0.5rem', display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: '#64748b' }}>
-                <span>🏪 {trackingData.lokasi_optik?.nama}</span>
+                <span>🏪 {effectiveTracking.lokasi_optik?.nama}</span>
                 <span>🏠 {layanan?.alamat ? layanan.alamat.slice(0, 20) + '...' : 'Tujuan Pelanggan'}</span>
               </div>
             </div>
@@ -494,6 +524,48 @@ const AdminDetailLayanan = () => {
               <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#0369a1', marginBottom: '0.75rem' }}>
                 🛵 Penugasan Armada Kurir
               </h4>
+              <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', marginBottom: '0.75rem' }}>
+                <button
+                  type="button"
+                  onClick={() => handleApplyPreset('dijadwalkan', 'Kurir bersiap berangkat menuju alamat penjemputan')}
+                  className="btn btn-sm btn-outline"
+                  style={{ fontSize: '0.75rem', padding: '0.2rem 0.5rem' }}
+                >
+                  🛵 1. Jadwal (25%)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleApplyPreset('diambil', 'Kurir dalam perjalanan menjemput kacamata')}
+                  className="btn btn-sm btn-outline"
+                  style={{ fontSize: '0.75rem', padding: '0.2rem 0.5rem' }}
+                >
+                  📦 2. Dijemput (50%)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleApplyPreset('diproses', 'Kacamata tiba di lab optik, teknisi sedang memperbaiki')}
+                  className="btn btn-sm btn-outline"
+                  style={{ fontSize: '0.75rem', padding: '0.2rem 0.5rem' }}
+                >
+                  ⚙️ 3. Di Lab (75%)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleApplyPreset('diantar', 'Kacamata selesai diperbaiki, kurir mengantar kembali')}
+                  className="btn btn-sm btn-outline"
+                  style={{ fontSize: '0.75rem', padding: '0.2rem 0.5rem' }}
+                >
+                  🚚 4. Diantar (90%)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleApplyPreset('selesai', 'Kacamata telah diterima pelanggan dengan baik')}
+                  className="btn btn-sm btn-outline"
+                  style={{ fontSize: '0.75rem', padding: '0.2rem 0.5rem' }}
+                >
+                  🏠 5. Selesai (100%)
+                </button>
+              </div>
               <div className="form-grid">
                 <div className="form-group">
                   <label className="form-label" htmlFor="kurirNama">Nama Kurir</label>

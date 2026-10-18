@@ -299,6 +299,8 @@ const updateStatusLayanan = async (req, res) => {
     if (kurir_nama) { updateFields.push('kurir_nama = ?'); updateParams.push(kurir_nama); }
     if (kurir_telepon) { updateFields.push('kurir_telepon = ?'); updateParams.push(kurir_telepon); }
     if (tracking_status) { updateFields.push('tracking_status = ?'); updateParams.push(tracking_status); }
+    if (req.body.kurir_lat !== undefined && req.body.kurir_lat !== null) { updateFields.push('kurir_lat = ?'); updateParams.push(req.body.kurir_lat); }
+    if (req.body.kurir_lng !== undefined && req.body.kurir_lng !== null) { updateFields.push('kurir_lng = ?'); updateParams.push(req.body.kurir_lng); }
     updateParams.push(layananId);
     await db.query(`UPDATE layanan SET ${updateFields.join(', ')} WHERE id = ?`, updateParams);
     sendEmailNotification(dataLama.email, dataLama.nama, status);

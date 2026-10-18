@@ -171,46 +171,60 @@ const Dashboard = () => {
                   <th>Jenis Layanan</th>
                   <th>Kacamata / Keluhan</th>
                   <th>Jadwal Jemput</th>
-                  <th>Status</th>
+                  <th>Status Layanan</th>
+                  <th>Biaya & Bayar</th>
                   <th>Aksi</th>
                 </tr>
               </thead>
               <tbody>
-                {layananList.map((item, idx) => (
-                  <tr key={item.id || item._id || idx}>
-                    <td style={{ fontWeight: 600 }}>#{item.id || item._id || idx + 1}</td>
-                    <td>
-                      <strong style={{ textTransform: 'capitalize' }}>
-                        {item.jenis_layanan ? item.jenis_layanan.replace('_', ' ') : 'Perbaikan'}
-                      </strong>
-                    </td>
-                    <td>
-                      <div>
-                        <strong>{item.jenis_kacamata || 'Kacamata'}</strong>
-                      </div>
-                      <small style={{ color: 'var(--text-muted)' }}>
-                        {item.keluhan
-                          ? item.keluhan.length > 40
-                            ? item.keluhan.substring(0, 40) + '...'
-                            : item.keluhan
-                          : '-'}
-                      </small>
-                    </td>
-                    <td>
-                      <div>{item.tanggal_jemput || '-'}</div>
-                      <small style={{ color: 'var(--text-muted)' }}>{item.jam_jemput || ''}</small>
-                    </td>
-                    <td>{renderStatusBadge(item.status)}</td>
-                    <td>
-                      <Link
-                        to={`/layanan/${item.id || item._id}`}
-                        className="btn btn-primary btn-sm"
-                      >
-                        Detail & Lacak
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
+                {layananList.map((item, idx) => {
+                  const isLunas = item.status_pembayaran === 'lunas';
+                  const total = item.total_biaya && item.total_biaya > 0 ? item.total_biaya : 150000;
+                  return (
+                    <tr key={item.id || item._id || idx}>
+                      <td style={{ fontWeight: 600 }}>#{item.id || item._id || idx + 1}</td>
+                      <td>
+                        <strong style={{ textTransform: 'capitalize' }}>
+                          {item.jenis_layanan ? item.jenis_layanan.replace('_', ' ') : 'Perbaikan'}
+                        </strong>
+                      </td>
+                      <td>
+                        <div>
+                          <strong>{item.jenis_kacamata || 'Kacamata'}</strong>
+                        </div>
+                        <small style={{ color: 'var(--text-muted)' }}>
+                          {item.keluhan
+                            ? item.keluhan.length > 40
+                              ? item.keluhan.substring(0, 40) + '...'
+                              : item.keluhan
+                            : '-'}
+                        </small>
+                      </td>
+                      <td>
+                        <div>{item.tanggal_jemput || '-'}</div>
+                        <small style={{ color: 'var(--text-muted)' }}>{item.jam_jemput || ''}</small>
+                      </td>
+                      <td>{renderStatusBadge(item.status)}</td>
+                      <td>
+                        <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>
+                          Rp {Number(total).toLocaleString('id-ID')}
+                        </div>
+                        <span className={`badge ${isLunas ? 'badge-selesai' : 'badge-pending'}`} style={{ fontSize: '0.75rem', marginTop: '2px', display: 'inline-block' }}>
+                          {isLunas ? '✓ Lunas' : '⏳ Belum Bayar'}
+                        </span>
+                      </td>
+                      <td>
+                        <Link
+                          to={`/layanan/${item.id || item._id}`}
+                          className="btn btn-primary btn-sm"
+                          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', whiteSpace: 'nowrap' }}
+                        >
+                          🛵 Lacak & Bayar
+                        </Link>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

@@ -5,8 +5,7 @@ import api from '../../utils/api';
 /**
  * Halaman Buat Permintaan Layanan Antar-Jemput Kacamata
  * Menyediakan form pengisian data perbaikan atau pergantian lensa:
- * jenis_layanan, jenis_kacamata, keluhan, detail_perbaikan, alamat, tanggal_jemput, jam_jemput, keterangan,
- * serta upload foto kacamata (kondisi frame/lensa) dan foto resep optik/dokter (Base64).
+ * jenis_layanan, jenis_kacamata, keluhan, detail_perbaikan, alamat, tanggal_jemput, jam_jemput, keterangan.
  * Data dikirim via POST /api/layanan.
  */
 const BuatLayanan = () => {
@@ -18,7 +17,7 @@ const BuatLayanan = () => {
   const defaultDate = tomorrow.toISOString().split('T')[0];
 
   const [formData, setFormData] = useState({
-    jenis_layanan: 'perbaikan',
+    jenis_layanan: 'perbaikan', // default: perbaikan atau penggantian_lensa
     jenis_kacamata: '',
     keluhan: '',
     detail_perbaikan: '',
@@ -26,12 +25,8 @@ const BuatLayanan = () => {
     tanggal_jemput: defaultDate,
     jam_jemput: '10:00',
     keterangan: '',
-    foto_kacamata: null,
-    foto_resep: null,
   });
 
-  const [previewKacamata, setPreviewKacamata] = useState(null);
-  const [previewResep, setPreviewResep] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -43,45 +38,6 @@ const BuatLayanan = () => {
       [name]: value,
     }));
     if (error) setError('');
-  };
-
-  const handleFileChange = (e, field) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    if (!file.type.startsWith('image/')) {
-      setError('File harus berupa gambar (JPG, PNG, atau WebP).');
-      return;
-    }
-
-    if (file.size > 5 * 1024 * 1024) {
-      setError('Ukuran file maksimal 5 MB.');
-      return;
-    }
-
-    setError('');
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const base64Data = reader.result;
-      if (field === 'foto_kacamata') {
-        setFormData((prev) => ({ ...prev, foto_kacamata: base64Data }));
-        setPreviewKacamata(base64Data);
-      } else if (field === 'foto_resep') {
-        setFormData((prev) => ({ ...prev, foto_resep: base64Data }));
-        setPreviewResep(base64Data);
-      }
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const handleRemovePhoto = (field) => {
-    if (field === 'foto_kacamata') {
-      setFormData((prev) => ({ ...prev, foto_kacamata: null }));
-      setPreviewKacamata(null);
-    } else if (field === 'foto_resep') {
-      setFormData((prev) => ({ ...prev, foto_resep: null }));
-      setPreviewResep(null);
-    }
   };
 
   const handleSubmit = async (e) => {
@@ -96,6 +52,7 @@ const BuatLayanan = () => {
 
       const newId = response.data?.data?.id || response.data?.id;
 
+      // Beri sedikit waktu untuk membaca pesan berhasil, lalu arahkan pengguna
       setTimeout(() => {
         if (newId) {
           navigate(`/layanan/${newId}`);
@@ -167,7 +124,7 @@ const BuatLayanan = () => {
                 id="jenis_kacamata"
                 name="jenis_kacamata"
                 className="form-control"
-                placeholder="Contoh: Frame Titanium Bulat / Lensa Anti Radiasi"
+                placeholder="Contoh: Kacamata Baca Frame Titanium / Kacamata Minus Gaya Retro"
                 value={formData.jenis_kacamata}
                 onChange={handleChange}
                 required
@@ -206,73 +163,6 @@ const BuatLayanan = () => {
               onChange={handleChange}
               rows={2}
             />
-          </div>
-
-          {/* Upload Foto Kacamata & Resep Dokter */}
-          <div className="form-grid" style={{ marginBottom: '1.25rem' }}>
-            <div className="form-group" style={{ background: '#f8fafc', padding: '1rem', borderRadius: '8px', border: '1px dashed #cbd5e1' }}>
-              <label className="form-label" style={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                📷 Foto Kacamata / Kerusakan <span style={{ fontSize: '0.8rem', fontWeight: 'normal', color: 'var(--text-muted)' }}>(Opsional)</span>
-              </label>
-              <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
-                Unggah foto fisik frame kacamata atau bagian yang rusak.
-              </p>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => handleFileChange(e, 'foto_kacamata')}
-                className="form-control"
-                style={{ fontSize: '0.85rem' }}
-              />
-              {previewKacamata && (
-                <div style={{ marginTop: '0.75rem', position: 'relative', display: 'inline-block' }}>
-                  <img
-                    src={previewKacamata}
-                    alt="Preview Kacamata"
-                    style={{ width: '100%', maxHeight: '160px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #cbd5e1' }}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => handleRemovePhoto('foto_kacamata')}
-                    style={{ position: 'absolute', top: '5px', right: '5px', background: 'rgba(239, 68, 68, 0.9)', color: '#fff', border: 'none', borderRadius: '4px', padding: '2px 8px', fontSize: '0.75rem', cursor: 'pointer' }}
-                  >
-                    ✕ Hapus
-                  </button>
-                </div>
-              )}
-            </div>
-
-            <div className="form-group" style={{ background: '#f8fafc', padding: '1rem', borderRadius: '8px', border: '1px dashed #cbd5e1' }}>
-              <label className="form-label" style={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                📋 Foto Resep Dokter / Optik <span style={{ fontSize: '0.8rem', fontWeight: 'normal', color: 'var(--text-muted)' }}>(Opsional)</span>
-              </label>
-              <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
-                Jika ganti lensa, sertakan foto kertas resep dari dokter spesialis mata.
-              </p>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => handleFileChange(e, 'foto_resep')}
-                className="form-control"
-                style={{ fontSize: '0.85rem' }}
-              />
-              {previewResep && (
-                <div style={{ marginTop: '0.75rem', position: 'relative', display: 'inline-block' }}>
-                  <img
-                    src={previewResep}
-                    alt="Preview Resep"
-                    style={{ width: '100%', maxHeight: '160px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #cbd5e1' }}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => handleRemovePhoto('foto_resep')}
-                    style={{ position: 'absolute', top: '5px', right: '5px', background: 'rgba(239, 68, 68, 0.9)', color: '#fff', border: 'none', borderRadius: '4px', padding: '2px 8px', fontSize: '0.75rem', cursor: 'pointer' }}
-                  >
-                    ✕ Hapus
-                  </button>
-                </div>
-              )}
-            </div>
           </div>
 
           {/* Baris 4: Alamat Penjemputan */}
