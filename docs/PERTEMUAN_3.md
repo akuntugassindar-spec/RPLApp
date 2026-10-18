@@ -1,4 +1,4 @@
-# 🏗️ PERTEMUAN 3: DOKUMEN ARSITEKTUR & SPESIFIKASI SISTEM
+# PERTEMUAN 3: DOKUMEN ARSITEKTUR DAN SPESIFIKASI SISTEM
 
 **Nama Aplikasi:** **OptikExpress — Sistem Informasi Layanan Antar-Jemput Kacamata**  
 **Purpose:**  
@@ -51,16 +51,16 @@ OptikExpress mengadopsi model arsitektur **3-Tier Client-Server**:
 * **Backend:** Node.js (>= 18.x), Express.js 4.19.2, mysql2 (Connection Pool dengan Promise).
 * **Database:** MySQL 8.0 / MariaDB 10.4+ (`db_kacamata`).
 * **Keamanan:** JSON Web Token (`jsonwebtoken` 9.0.2), BCrypt password hashing (`bcryptjs` 2.4.3).
-* **Notifikasi:** Nodemailer (SMTP) & Logger Notifikasi WhatsApp.
-* **API Style:** RESTful API (JSON Payload & Status Codes).
-* **Kontainerisasi:** Docker & Docker Compose (`docker-compose.yml`).
+* **Notifikasi:** Nodemailer (SMTP) dan Logger Notifikasi WhatsApp.
+* **API Style:** RESTful API (JSON Payload dan Status Codes).
+* **Kontainerisasi:** Docker dan Docker Compose (`docker-compose.yml`).
 
 ---
 
-## 3. Code & Design Rules
+## 3. Code dan Design Rules
 
 * **Komponen React:** Menggunakan PascalCase (`Navbar.js`, `LiveMapKurir.js`, `BuatLayanan.js`).
-* **Backend Controllers & Helpers:** Menggunakan camelCase (`getAllLayanan`, `createLayanan`, `autoAssignCourier`).
+* **Backend Controllers dan Helpers:** Menggunakan camelCase (`getAllLayanan`, `createLayanan`, `autoAssignCourier`).
 * **Format Respons JSON:** Standar format konsisten `{ success: boolean, message: string, data?: any, error?: string }`.
 * **Keamanan Kredensial:** Password wajib di-hash dengan BCrypt (salt rounds 10). Token JWT divalidasi via middleware `auth.js` dan otorisasi admin via `adminAuth.js`.
 
@@ -154,22 +154,22 @@ erDiagram
 
 ---
 
-## 5. Fitur Backend & Endpoint API
+## 5. Fitur Backend dan Endpoint API
 
 | Method | Endpoint | Akses | Deskripsi Fungsi |
 | :--- | :--- | :--- | :--- |
 | `POST` | `/api/auth/register` | Publik | Registrasi akun baru pelanggan |
-| `POST` | `/api/auth/login` | Publik | Otentikasi kredensial & penerbitan token JWT |
-| `GET` | `/api/auth/me` | Pelanggan & Admin | Mengambil data sesi pengguna aktif |
-| `GET` | `/api/layanan` | Pelanggan & Admin | Ambil daftar pesanan (difilter per pengguna jika pelanggan) |
-| `GET` | `/api/layanan/:id` | Pelanggan & Admin | Detail lengkap pesanan dan kacamata |
+| `POST` | `/api/auth/login` | Publik | Otentikasi kredensial dan penerbitan token JWT |
+| `GET` | `/api/auth/me` | Pelanggan dan Admin | Mengambil data sesi pengguna aktif |
+| `GET` | `/api/layanan` | Pelanggan dan Admin | Ambil daftar pesanan (difilter per pengguna jika pelanggan) |
+| `GET` | `/api/layanan/:id` | Pelanggan dan Admin | Detail lengkap pesanan dan kacamata |
 | `POST` | `/api/layanan` | Pelanggan | Ajukan permintaan servis kacamata baru |
-| `PUT` | `/api/layanan/:id/status` | Khusus Admin | Ubah status pengerjaan, biaya, & kurir |
-| `POST` | `/api/layanan/:id/pembayaran` | Pelanggan & Admin | Generate transaksi QRIS / VA / COD |
-| `POST` | `/api/layanan/:id/pembayaran/konfirmasi` | Pelanggan & Admin | Konfirmasi pembayaran Lunas |
-| `GET` | `/api/layanan/:id/tracking` | Pelanggan & Admin | Ambil koordinat GPS kurir, persentase rute, & ETA |
+| `PUT` | `/api/layanan/:id/status` | Khusus Admin | Ubah status pengerjaan, biaya, dan kurir |
+| `POST` | `/api/layanan/:id/pembayaran` | Pelanggan dan Admin | Inisialisasi transaksi QRIS, VA, atau COD |
+| `POST` | `/api/layanan/:id/pembayaran/konfirmasi` | Pelanggan dan Admin | Konfirmasi status pembayaran Lunas |
+| `GET` | `/api/layanan/:id/tracking` | Pelanggan dan Admin | Ambil koordinat GPS kurir, persentase rute, dan ETA |
 | `PUT` | `/api/layanan/:id/tracking` | Khusus Admin | Update posisi kurir live di peta |
-| `DELETE`| `/api/layanan/:id` | Pelanggan & Admin | Batalkan pesanan berstatus pengajuan |
+| `DELETE`| `/api/layanan/:id` | Pelanggan dan Admin | Batalkan pesanan berstatus pengajuan |
 
 ---
 
@@ -178,10 +178,10 @@ erDiagram
 ```text
 RPLApp/
 ├── backend/
-│   ├── config/db.js              # MySQL connection pool & auto-migration
+│   ├── config/db.js              # MySQL connection pool dan auto-migration
 │   ├── controllers/              # Business logic (auth, layanan, detailLayanan)
-│   ├── database/schema.sql       # DDL 6 tabel relasional 3NF & demo seed
-│   ├── middleware/               # auth.js (JWT) & adminAuth.js (RBAC)
+│   ├── database/schema.sql       # DDL 6 tabel relasional 3NF dan data seed
+│   ├── middleware/               # auth.js (JWT) dan adminAuth.js (RBAC)
 │   ├── routes/                   # Routing Express API
 │   ├── tests/                    # 5 unit test files (48 tests all passed)
 │   └── server.js                 # Server entrypoint port 5000
@@ -189,7 +189,7 @@ RPLApp/
 │   ├── src/components/           # Navbar.js, LiveMapKurir.js
 │   ├── src/pages/                # Home, Login, Register, Dashboard, Detail
 │   ├── src/utils/                # api.js (Axios), PrivateRoute.js
-│   ├── src/App.js & App.css      # Perutean & styling modern navy/cyan
+│   ├── src/App.js dan App.css    # Perutean dan styling antarmuka
 │   └── package.json
 ├── docs/                         # Dokumentasi perkuliahan Pertemuan 1 s/d 6
 ├── docker-compose.yml

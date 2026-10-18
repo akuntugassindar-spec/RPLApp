@@ -1,4 +1,4 @@
-# 🚀 PERTEMUAN 5: PEMBANGUNAN MVP VERSION 1 SECARA ITERATIF
+# PERTEMUAN 5: PEMBANGUNAN MVP VERSION 1 SECARA ITERATIF
 
 **Mata Kuliah:** Rekayasa Perangkat Lunak (RPL)  
 **Aplikasi:** OptikExpress — Sistem Informasi Layanan Antar-Jemput Kacamata  
@@ -10,23 +10,23 @@
 
 Untuk rilis MVP Versi 1, tim memfokuskan pengerjaan pada 2 pilar fungsional paling penting dalam sistem:
 
-1. **Fitur Inti 1: Pengajuan Layanan Servis Kacamata & Siklus Status Pengerjaan (Service Lifecycle Engine)**
-   * Memungkinkan pelanggan memilih jenis layanan (`perbaikan`, `penggantian_lensa`, `perbaikan_dan_lensa`), menentukan alamat & jadwal jemput, serta memantau 6 tahapan status operasional (`pengajuan` $\rightarrow$ `dijadwalkan` $\rightarrow$ `diambil` $\rightarrow$ `diproses` $\rightarrow$ `selesai` $\rightarrow$ `diantar`).
-2. **Fitur Inti 2: Autentikasi Pengguna & Keamanan Berbasis Token JWT / BCrypt (Secure Authentication)**
+1. **Fitur Inti 1: Pengajuan Layanan Servis Kacamata dan Siklus Status Pengerjaan (Service Lifecycle Engine)**
+   * Memungkinkan pelanggan memilih jenis layanan (`perbaikan`, `penggantian_lensa`, `perbaikan_dan_lensa`), menentukan alamat dan jadwal jemput, serta memantau 6 tahapan status operasional (`pengajuan` $\rightarrow$ `dijadwalkan` $\rightarrow$ `diambil` $\rightarrow$ `diproses` $\rightarrow$ `selesai` $\rightarrow$ `diantar`).
+2. **Fitur Inti 2: Autentikasi Pengguna dan Keamanan Berbasis Token JWT / BCrypt (Secure Authentication)**
    * Memfasilitasi pendaftaran akun baru, enkripsi password dengan algoritma BCrypt, otentikasi login, serta penerbitan token JWT stateless untuk membedakan hak akses antara pelanggan biasa dan administrator optik.
 
 ---
 
-## 2. Alur Rekayasa: Brief $\rightarrow$ Plan $\rightarrow$ Build $\rightarrow$ Verify $\rightarrow$ Commit
+## 2. Alur Rekayasa: Brief -> Plan -> Build -> Verify -> Commit
 
-### A. Fitur 1: Manajemen Pengajuan Layanan & State Machine
+### A. Fitur 1: Manajemen Pengajuan Layanan dan State Machine
 * **Brief:** Menyediakan endpoint dan antarmuka untuk pelanggan mengajukan servis kacamata dan admin memperbarui status.
 * **Plan:** Rancang skema database tabel `layanan`, definisikan 6 array status valid, buat controller `createLayanan` dan `updateStatusLayanan`, serta buat formulir React di `BuatLayanan.js`.
 * **Build:** Implementasikan endpoint `POST /api/layanan` dan `PUT /api/layanan/:id/status` dengan penanganan transaksi MySQL rollback jika terjadi kegagalan.
 * **Verify:** Uji coba pembuatan pesanan via formulir web dan verifikasi bahwa baris data tersimpan di MySQL dengan status awal `pengajuan`.
 * **Commit:** `feat(layanan): implement core order lifecycle with status state machine and auto courier dispatch`
 
-### B. Fitur 2: Sistem Autentikasi & Keamanan JWT
+### B. Fitur 2: Sistem Autentikasi dan Keamanan JWT
 * **Brief:** Melindungi data pengguna dan memisahkan hak akses antara pelanggan dan admin toko optik.
 * **Plan:** Siapkan skema tabel `users`, gunakan pustaka `bcryptjs` untuk hashing password dan `jsonwebtoken` untuk menandatangani token sesi.
 * **Build:** Buat modul `authController.js` (`register`, `login`, `getProfile`) dan middleware `auth.js` serta `adminAuth.js`.
@@ -35,7 +35,7 @@ Untuk rilis MVP Versi 1, tim memfokuskan pengerjaan pada 2 pilar fungsional pali
 
 ---
 
-## 3. Evaluasi & Pemahaman Mahasiswa (Q&A Rubrik Perkuliahan)
+## 3. Evaluasi dan Pemahaman Mahasiswa (Q&A Rubrik Perkuliahan)
 
 | Pertanyaan Evaluasi Dosen | Penjelasan Mahasiswa |
 | :--- | :--- |
@@ -48,6 +48,6 @@ Untuk rilis MVP Versi 1, tim memfokuskan pengerjaan pada 2 pilar fungsional pali
 
 ## 4. Hasil Capaian Deliverable Pertemuan 5
 
-* ✅ **MVP Version 1 Selesai & Runnable:** Fitur pemesanan dan login/register berjalan lancar.
-* ✅ **Minimal 2 Meaningful Commits:** Riwayat commit terstruktur rapi pada repositori Git.
-* ✅ **Bukti Testing:** Fitur memenuhi seluruh Acceptance Criteria yang ditetapkan.
+* **MVP Version 1 Selesai dan Runnable:** Fitur pemesanan dan login/register berjalan lancar.
+* **Minimal 2 Meaningful Commits:** Riwayat commit terstruktur rapi pada repositori Git.
+* **Bukti Testing:** Fitur memenuhi seluruh Acceptance Criteria yang ditetapkan.
