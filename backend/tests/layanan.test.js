@@ -1,3 +1,21 @@
+/**
+ * Unit Test: Manajemen Layanan & Validasi Status + Foto + Notifikasi
+ * 
+ * User Story #1:
+ * "Sebagai pelanggan, saya ingin mengajukan permintaan layanan perbaikan
+ *  kacamata dengan memilih jenis layanan, menyertakan foto kerusakan,
+ *  dan mendapatkan notifikasi otomatis setiap kali status berubah."
+ * 
+ * Acceptance Criteria:
+ * AC-1: Jenis layanan tersedia 3 pilihan: perbaikan, penggantian_lensa, perbaikan_dan_lensa.
+ * AC-2: Status layanan memiliki 6 alur valid state machine.
+ * AC-3: Pembuatan layanan ditolak jika field wajib kosong atau jenis_layanan tidak valid (HTTP 400).
+ * AC-4: Perubahan status ditolak jika status kosong atau tidak valid (HTTP 400).
+ * AC-5: Notifikasi WhatsApp Mock terkirim dengan format benar dan status uppercase.
+ * AC-6: Foto base64 tersimpan ke disk dan URL path dikembalikan dengan benar.
+ * AC-7: Metode pembayaran mencakup QRIS, VA Bank, e-Wallet, dan COD.
+ */
+
 const { describe, it, after } = require('node:test');
 const assert = require('node:assert/strict');
 const db = require('../config/db');
