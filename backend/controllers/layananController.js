@@ -225,7 +225,6 @@ const getLayananById = async (req, res) => {
  * @route   POST /api/layanan
  */
 const createLayanan = async (req, res) => {
-  const connection = await db.getConnection();
   try {
     const { id: userId } = req.user;
     const { jenis_layanan, keluhan, alamat, tanggal_jemput, jam_jemput, jenis_kacamata, detail_perbaikan, keterangan, foto_kacamata, foto_resep } = req.body;
@@ -237,6 +236,8 @@ const createLayanan = async (req, res) => {
     }
     const savedFotoKacamata = saveBase64Image(foto_kacamata, 'kacamata');
     const savedFotoResep = saveBase64Image(foto_resep, 'resep');
+    const connection = await db.getConnection();
+    try {
     await connection.beginTransaction();
     const statusAwal = 'pengajuan';
     const [layananResult] = await connection.query(
@@ -257,12 +258,15 @@ const createLayanan = async (req, res) => {
       success: true, message: 'Pengajuan layanan antar-jemput kacamata berhasil dibuat.',
       data: { id: layananId, user_id: userId, jenis_layanan, keluhan, alamat, tanggal_jemput, jam_jemput, status: statusAwal, foto_kacamata: savedFotoKacamata, foto_resep: savedFotoResep, total_biaya: 0, status_pembayaran: 'belum_bayar', detail_layanan: detailId ? { id: detailId, layanan_id: layananId, jenis_kacamata: jenis_kacamata || '-', detail_perbaikan: detail_perbaikan || '-', keterangan: keterangan || '-' } : null }
     });
+    } catch (dbError) {
+      await connection.rollback();
+      throw dbError;
+    } finally {
+      connection.release();
+    }
   } catch (error) {
-    await connection.rollback();
     console.error('[Error createLayanan]:', error);
     return res.status(500).json({ success: false, message: 'Terjadi kesalahan saat membuat pengajuan layanan.', error: error.message });
-  } finally {
-    connection.release();
   }
 };
 
