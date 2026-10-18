@@ -1,83 +1,92 @@
-# IDE PROYEK: OPTIKEXPRESS
+## TUGAS MATKUL RPL - Semester 3 - Sindar Felix Sihole || 2510101031
 
-**Mata Kuliah:** Rekayasa Perangkat Lunak (RPL)  
-**Nama Proyek:** OptikExpress — Sistem Informasi Layanan Antar-Jemput Kacamata  
-**Repositori GitHub:** [https://github.com/akuntugassindar-spec/RPLApp.git](https://github.com/akuntugassindar-spec/RPLApp.git)
+## TEMA 1: OptikExpress: Sistem Informasi Layanan Antar-Jemput Perbaikan Kacamata dan Penggantian Lensa Terintegrasi
 
----
+### 1. Masalah Nyata yang Akan Diselesaikan
 
-## 1. Masalah Nyata yang Dihadapi Pengguna
+Kacamata merupakan instrumen refraksi primer yang esensial bagi produktivitas dan keselamatan penggunanya. Namun, layanan purnajual dan perbaikan kacamata optik konvensional saat ini masih menghadapi berbagai kendala nyata di masyarakat:
 
-Kacamata merupakan alat bantu penglihatan primer yang esensial untuk aktivitas sehari-hari. Ketika kacamata mengalami kerusakan fisik (gagang patah, sekrup engsel lepas, bantalan hidung copot) atau lensa minus/silinder sudah tidak nyaman digunakan, masyarakat menghadapi hambatan nyata:
+* **Hambatan Aksesibilitas dan Waktu:** Jam operasional gerai optik fisik umumnya beririsan langsung dengan jam kerja kantor dan perkuliahan. Masyarakat yang memiliki kesibukan padat kerap menunda perbaikan kacamata hingga berminggu-minggu karena tidak sempat mengunjungi toko fisik.
+* **Ketergantungan Penglihatan dan Bahaya Transportasi:** Pasien penderita kelainan refraksi tinggi (misalnya miopia di atas -4.00D atau silinder berat) sangat bergantung pada kacamata mereka. Saat frame kacamata patah atau lensa terlepas, mereka tidak dapat mengemudikan kendaraan secara mandiri dan aman untuk sekadar membawa kacamata tersebut ke optik.
+* **Ketiadaan Transparansi Biaya dan Kepastian Waktu Pengerjaan:** Pada sistem manual tradisional, pelanggan kerap tidak memperoleh kepastian estimasi biaya servis di muka sebelum barang diserahkan, serta kesulitan melacak apakah pengerjaan kacamata sudah selesai atau masih dalam antrean bengkel optik.
+* **Pencatatan Resep Medis yang Terfragmentasi:** Resep ukuran lensa optik dari dokter mata kerap hilang atau rusak dalam bentuk kertas fisik, sehingga riwayat perubahan visus mata pasien tidak terdokumentasi secara terpusat.
 
-* **Keterbatasan Waktu:** Jam buka toko optik konvensional umumnya berbenturan dengan jam operasional kantor atau perkuliahan, sehingga pekerja dan mahasiswa kesulitan meluangkan waktu datang ke gerai fisik.
-* **Ketergantungan Penglihatan:** Pengguna kacamata dengan kelainan refraksi tinggi tidak dapat mengemudi atau bepergian secara aman tanpa kacamata utama mereka.
-* **Ketidakpastian Biaya dan Status:** Di bengkel optik fisik tradisional, pelanggan kerap tidak memperoleh transparansi mengenai estimasi biaya dan kepastian jadwal selesainya pengerjaan kacamata.
+### 2. Profil Target Pengguna
 
----
+* **Pekerja Profesional dan Karyawan Kantor (Usia 22-45 Tahun):** Memiliki mobilitas dan rutinitas kerja tinggi, membutuhkan layanan jemput-antar kacamata di lokasi kantor atau rumah tanpa mengorbankan jam kerja.
+* **Mahasiswa dan Pelajar (Usia 17-24 Tahun):** Pengguna gawai aktif yang memerlukan penggantian lensa antiradiasi/blueray atau perbaikan baut engsel frame kacamata secara cepat dengan biaya terjangkau dan pembayaran dompet digital (e-wallet/QRIS).
+* **Lansia dan Pasien Kacamata Progresif (Usia > 50 Tahun):** Pasien yang memiliki keterbatasan fisik untuk bepergian jauh, dibantu oleh keluarga memesan layanan servis lensa bifokal/progresif dari rumah.
+* **Teknisi Laboratorium dan Koder Optik:** Petugas optik yang melakukan diagnosa kerusakan frame, memotong lensa (*edging*), merakit kacamata, dan memperbarui catatan teknis servis kacamata.
+* **Armada Kurir Penjemput dan Pengantar:** Petugas lapangan internal optik yang menerima penugasan penjemputan fisik kacamata dari alamat pelanggan dan mengantarkan kembali kacamata yang telah tuntas diperbaiki.
+* **Administrator Optik:** Mengelola antrean pesanan masuk, memverifikasi foto bukti kerusakan dan resep dokter, menetapkan nominal tagihan servis, mengalokasikan armada kurir, serta memantau status operasional secara terpusat.
 
-## 2. Eksplorasi Tiga Alternatif Tema
+### 3. Manfaat Aplikasi
 
-Pada tahap inisiasi (Pertemuan 1), tim mengidentifikasi tiga alternatif topik perangkat lunak:
+* Memberikan kemudahan total bagi masyarakat dalam merawat alat bantu penglihatan mereka melalui konsep *on-demand pickup and delivery service*.
+* Memangkas waktu tunggu dan risiko perjalanan bagi penderita kelainan mata berat melalui sistem penjemputan langsung ke depan pintu rumah atau kantor.
+* Menyediakan transparansi penuh atas tahapan servis kacamata melalui visualisasi alur pengerjaan (*state machine*) dan pemantauan armada kurir GPS interaktif.
+* Menjamin transparansi transaksi finansial melalui integrasi simulasi multi-metode pembayaran digital (QRIS dinamis, Virtual Account bank, dan COD).
+* Mendigitalkan rekam historis resep kacamata dan kerusakan frame pelanggan dalam basis data relasional yang terstruktur.
 
-### Alternatif 1: OptikExpress (Layanan Antar-Jemput Kacamata dan Lensa) - TEMA TERPILIH
-* **Domain:** Layanan Kesehatan Mata dan Jasa Logistik Servis Optik.
-* **Konsep:** Aplikasi web yang memungkinkan pelanggan mengajukan perbaikan frame kacamata atau penggantian lensa resep dokter secara online dengan penjemputan dan pengantaran kurir langsung ke alamat pelanggan.
-* **Alasan Pemilihan:** Masalah nyata yang dialami jutaan pengguna kacamata, alur proses bisnis yang kaya (state machine status pengerjaan, live GPS courier tracking, multi-payment gateway), serta ruang lingkup yang terukur untuk diselesaikan dalam satu semester perkuliahan.
+### 4. Daftar Fitur Inti
 
-### Alternatif 2: AsistensiLab (Monitoring Presensi Asisten Laboratorium Komputer)
-* **Domain:** Sistem Informasi Akademik Kampus.
-* **Konsep:** Pencatatan kehadiran dan beban jam kerja asisten lab komputer menggunakan QR Code dinamis dan validasi radius geofencing lokasi laboratorium.
-* **Alasan Tidak Dipilih:** Ketergantungan hardware/lokasi fisik lab yang sempit dan minim variasi alur bisnis transaksional.
+1. **Autentikasi dan Otorisasi Pengguna Berbasis Peran (RBAC):** Pendaftaran akun, login terenkripsi BCrypt, penerbitan token JWT, serta pemisahan hak akses antara Pelanggan dan Administrator.
+2. **Formulir Pengajuan Layanan Antar-Jemput Digital:** Pemilihan kategori layanan (perbaikan frame, penggantian lensa kustom, atau kombinasi keduanya), keluhan kerusakan, alamat penjemputan lengkap, penentuan jadwal tanggal dan jam penjemputan, serta fitur unggah foto kerusakan frame dan resep dokter.
+3. **Pencatatan Spesifikasi Teknis Kacamata (Detail Layanan):** Input jenis kacamata (minus, plus, silinder, progresif, antiradiasi), rincian kerusakan engsel/pad/frame, dan catatan instruksi teknisi optik.
+4. **Sistem State Machine Status Pengerjaan (6 Tahapan Operasional):** Alur siklus hidup pesanan yang deterministik:
+   $$\text{pengajuan} \longrightarrow \text{dijadwalkan} \longrightarrow \text{diambil} \longrightarrow \text{diproses} \longrightarrow \text{diantar} \longrightarrow \text{selesai}$$
+5. **Pemantauan Posisi Kurir GPS Real-time:** Visualisasi posisi kurir penjemput dan pengantar menggunakan peta interaktif Leaflet OpenStreetMap, indikator ETA (Estimated Time of Arrival), dan direct navigasi Google Maps rute jalan.
+6. **Integrasi Gateway Pembayaran Multi-Channel:** Simulasi transaksi Midtrans yang mendukung QRIS dinamis, Virtual Account (BCA, BNI, BRI, Mandiri), dompet digital (GoPay, ShopeePay), dan pembayaran tunai langsung di tempat (COD).
+7. **Audit Trail dan Notifikasi Status:** Pencatatan otomatis waktu setiap perubahan status, log kurir/teknisi, serta simulasi notifikasi otomatis via Email SMTP dan pesan WhatsApp.
 
-### Alternatif 3: KampusMarket (Marketplace Buku dan Alat Kuliah Bekas)
-* **Domain:** E-Commerce Peer-to-Peer Kampus.
-* **Konsep:** Platform jual-beli perlengkapan kuliah bekas antar-mahasiswa dengan sistem serah-terima di area kampus.
-* **Alasan Tidak Dipilih:** Memerlukan sistem moderasi konten yang kompleks dan rentan terduplikasi oleh marketplace umum.
+### 5. Batasan / Out of Scope (Fitur yang Tidak Dikerjakan)
 
----
+* Tidak mencakup pemeriksaan refraksi visus mata secara mandiri melalui aplikasi (pemeriksaan mata wajib melampirkan resep fisik dokter spesialis mata atau hasil uji refraktometer).
+* Tidak menyediakan penjualan frame kacamata baru atau etalase e-commerce retail umum.
+* Integrasi payment gateway dan notifikasi WhatsApp beroperasi pada tingkat simulasi terverifikasi (sandbox mode) tanpa memotong saldo perbankan riil pengguna.
+* Area cakupan penjemputan kurir dibatasi pada wilayah operasional logistik optik perkotaan.
 
-## 3. Profil Target Pengguna (User Persona)
+### 6. Kriteria Keberhasilan Aplikasi
 
-* **Pekerja Kantoran dan Profesional (Usia 22-45 Tahun):** Memiliki mobilitas tinggi, terbiasa dengan layanan on-demand, dan membutuhkan perbaikan kacamata tanpa harus meninggalkan jam kerja kantor.
-* **Mahasiswa dan Pelajar (Usia 17-24 Tahun):** Pengguna aktif gawai yang memerlukan penggantian lensa anti-radiasi blueray atau perbaikan frame dengan biaya transparan dan opsi pembayaran digital.
-* **Lansia dan Orang Tua di Rumah (Usia > 50 Tahun):** Pengguna kacamata baca/bifokal yang kesulitan bepergian jauh, dibantu oleh keluarga untuk memesan layanan antar-jemput.
-* **Administrator dan Teknisi Lab Optik:** Pengelola gerai yang memverifikasi pesanan masuk, mencatat diagnosa teknis frame, menugaskan armada kurir, dan memperbarui status pengerjaan.
-
----
-
-## 4. Manfaat Utama Aplikasi
-
-* **Bagi Pelanggan:** Menghemat waktu dan biaya transportasi, memperoleh transparansi biaya, dapat memantau pergerakan kurir secara real-time via peta jalan GPS, dan kemudahan pembayaran multi-metode.
-* **Bagi Toko Optik:** Memperluas jangkauan layanan pelanggan tanpa terbatas lokasi fisik, mendigitalkan rekam medis resep kacamata, serta mengoptimalkan pembagian rute kurir penjemput.
-
----
-
-## 5. Ruang Lingkup Fitur Inti (In-Scope)
-
-1. Autentikasi Pengguna dan Keamanan (Register, Login dengan BCrypt dan JWT).
-2. Formulir Pengajuan Layanan (Pilihan jenis perbaikan/lensa, alamat penjemputan, jadwal jemput, dan unggah foto).
-3. State Machine 6 Tahapan Status Operasional (`pengajuan` -> `dijadwalkan` -> `diambil` -> `diproses` -> `selesai` -> `diantar`).
-4. Live GPS Courier Tracking (Peta interaktif Leaflet OpenStreetMap dengan koordinat live kurir dan tombol direct Google Maps).
-5. Penugasan Kurir Cerdas (Algoritma Round-Robin auto-assign kurir internal optik plus override manual admin).
-6. Multi-Payment Gateway Simulator (QRIS dinamis siap scan, BCA/BNI/BRI/Mandiri Virtual Account, GoPay, dan COD).
-7. Notifikasi Otomatis Status (Email SMTP dan WhatsApp logger).
-8. Dashboard Pelanggan dan Panel Manajemen Administrator.
+* Waktu pengajuan layanan oleh pelanggan dari awal pengisian formulir hingga tiket pesanan terbit dapat diselesaikan dalam waktu kurang dari 2 menit.
+* Alur status pengerjaan kacamata berjalan secara konsisten mengikuti 6 siklus operasional tanpa terjadi lompatan status ilegal.
+* Seluruh endpoint API terproteksi dari ancaman manipulasi identitas (*Anti-IDOR*) dan data pengguna lain tidak dapat diakses tanpa hak otorisasi yang sah.
+* Seluruh suite pengujian otomatis unit testing backend mencapai tingkat kelulusan 100% (48 passing tests, 0 failing tests).
 
 ---
 
-## 6. Fitur di Luar Cakupan (Out of Scope)
+## TEMA 2: AsistensiLab: Sistem Monitoring Presensi dan Beban Kerja Asisten Laboratorium Komputer Terintegrasi
 
-* Proses manufaktur atau pencetakan fisik bahan mentah lensa dari pabrik.
-* Tes refraksi mata otomatis via webcam (pengguna mengunggah resep resmi dari optometris/dokter mata).
-* Pembayaran menggunakan cryptocurrency.
-* Sistem marketplace multi-toko (berfokus pada toko tunggal OptikExpress).
-* Pengiriman logistik kargo antar-pulau.
+### 1. Masalah Nyata yang Dihadapi
+
+Pada institusi perguruan tinggi, pengelolaan asisten laboratorium komputer untuk puluhan kelas praktikum masih dilakukan melalui lembar presensi fisik atau spreadsheet terpisah. Asisten lab kerap kesulitan mencatat jam masuk dan keluar secara akurat, sementara koordinator lab kesulitan memverifikasi apakah asisten benar-benar hadir mendampingi praktikan di ruangan laboratorium.
+
+### 2. Profil Target Pengguna
+
+* Asisten Laboratorium Praktikum (Mahasiswa tingkat atas).
+* Dosen Pengampu Mata Kuliah Praktikum.
+* Koordinator Laboratorium dan Kepala Bagian Akademik.
+
+### 3. Alasan Tidak Dipilih Sebagai Proyek Akhir
+
+* Ruang lingkup bisnis relatif sempit dan sangat bergantung pada infrastruktur geofencing lokasi fisik ruangan kampus.
+* Kompleksitas transaksi data finansial dan logistik sangat minim dibandingkan alur operasional perbaikan barang dan tracking lapangan.
 
 ---
 
-## 7. Kriteria Keberhasilan Proyek
+## TEMA 3: KampusMarket: Platform Marketplace Perlengkapan dan Buku Kuliah Bekas Antar-Mahasiswa
 
-* **Kriteria Fungsional:** Seluruh siklus layanan mulai dari pengajuan pelanggan hingga pengantaran kacamata selesai dapat disimulasikan melalui antarmuka web tanpa hambatan.
-* **Kriteria Kualitas Rekayasa:** Seluruh pengujian unit test backend mencapai tingkat kelulusan 100% (All Passed).
-* **Kriteria Kecepatan Respons:** Endpoint REST API merespons di bawah 300 milidetik pada pengujian lokal.
+### 1. Masalah Nyata yang Dihadapi
+
+Mahasiswa baru membutuhkan buku teks perkuliahan, kalkulator ilmiah, jas lab, dan perlengkapan studi yang mahal jika dibeli baru. Di sisi lain, mahasiswa tingkat akhir memiliki buku dan perlengkapan yang sudah tidak terpakai namun kesulitan menemukan pembeli yang relevan di lingkungan kampus yang sama.
+
+### 2. Profil Target Pengguna
+
+* Mahasiswa Baru dan Mahasiswa Aktif Pencari Buku Murah.
+* Mahasiswa Tingkat Akhir / Alumni Penjual Barang Bekas.
+* Pengurus Himpunan Mahasiswa Jurusan (Fasilitator Komunitas).
+
+### 3. Alasan Tidak Dipilih Sebagai Proyek Akhir
+
+* Memerlukan sistem moderasi konten dan pencegahan penipuan barang bekas yang membutuhkan waktu verifikasi manual berkepanjangan.
+* Fungsionalitas inti serupa dengan aplikasi marketplace umum yang sudah ada di pasaran (*e-commerce listing standard*), sehingga kurang menonjolkan keunikan alur rekayasa perangkat lunak spesifik (*state machine*, verifikasi teknis medis, dan logistik antar-jemput).

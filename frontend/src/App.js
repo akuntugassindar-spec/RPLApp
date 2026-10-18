@@ -6,23 +6,30 @@ import Navbar from './components/Navbar';
 import PrivateRoute from './utils/PrivateRoute';
 
 // Halaman Publik
-import Home from './pages/Home';
-import Login from './pages/Login';
-import Register from './pages/Register';
+import { Home, Login, Register } from './pages';
 
-// Halaman Pelanggan / User (Terproteksi)
-import Dashboard from './pages/user/Dashboard';
-import BuatLayanan from './pages/user/BuatLayanan';
-import DetailLayanan from './pages/user/DetailLayanan';
+// Modul Halaman Layanan
+import { BuatLayanan, DaftarLayanan, DashboardLayanan } from './pages/layanan';
 
-// Halaman Administrator (Terproteksi Khusus Admin)
-import AdminDashboard from './pages/admin/AdminDashboard';
-import DaftarLayanan from './pages/admin/DaftarLayanan';
-import AdminDetailLayanan from './pages/admin/AdminDetailLayanan';
+// Modul Halaman Detail Layanan
+import { DetailLayanan, AdminDetailLayanan } from './pages/detail_layanan';
+
+// Modul Halaman Kurir
+import { TrackingKurir, DaftarKurir } from './pages/kurir';
+
+// Modul Halaman Pembayaran
+import { PembayaranPage, KonfirmasiPembayaran } from './pages/pembayaran';
+
+// Modul Halaman Riwayat Status Layanan
+import { RiwayatStatusLayanan } from './pages/riwayat_status_layanan';
+
+// Halaman Khusus Administrator
+import { AdminDashboard } from './pages/admin';
 
 /**
  * Komponen Utama Aplikasi React
- * Mengatur seluruh perutean aplikasi dengan React Router v6 dan PrivateRoute.
+ * Mengatur seluruh perutean aplikasi dengan React Router v6 dan PrivateRoute
+ * yang terorganisir rapi berdasarkan modul domain bisnis.
  */
 function App() {
   return (
@@ -38,12 +45,22 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
 
-          {/* Rute Pelanggan (Wajib Login) */}
+          {/* Rute Dashboard Pelanggan */}
           <Route
             path="/dashboard"
             element={
               <PrivateRoute>
-                <Dashboard />
+                <DashboardLayanan />
+              </PrivateRoute>
+            }
+          />
+
+          {/* Modul 1: Layanan */}
+          <Route
+            path="/layanan"
+            element={
+              <PrivateRoute>
+                <DaftarLayanan />
               </PrivateRoute>
             }
           />
@@ -55,6 +72,8 @@ function App() {
               </PrivateRoute>
             }
           />
+
+          {/* Modul 2: Detail Layanan */}
           <Route
             path="/layanan/:id"
             element={
@@ -63,8 +82,86 @@ function App() {
               </PrivateRoute>
             }
           />
+          <Route
+            path="/detail-layanan/:id"
+            element={
+              <PrivateRoute>
+                <DetailLayanan />
+              </PrivateRoute>
+            }
+          />
 
-          {/* Rute Khusus Administrator (Wajib Login & Peran Admin) */}
+          {/* Modul 3: Kurir & Tracking GPS */}
+          <Route
+            path="/kurir"
+            element={
+              <PrivateRoute>
+                <DaftarKurir />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/kurir/tracking/:id"
+            element={
+              <PrivateRoute>
+                <TrackingKurir />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/layanan/:id/tracking"
+            element={
+              <PrivateRoute>
+                <TrackingKurir />
+              </PrivateRoute>
+            }
+          />
+
+          {/* Modul 4: Pembayaran */}
+          <Route
+            path="/pembayaran/:id"
+            element={
+              <PrivateRoute>
+                <PembayaranPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/layanan/:id/pembayaran"
+            element={
+              <PrivateRoute>
+                <PembayaranPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/pembayaran/:id/konfirmasi"
+            element={
+              <PrivateRoute>
+                <KonfirmasiPembayaran />
+              </PrivateRoute>
+            }
+          />
+
+          {/* Modul 5: Riwayat Status Layanan */}
+          <Route
+            path="/riwayat-status/:id"
+            element={
+              <PrivateRoute>
+                <RiwayatStatusLayanan />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/layanan/:id/riwayat"
+            element={
+              <PrivateRoute>
+                <RiwayatStatusLayanan />
+              </PrivateRoute>
+            }
+          />
+
+          {/* Rute Khusus Administrator */}
           <Route
             path="/admin/dashboard"
             element={
