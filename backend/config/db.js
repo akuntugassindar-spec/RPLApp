@@ -49,7 +49,58 @@ const ensureTableColumns = async (connection) => {
       }
     }
   }
+
+  // Pastikan tabel pendukung (kurir, pembayaran, riwayat_status_layanan) telah tersedia
+  try {
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS kurir (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        nama VARCHAR(100) NOT NULL,
+        no_telepon VARCHAR(20) NOT NULL,
+        jenis_kendaraan VARCHAR(100) DEFAULT 'Sepeda Motor',
+        plat_nomor VARCHAR(20) DEFAULT NULL,
+        status_aktif ENUM('aktif', 'istirahat', 'nonaktif') DEFAULT 'aktif',
+        current_lat DECIMAL(10,8) DEFAULT -7.26250000,
+        current_lng DECIMAL(11,8) DEFAULT 112.74850000,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `);
+
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS pembayaran (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        layanan_id INT NOT NULL,
+        id_transaksi VARCHAR(100) NOT NULL UNIQUE,
+        metode_pembayaran VARCHAR(50) NOT NULL,
+        nominal INT NOT NULL,
+        status_pembayaran ENUM('menunggu_pembayaran', 'lunas', 'kedaluwarsa', 'batal') DEFAULT 'menunggu_pembayaran',
+        qr_code_url VARCHAR(255) DEFAULT NULL,
+        va_number VARCHAR(50) DEFAULT NULL,
+        waktu_pembayaran TIMESTAMP NULL DEFAULT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        CONSTRAINT fk_pembayaran_layanan FOREIGN KEY (layanan_id) REFERENCES layanan(id) ON DELETE CASCADE
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `);
+
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS riwayat_status_layanan (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        layanan_id INT NOT NULL,
+        status_sebelumnya VARCHAR(50) DEFAULT NULL,
+        status_baru VARCHAR(50) NOT NULL,
+        catatan TEXT,
+        kurir_lat DECIMAL(10,8) DEFAULT NULL,
+        kurir_lng DECIMAL(11,8) DEFAULT NULL,
+        diperbarui_oleh VARCHAR(100) DEFAULT 'Sistem',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        CONSTRAINT fk_riwayat_layanan FOREIGN KEY (layanan_id) REFERENCES layanan(id) ON DELETE CASCADE
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `);
+  } catch (tableErr) {
+    // Abaikan jika tabel sudah ada atau ada constraint issue
+  }
 };
+
 
 // Fungsi untuk menguji koneksi ke database saat server dijalankan
 const testConnection = async () => {
