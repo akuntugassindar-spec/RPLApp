@@ -120,3 +120,4 @@ describe('User Story #2: Registrasi & Login Autentikasi', () => {
     }, { name: 'JsonWebTokenError' });
   });
 });
+
