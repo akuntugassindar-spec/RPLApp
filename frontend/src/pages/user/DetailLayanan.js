@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import api from '../../utils/api';
+import LiveMapKurir from '../../components/LiveMapKurir';
 
 /**
  * Halaman Detail Permintaan Layanan (Pelanggan)
@@ -27,6 +28,7 @@ const DetailLayanan = () => {
   const [simulasiPersen, setSimulasiPersen] = useState(null);
   const [simulasiKeterangan, setSimulasiKeterangan] = useState('');
   const timerSimulasiRef = useRef(null);
+  const [tipePeta, setTipePeta] = useState('osm'); // 'osm' = OpenStreetMap Leaflet, 'svg' = Radar Vector
 
   // Status & Pilihan Pembayaran Langsung di Halaman
   const [activeMetode, setActiveMetode] = useState('qris');
@@ -433,46 +435,110 @@ const DetailLayanan = () => {
             </div>
           </div>
 
-          {/* Peta Rute Interaktif (SVG Visualizer) */}
-          <div style={{ background: '#fff', borderRadius: 'var(--radius-md)', padding: '1rem', border: '1px solid #e0f2fe', minHeight: '200px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-              <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#0369a1', letterSpacing: '0.5px' }}>RADAR PETA RUTE LIVE</span>
+          {/* Peta Rute Interaktif (OpenStreetMap Leaflet & SVG Radar Toggle) */}
+          <div style={{ background: '#fff', borderRadius: 'var(--radius-md)', padding: '1rem', border: '1px solid #e0f2fe', minHeight: '270px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.65rem', flexWrap: 'wrap', gap: '0.4rem' }}>
+              <div style={{ display: 'flex', gap: '0.35rem' }}>
+                <button
+                  type="button"
+                  onClick={() => setTipePeta('osm')}
+                  style={{
+                    padding: '0.25rem 0.65rem',
+                    fontSize: '0.75rem',
+                    fontWeight: 700,
+                    borderRadius: '6px',
+                    border: '1px solid #0284c7',
+                    background: tipePeta === 'osm' ? '#0284c7' : '#ffffff',
+                    color: tipePeta === 'osm' ? '#ffffff' : '#0284c7',
+                    cursor: 'pointer'
+                  }}
+                >
+                  🗺️ Peta Jalan Asli (OSM)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setTipePeta('svg')}
+                  style={{
+                    padding: '0.25rem 0.65rem',
+                    fontSize: '0.75rem',
+                    fontWeight: 700,
+                    borderRadius: '6px',
+                    border: '1px solid #cbd5e1',
+                    background: tipePeta === 'svg' ? '#0284c7' : '#ffffff',
+                    color: tipePeta === 'svg' ? '#ffffff' : '#64748b',
+                    cursor: 'pointer'
+                  }}
+                >
+                  📡 Radar Vektor
+                </button>
+              </div>
               <span style={{ fontSize: '0.75rem', background: '#dcfce7', color: '#15803d', padding: '0.2rem 0.6rem', borderRadius: '999px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
                 <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: '#16a34a' }}></span>
                 GPS AKTIF
               </span>
             </div>
 
-            <svg viewBox="0 0 320 140" style={{ width: '100%', height: '140px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-              {/* Garis Rute Dasar */}
-              <path d="M 30 70 Q 110 20, 160 70 T 290 70" fill="none" stroke="#cbd5e1" strokeWidth="8" strokeLinecap="round" />
-              {/* Garis Rute Berwarna (Sudah ditempuh) */}
-              <path d="M 30 70 Q 110 20, 160 70 T 290 70" fill="none" stroke="#0284c7" strokeWidth="4" strokeDasharray="6,4" strokeLinecap="round" />
+            {tipePeta === 'osm' ? (
+              <LiveMapKurir
+                kurirLat={currentLat}
+                kurirLng={currentLng}
+                kurirNama={kurirNama}
+                alamatTujuan={layanan?.alamat}
+                height="210px"
+                showGoogleMapsBtn={true}
+              />
+            ) : (
+              <div>
+                <svg viewBox="0 0 320 140" style={{ width: '100%', height: '140px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                  {/* Garis Rute Dasar */}
+                  <path d="M 30 70 Q 110 20, 160 70 T 290 70" fill="none" stroke="#cbd5e1" strokeWidth="8" strokeLinecap="round" />
+                  {/* Garis Rute Berwarna (Sudah ditempuh) */}
+                  <path d="M 30 70 Q 110 20, 160 70 T 290 70" fill="none" stroke="#0284c7" strokeWidth="4" strokeDasharray="6,4" strokeLinecap="round" />
 
-              {/* Titik Awal: Lab Toko Optik */}
-              <circle cx="30" cy="70" r="14" fill="#0369a1" />
-              <text x="30" y="74" textAnchor="middle" fill="#fff" fontSize="11" fontWeight="bold">🏪</text>
-              <text x="30" y="98" textAnchor="middle" fill="#0f172a" fontSize="9" fontWeight="bold">OptikExpress</text>
+                  {/* Titik Awal: Lab Toko Optik */}
+                  <circle cx="30" cy="70" r="14" fill="#0369a1" />
+                  <text x="30" y="74" textAnchor="middle" fill="#fff" fontSize="11" fontWeight="bold">🏪</text>
+                  <text x="30" y="98" textAnchor="middle" fill="#0f172a" fontSize="9" fontWeight="bold">OptikExpress</text>
 
-              {/* Ikon Kurir Bergerak Dinamis dengan Efek Radar Pulsing */}
-              <g transform={`translate(${markerX},${markerY})`}>
-                <circle cx="0" cy="0" r="18" fill="#0284c7" fillOpacity="0.25">
-                  <animate attributeName="r" values="14;24;14" dur="1.8s" repeatCount="indefinite" />
-                </circle>
-                <circle cx="0" cy="0" r="12" fill="#0d9488" stroke="#ffffff" strokeWidth="2.5" />
-                <text x="0" y="4" textAnchor="middle" fill="#fff" fontSize="10">🛵</text>
-              </g>
+                  {/* Ikon Kurir Bergerak Dinamis dengan Efek Radar Pulsing */}
+                  <g transform={`translate(${markerX},${markerY})`}>
+                    <circle cx="0" cy="0" r="18" fill="#0284c7" fillOpacity="0.25">
+                      <animate attributeName="r" values="14;24;14" dur="1.8s" repeatCount="indefinite" />
+                    </circle>
+                    <circle cx="0" cy="0" r="12" fill="#0d9488" stroke="#ffffff" strokeWidth="2.5" />
+                    <text x="0" y="4" textAnchor="middle" fill="#fff" fontSize="10">🛵</text>
+                  </g>
 
-              {/* Titik Akhir: Alamat Pelanggan */}
-              <circle cx="290" cy="70" r="14" fill="#10b981" />
-              <text x="290" y="74" textAnchor="middle" fill="#fff" fontSize="11" fontWeight="bold">🏠</text>
-              <text x="290" y="98" textAnchor="middle" fill="#0f172a" fontSize="9" fontWeight="bold">Tujuan Anda</text>
-            </svg>
+                  {/* Titik Akhir: Alamat Pelanggan */}
+                  <circle cx="290" cy="70" r="14" fill="#10b981" />
+                  <text x="290" y="74" textAnchor="middle" fill="#fff" fontSize="11" fontWeight="bold">🏠</text>
+                  <text x="290" y="98" textAnchor="middle" fill="#0f172a" fontSize="9" fontWeight="bold">Tujuan Anda</text>
+                </svg>
 
-            <div style={{ marginTop: '0.6rem', display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: '#64748b' }}>
-              <span>🏪 <strong>Asal:</strong> Jl. Pemuda 48, Surabaya</span>
-              <span>🏠 <strong>Tujuan:</strong> {layanan?.alamat ? layanan.alamat.slice(0, 22) + '...' : 'Alamat Pelanggan'}</span>
-            </div>
+                <div style={{ marginTop: '0.6rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+                  <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
+                    <span>🏪 Jl. Pemuda 48</span> &bull; <span>🏠 {layanan?.alamat ? layanan.alamat.slice(0, 20) + '...' : 'Tujuan'}</span>
+                  </div>
+                  <a
+                    href={`https://www.google.com/maps/dir/?api=1&origin=-7.2625,112.7485&destination=${currentLat},${currentLng}&travelmode=driving`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-sm"
+                    style={{
+                      backgroundColor: '#0284c7',
+                      color: '#ffffff',
+                      fontWeight: 700,
+                      fontSize: '0.75rem',
+                      padding: '0.25rem 0.6rem',
+                      borderRadius: '6px',
+                      textDecoration: 'none'
+                    }}
+                  >
+                    🗺️ Google Maps ↗
+                  </a>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

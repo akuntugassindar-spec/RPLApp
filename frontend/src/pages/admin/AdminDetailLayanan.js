@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import api from '../../utils/api';
+import LiveMapKurir from '../../components/LiveMapKurir';
 
 /**
  * Halaman Detail & Manajemen Layanan (Admin)
@@ -33,6 +34,15 @@ const AdminDetailLayanan = () => {
   const [kurirTelepon, setKurirTelepon] = useState('');
   const [trackingStatus, setTrackingStatus] = useState('');
   const [trackingData, setTrackingData] = useState(null);
+  const [tipePeta, setTipePeta] = useState('osm');
+
+  const COURIER_OPTIONS = [
+    { id: 'auto', nama: '⚡ Otomatis (Auto-Assign seperti Gojek/Grab)', kurirNama: '', telepon: '' },
+    { id: 'agus', nama: 'Agus Pratama (0812-3456-7890) - Vario 160', kurirNama: 'Agus Pratama', telepon: '081234567890' },
+    { id: 'bambang', nama: 'Bambang Wijaya (0813-9876-5432) - NMAX', kurirNama: 'Bambang Wijaya', telepon: '081398765432' },
+    { id: 'rian', nama: 'Rian Kurniawan (0857-1234-8765) - Beat Street', kurirNama: 'Rian Kurniawan', telepon: '085712348765' },
+    { id: 'manual', nama: '✍️ Input Manual / Driver Lain', kurirNama: '', telepon: '' }
+  ];
 
   const fetchDetail = useCallback(async () => {
     setLoading(true);
@@ -225,6 +235,10 @@ const AdminDetailLayanan = () => {
     lokasi_tujuan: { nama: layanan?.nama_pelanggan || 'Pelanggan', alamat: layanan?.alamat || 'Alamat Pelanggan' }
   };
 
+  const pRatio = (effectiveTracking.persentase_perjalanan || 25) / 100;
+  const adminKurirLat = Number((-7.2625 + (-7.2890 - -7.2625) * pRatio).toFixed(4));
+  const adminKurirLng = Number((112.7485 + (112.7950 - 112.7485) * pRatio).toFixed(4));
+
   const handleApplyPreset = (statusVal, deskripsi) => {
     setStatusDipilih(statusVal);
     setTrackingStatus(deskripsi);
@@ -351,42 +365,96 @@ const AdminDetailLayanan = () => {
               </div>
             </div>
 
-            <div style={{ background: '#ffffff', borderRadius: 'var(--radius-md)', padding: '1rem', border: '1px solid #e0f2fe', position: 'relative', overflow: 'hidden', minHeight: '190px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#64748b' }}>PETA RUTE PENGIRIMAN LIVE</span>
+            <div style={{ background: '#ffffff', borderRadius: 'var(--radius-md)', padding: '1rem', border: '1px solid #e0f2fe', minHeight: '260px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.65rem', flexWrap: 'wrap', gap: '0.4rem' }}>
+                <div style={{ display: 'flex', gap: '0.35rem' }}>
+                  <button
+                    type="button"
+                    onClick={() => setTipePeta('osm')}
+                    style={{
+                      padding: '0.25rem 0.65rem',
+                      fontSize: '0.75rem',
+                      fontWeight: 700,
+                      borderRadius: '6px',
+                      border: '1px solid #0284c7',
+                      background: tipePeta === 'osm' ? '#0284c7' : '#ffffff',
+                      color: tipePeta === 'osm' ? '#ffffff' : '#0284c7',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    🗺️ Peta Jalan Asli (OSM)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setTipePeta('svg')}
+                    style={{
+                      padding: '0.25rem 0.65rem',
+                      fontSize: '0.75rem',
+                      fontWeight: 700,
+                      borderRadius: '6px',
+                      border: '1px solid #cbd5e1',
+                      background: tipePeta === 'svg' ? '#0284c7' : '#ffffff',
+                      color: tipePeta === 'svg' ? '#ffffff' : '#64748b',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    📡 Radar Vektor
+                  </button>
+                </div>
                 <span style={{ fontSize: '0.75rem', background: '#dcfce7', color: '#15803d', padding: '0.15rem 0.5rem', borderRadius: '4px', fontWeight: 600 }}>● GPS AKTIF</span>
               </div>
 
-              <svg viewBox="0 0 320 140" style={{ width: '100%', height: '130px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-                <path d="M 30 70 Q 110 20, 160 70 T 290 70" fill="none" stroke="#cbd5e1" strokeWidth="8" strokeLinecap="round" />
-                <path d="M 30 70 Q 110 20, 160 70 T 290 70" fill="none" stroke="#0284c7" strokeWidth="4" strokeDasharray="6,4" strokeLinecap="round" />
-                <circle cx="30" cy="70" r="12" fill="#0369a1" />
-                <text x="30" y="74" textAnchor="middle" fill="#fff" fontSize="10" fontWeight="bold">🏪</text>
-                <text x="30" y="98" textAnchor="middle" fill="#0f172a" fontSize="9" fontWeight="bold">Lab Optik</text>
-                {(() => {
-                  const p = (effectiveTracking.persentase_perjalanan || 50) / 100;
-                  const kurirX = 30 + (290 - 30) * p;
-                  const kurirY = 70 + Math.sin(p * Math.PI) * -35;
-                  return (
-                    <g transform={`translate(${kurirX}, ${kurirY})`}>
-                      <circle cx="0" cy="0" r="16" fill="#0284c7" fillOpacity="0.2">
-                        <animate attributeName="r" values="12;20;12" dur="2s" repeatCount="indefinite" />
-                      </circle>
-                      <circle cx="0" cy="0" r="11" fill="#0d9488" stroke="#fff" strokeWidth="2" />
-                      <text x="0" y="4" textAnchor="middle" fill="#fff" fontSize="10">🛵</text>
-                      <text x="0" y="-15" textAnchor="middle" fill="#0369a1" fontSize="8" fontWeight="bold">Kurir</text>
-                    </g>
-                  );
-                })()}
-                <circle cx="290" cy="70" r="12" fill="#10b981" />
-                <text x="290" y="74" textAnchor="middle" fill="#fff" fontSize="10" fontWeight="bold">🏠</text>
-                <text x="290" y="98" textAnchor="middle" fill="#0f172a" fontSize="9" fontWeight="bold">Pelanggan</text>
-              </svg>
+              {tipePeta === 'osm' ? (
+                <LiveMapKurir
+                  kurirLat={adminKurirLat}
+                  kurirLng={adminKurirLng}
+                  kurirNama={kurirNama || effectiveTracking.kurir?.nama}
+                  alamatTujuan={layanan?.alamat}
+                  height="200px"
+                  showGoogleMapsBtn={true}
+                />
+              ) : (
+                <div>
+                  <svg viewBox="0 0 320 140" style={{ width: '100%', height: '130px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                    <path d="M 30 70 Q 110 20, 160 70 T 290 70" fill="none" stroke="#cbd5e1" strokeWidth="8" strokeLinecap="round" />
+                    <path d="M 30 70 Q 110 20, 160 70 T 290 70" fill="none" stroke="#0284c7" strokeWidth="4" strokeDasharray="6,4" strokeLinecap="round" />
+                    <circle cx="30" cy="70" r="12" fill="#0369a1" />
+                    <text x="30" y="74" textAnchor="middle" fill="#fff" fontSize="10" fontWeight="bold">🏪</text>
+                    <text x="30" y="98" textAnchor="middle" fill="#0f172a" fontSize="9" fontWeight="bold">Lab Optik</text>
+                    {(() => {
+                      const p = (effectiveTracking.persentase_perjalanan || 50) / 100;
+                      const kurirX = 30 + (290 - 30) * p;
+                      const kurirY = 70 + Math.sin(p * Math.PI) * -35;
+                      return (
+                        <g transform={`translate(${kurirX}, ${kurirY})`}>
+                          <circle cx="0" cy="0" r="16" fill="#0284c7" fillOpacity="0.2">
+                            <animate attributeName="r" values="12;20;12" dur="2s" repeatCount="indefinite" />
+                          </circle>
+                          <circle cx="0" cy="0" r="11" fill="#0d9488" stroke="#fff" strokeWidth="2" />
+                          <text x="0" y="4" textAnchor="middle" fill="#fff" fontSize="10">🛵</text>
+                          <text x="0" y="-15" textAnchor="middle" fill="#0369a1" fontSize="8" fontWeight="bold">Kurir</text>
+                        </g>
+                      );
+                    })()}
+                    <circle cx="290" cy="70" r="12" fill="#10b981" />
+                    <text x="290" y="74" textAnchor="middle" fill="#fff" fontSize="10" fontWeight="bold">🏠</text>
+                    <text x="290" y="98" textAnchor="middle" fill="#0f172a" fontSize="9" fontWeight="bold">Pelanggan</text>
+                  </svg>
 
-              <div style={{ marginTop: '0.5rem', display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: '#64748b' }}>
-                <span>🏪 {effectiveTracking.lokasi_optik?.nama}</span>
-                <span>🏠 {layanan?.alamat ? layanan.alamat.slice(0, 20) + '...' : 'Tujuan Pelanggan'}</span>
-              </div>
+                  <div style={{ marginTop: '0.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+                    <span style={{ fontSize: '0.75rem', color: '#64748b' }}>🏪 {effectiveTracking.lokasi_optik?.nama}</span>
+                    <a
+                      href={`https://www.google.com/maps/dir/?api=1&origin=-7.2625,112.7485&destination=${adminKurirLat},${adminKurirLng}&travelmode=driving`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn btn-sm"
+                      style={{ backgroundColor: '#0284c7', color: '#ffffff', fontWeight: 700, fontSize: '0.75rem', padding: '0.2rem 0.5rem', borderRadius: '4px', textDecoration: 'none' }}
+                    >
+                      🗺️ Google Maps ↗
+                    </a>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -566,6 +634,35 @@ const AdminDetailLayanan = () => {
                   🏠 5. Selesai (100%)
                 </button>
               </div>
+
+              <div className="form-group" style={{ marginBottom: '0.75rem' }}>
+                <label className="form-label" htmlFor="selectCourierPool">
+                  Pilih Armada Kurir (Pool Internal Optik / Auto-Assign)
+                </label>
+                <select
+                  id="selectCourierPool"
+                  className="form-control"
+                  style={{ backgroundColor: '#f0f9ff', borderColor: '#38bdf8', fontWeight: 600 }}
+                  onChange={(e) => {
+                    const selected = COURIER_OPTIONS.find(c => c.id === e.target.value);
+                    if (selected && selected.kurirNama) {
+                      setKurirNama(selected.kurirNama);
+                      setKurirTelepon(selected.telepon);
+                    } else if (selected && selected.id === 'auto') {
+                      setKurirNama('');
+                      setKurirTelepon('');
+                    }
+                  }}
+                >
+                  {COURIER_OPTIONS.map(c => (
+                    <option key={c.id} value={c.id}>{c.nama}</option>
+                  ))}
+                </select>
+                <small style={{ color: '#0369a1', fontSize: '0.78rem', display: 'block', marginTop: '3px' }}>
+                  💡 Mode Otomatis akan menugaskan kurir aktif secara cerdas (seperti alur Gojek/Grab).
+                </small>
+              </div>
+
               <div className="form-grid">
                 <div className="form-group">
                   <label className="form-label" htmlFor="kurirNama">Nama Kurir</label>

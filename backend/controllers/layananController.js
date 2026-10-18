@@ -46,6 +46,22 @@ const VALID_METODE_PEMBAYARAN = [
   'cod'
 ];
 
+// Pool armada kurir optik internal (untuk penugasan otomatis ala Gojek/Grab)
+const COURIER_POOL = [
+  { nama: 'Agus Pratama', telepon: '081234567890', kendaraan: 'Honda Vario 160 (L 4589 AB)' },
+  { nama: 'Bambang Wijaya', telepon: '081398765432', kendaraan: 'Yamaha NMAX (L 3120 XY)' },
+  { nama: 'Rian Kurniawan', telepon: '085712348765', kendaraan: 'Honda Beat Street (L 6742 OP)' }
+];
+
+/**
+ * Helper untuk auto-assign kurir berdasarkan ID layanan (Deterministic Round-Robin)
+ */
+const autoAssignCourier = (seedId = 0) => {
+  const num = Math.abs(parseInt(seedId, 10) || 0);
+  return COURIER_POOL[num % COURIER_POOL.length];
+};
+
+
 /**
  * Helper untuk menyimpan gambar Base64 ke disk server (/uploads/)
  */
@@ -295,8 +311,19 @@ const updateStatusLayanan = async (req, res) => {
     if (total_biaya !== undefined && total_biaya !== null) { updateFields.push('total_biaya = ?'); updateParams.push(parseInt(total_biaya, 10) || 0); }
     if (status_pembayaran) { updateFields.push('status_pembayaran = ?'); updateParams.push(status_pembayaran); }
     if (metode_pembayaran) { updateFields.push('metode_pembayaran = ?'); updateParams.push(metode_pembayaran); }
-    if (catatan_admin !== undefined) { updateFields.push('catatan_admin = ?'); updateParams.push(catatan_admin); }
-    if (kurir_nama) { updateFields.push('kurir_nama = ?'); updateParams.push(kurir_nama); }
+    if (kurir_nama) {
+      updateFields.push('kurir_nama = ?');
+      updateParams.push(kurir_nama);
+    } else if (!dataLama.kurir_nama && ['dijadwalkan', 'diambil', 'diantar'].includes(status)) {
+      // Auto-assign kurir internal jika status masuk ke operasional dan belum ditugaskan (pola Gojek/Grab)
+      const autoKurir = autoAssignCourier(layananId);
+      updateFields.push('kurir_nama = ?');
+      updateParams.push(autoKurir.nama);
+      if (!kurir_telepon && !dataLama.kurir_telepon) {
+        updateFields.push('kurir_telepon = ?');
+        updateParams.push(autoKurir.telepon);
+      }
+    }
     if (kurir_telepon) { updateFields.push('kurir_telepon = ?'); updateParams.push(kurir_telepon); }
     if (tracking_status) { updateFields.push('tracking_status = ?'); updateParams.push(tracking_status); }
     if (req.body.kurir_lat !== undefined && req.body.kurir_lat !== null) { updateFields.push('kurir_lat = ?'); updateParams.push(req.body.kurir_lat); }
@@ -399,11 +426,17 @@ const getTrackingKurir = async (req, res) => {
     const ratio = progress / 100;
     const kurirLat = item.kurir_lat !== null ? Number(item.kurir_lat) : optikLocation.lat + (tujuanLocation.lat - optikLocation.lat) * ratio;
     const kurirLng = item.kurir_lng !== null ? Number(item.kurir_lng) : optikLocation.lng + (tujuanLocation.lng - optikLocation.lng) * ratio;
+    const autoKurir = autoAssignCourier(layananId);
     return res.status(200).json({
       success: true,
       data: {
         layanan_id: parseInt(layananId, 10), status_layanan: item.status, persentase_perjalanan: progress, estimasi_tiba: eta, status_deskripsi: item.tracking_status || statusKet,
-        kurir: { nama: item.kurir_nama || 'Agus Pratama', telepon: item.kurir_telepon || '081234567890', kendaraan: 'Honda Vario 160 (L 4589 AB)', posisi_saat_ini: { lat: kurirLat, lng: kurirLng } },
+        kurir: {
+          nama: item.kurir_nama || autoKurir.nama,
+          telepon: item.kurir_telepon || autoKurir.telepon,
+          kendaraan: autoKurir.kendaraan,
+          posisi_saat_ini: { lat: kurirLat, lng: kurirLng }
+        },
         lokasi_optik: optikLocation, lokasi_tujuan: tujuanLocation
       }
     });
@@ -458,7 +491,7 @@ const deleteLayanan = async (req, res) => {
 };
 
 module.exports = {
-  VALID_STATUSES, VALID_JENIS_LAYANAN, VALID_METODE_PEMBAYARAN, saveBase64Image,
+  VALID_STATUSES, VALID_JENIS_LAYANAN, VALID_METODE_PEMBAYARAN, COURIER_POOL, autoAssignCourier, saveBase64Image,
   sendEmailNotification, sendWANotification,
   getAllLayanan, getLayananById, createLayanan, updateStatusLayanan,
   prosesPembayaran, konfirmasiPembayaran, getTrackingKurir, updateTrackingKurir, deleteLayanan

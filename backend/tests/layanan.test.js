@@ -22,6 +22,7 @@ const db = require('../config/db');
 
 const {
   VALID_STATUSES, VALID_JENIS_LAYANAN, VALID_METODE_PEMBAYARAN,
+  COURIER_POOL, autoAssignCourier,
   saveBase64Image, sendWANotification, createLayanan, updateStatusLayanan
 } = require('../controllers/layananController');
 
@@ -109,3 +110,28 @@ describe('Pengujian Fitur 4: Integrasi Payment Gateway (Metode & Simulasi Midtra
     ['qris','bca_va','bni_va','bri_va','mandiri_va','gopay','shopeepay','cod'].forEach(m => assert.ok(VALID_METODE_PEMBAYARAN.includes(m), `Missing: ${m}`));
   });
 });
+
+describe('Pengujian Fitur 5: Penugasan Kurir Cerdas (Auto-Assign like Gojek/Grab)', () => {
+  it('COURIER_POOL harus menyediakan armada kurir internal optik', () => {
+    assert.ok(Array.isArray(COURIER_POOL));
+    assert.ok(COURIER_POOL.length >= 3);
+    COURIER_POOL.forEach(k => {
+      assert.ok(k.nama && typeof k.nama === 'string');
+      assert.ok(k.telepon && typeof k.telepon === 'string');
+      assert.ok(k.kendaraan && typeof k.kendaraan === 'string');
+    });
+  });
+
+  it('autoAssignCourier harus menugaskan kurir secara deterministik dan merata', () => {
+    const kurir1 = autoAssignCourier(1);
+    const kurir2 = autoAssignCourier(2);
+    const kurir3 = autoAssignCourier(3);
+    assert.ok(kurir1 && kurir1.nama);
+    assert.ok(kurir2 && kurir2.nama);
+    assert.ok(kurir3 && kurir3.nama);
+    // Round-robin cycle
+    assert.strictEqual(autoAssignCourier(1).nama, kurir1.nama);
+    assert.strictEqual(autoAssignCourier(4).nama, kurir1.nama);
+  });
+});
+
