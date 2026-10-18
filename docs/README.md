@@ -19,6 +19,7 @@ Folder ini memuat dokumentasi komprehensif perjalanan rekayasa perangkat lunak d
 | **[`02_PROGRESS_HISTORI.md`](./02_PROGRESS_HISTORI.md)** | Histori Evolusi | Kronologi progres lengkap dari awal mula proyek hingga implementasi mutakhir hari ini. |
 | **[`03_PERTEMUAN_5_MVP1.md`](./03_PERTEMUAN_5_MVP1.md)** | **Pertemuan 5** | Laporan MVP Version 1: 2 Fitur Inti MVP, metodologi Brief $\rightarrow$ Plan $\rightarrow$ Build $\rightarrow$ Verify $\rightarrow$ Commit, dan evaluasi mahasiswa. |
 | **[`04_PERTEMUAN_6_MVP2.md`](./04_PERTEMUAN_6_MVP2.md)** | **Pertemuan 6** | Penyempurnaan MVP: 5 User Stories + AC, 5 berkas unit test, dan status eksekusi 48/48 all passed (100%). |
+| **[`TUGAS_PERTEMUAN_6.md`](./TUGAS_PERTEMUAN_6.md)** | Laporan Tugas P6 | Dokumen laporan resmi pengumpulan Tugas Pertemuan 6 (Review MVP, User Stories, AC, Bukti Test, & Commit History). |
 | **[`05_FITUR_HARI_INI.md`](./05_FITUR_HARI_INI.md)** | Fitur Terkini | Implementasi peta interaktif Leaflet OSM, direct Google Maps turn-by-turn, auto-assign kurir Gojek-style, simulasi Midtrans QRIS/VA, dan database 3NF. |
 
 ---
@@ -28,3 +29,4 @@ Folder ini memuat dokumentasi komprehensif perjalanan rekayasa perangkat lunak d
 * **Frontend:** React.js, React Router DOM v6, Leaflet (OpenStreetMap), Axios.
 * **Pengujian Otomatis:** Node.js Native Test Runner (`node:test`, `node:assert/strict`) — 48 passing unit tests (100% lulus).
 * **Database:** `db_kacamata` (6 tabel relasional 3NF: `users`, `kurir`, `layanan`, `detail_layanan`, `pembayaran`, `riwayat_status_layanan`).
+
