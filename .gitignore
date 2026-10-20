@@ -25,3 +25,4 @@ npm-debug.log*
 # Local tool scripts
 powershell.bat
 powershell.cmd
+backend/run_backend.bat
