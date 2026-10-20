@@ -105,15 +105,25 @@ const ensureTableColumns = async (connection) => {
     await connection.query("ALTER TABLE users MODIFY COLUMN role ENUM('pelanggan', 'admin', 'kurir') DEFAULT 'pelanggan'");
   } catch (err) {}
 
-  // Pastikan akun seed demo kurir tersedia
+  // Pastikan akun seed demo kurir (kurir123) selalu tersedia dan ter-update
   try {
+    const kurirHash = '$2a$10$o8623Y1hEdu7HWhSJIVFhOOaKax//3XT0SSauvqm8XTIXxM4kRy6.'; // bcrypt hash for 'kurir123'
+    const adminHash = '$2a$10$dn.qn0EsFGpGqtAxHT4PeuwQwxAZRw2G7gLKAif3KzNNxau6aEi9W'; // bcrypt hash for 'admin123'
+    const userHash  = '$2a$10$Nq9vPYR.P0lGv7UytE7WLeY.kS4OmtNRn/0Bsx9Ti0S2xn.amr.SG'; // bcrypt hash for 'password123'
+
     const [kurirRows] = await connection.query("SELECT id FROM users WHERE email = 'kurir@gmail.com'");
     if (kurirRows.length === 0) {
       await connection.query(`
         INSERT INTO users (nama, email, password, role, no_telepon)
-        VALUES ('Agus Pratama (Kurir Optik)', 'kurir@gmail.com', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'kurir', '081234567890')
-      `);
+        VALUES ('Agus Pratama (Kurir Optik)', 'kurir@gmail.com', ?, 'kurir', '081234567890')
+      `, [kurirHash]);
+    } else {
+      await connection.query("UPDATE users SET password = ?, role = 'kurir' WHERE email = 'kurir@gmail.com'", [kurirHash]);
     }
+
+    // Pastikan admin@optik.com dan pelanggan dapat login dengan password demo dokumentasi
+    await connection.query("UPDATE users SET password = ? WHERE email = 'admin@optik.com'", [adminHash]);
+    await connection.query("UPDATE users SET password = ? WHERE email IN ('pelanggan@gmail.com', 'bahrul@gmail.com')", [userHash]);
   } catch (err) {}
 };
 

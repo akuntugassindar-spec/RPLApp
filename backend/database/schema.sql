@@ -123,14 +123,13 @@ CREATE TABLE IF NOT EXISTS riwayat_status_layanan (
 -- DATA AWAL LENGKAP (SEED DATA DEMO)
 -- ====================================================================
 
--- 1. Akun Pengguna Default (Password: admin123)
--- Hash BCrypt: $2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi
+-- 1. Akun Pengguna Default (Demo: admin123, password123, kurir123)
 INSERT INTO users (id, nama, email, password, role, no_telepon)
 VALUES 
-    (1, 'Administrator Optik', 'admin@optik.com', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin', '081234567890'),
-    (2, 'Bahrul Ulum', 'bahrul@gmail.com', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'pelanggan', '089876543210'),
-    (3, 'Siti Rahmawati', 'siti.rahma@gmail.com', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'pelanggan', '085612345678'),
-    (4, 'Agus Pratama (Kurir Optik)', 'kurir@gmail.com', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'kurir', '081234567890')
+    (1, 'Administrator Optik', 'admin@optik.com', '$2a$10$dn.qn0EsFGpGqtAxHT4PeuwQwxAZRw2G7gLKAif3KzNNxau6aEi9W', 'admin', '081234567890'),
+    (2, 'Bahrul Ulum', 'bahrul@gmail.com', '$2a$10$Nq9vPYR.P0lGv7UytE7WLeY.kS4OmtNRn/0Bsx9Ti0S2xn.amr.SG', 'pelanggan', '089876543210'),
+    (3, 'Siti Rahmawati', 'siti.rahma@gmail.com', '$2a$10$Nq9vPYR.P0lGv7UytE7WLeY.kS4OmtNRn/0Bsx9Ti0S2xn.amr.SG', 'pelanggan', '085612345678'),
+    (4, 'Agus Pratama (Kurir Optik)', 'kurir@gmail.com', '$2a$10$o8623Y1hEdu7HWhSJIVFhOOaKax//3XT0SSauvqm8XTIXxM4kRy6.', 'kurir', '081234567890')
 ON DUPLICATE KEY UPDATE 
     nama = VALUES(nama),
     role = VALUES(role),
