@@ -14,8 +14,9 @@
  * AC-5: Tracking kurir mengembalikan data persentase, ETA, dan posisi kurir.
  */
 
-const { describe, it } = require('node:test');
+const { describe, it, after } = require('node:test');
 const assert = require('node:assert/strict');
+const db = require('../config/db');
 
 const {
   VALID_METODE_PEMBAYARAN,
@@ -23,6 +24,12 @@ const {
   prosesPembayaran,
   updateTrackingKurir,
 } = require('../controllers/layananController');
+
+after(async () => {
+  try {
+    await db.end();
+  } catch (err) {}
+});
 
 // Helper: buat mock res object
 const mockRes = () => {

@@ -13,12 +13,19 @@
  * AC-5: Token JWT berisi payload id, nama, email, dan role.
  */
 
-const { describe, it } = require('node:test');
+const { describe, it, after } = require('node:test');
 const assert = require('node:assert/strict');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const db = require('../config/db');
 
 const { register, login } = require('../controllers/authController');
+
+after(async () => {
+  try {
+    await db.end();
+  } catch (err) {}
+});
 
 // Helper: buat mock res object
 const mockRes = () => {
@@ -118,6 +125,16 @@ describe('User Story #2: Registrasi & Login Autentikasi', () => {
     assert.throws(() => {
       jwt.verify(token, 'secret-palsu');
     }, { name: 'JsonWebTokenError' });
+  });
+
+  it('AC-5: JWT token harus mendukung peran role kurir (Agus Pratama)', () => {
+    const secret = 'test-secret-key';
+    const payload = { id: 4, nama: 'Agus Pratama', email: 'kurir@gmail.com', role: 'kurir' };
+    const token = jwt.sign(payload, secret, { expiresIn: '24h' });
+    const decoded = jwt.verify(token, secret);
+    assert.strictEqual(decoded.id, 4);
+    assert.strictEqual(decoded.role, 'kurir');
+    assert.strictEqual(decoded.email, 'kurir@gmail.com');
   });
 });
 

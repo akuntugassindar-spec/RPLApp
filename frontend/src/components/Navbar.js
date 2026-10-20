@@ -3,7 +3,8 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 
 /**
  * Komponen Navbar navigasi utama aplikasi.
- * Menampilkan menu sesuai status autentikasi dan peran (Pelanggan vs Admin).
+ * Menampilkan menu sesuai status autentikasi dan peran 3 Role RBAC:
+ * Pelanggan, Administrator Optik, dan Kurir Logistik Lapangan.
  */
 const Navbar = () => {
   const navigate = useNavigate();
@@ -30,11 +31,18 @@ const Navbar = () => {
     return location.pathname === path ? 'active' : '';
   };
 
+  const getBrandDestination = () => {
+    if (!token) return '/';
+    if (user?.role === 'admin') return '/admin/dashboard';
+    if (user?.role === 'kurir') return '/kurir/dashboard';
+    return '/dashboard';
+  };
+
   return (
     <nav className="navbar">
       <div className="navbar-container">
         {/* Brand / Logo */}
-        <Link to={token ? (user?.role === 'admin' ? '/admin/dashboard' : '/dashboard') : '/'} className="navbar-brand">
+        <Link to={getBrandDestination()} className="navbar-brand">
           <svg
             className="logo-icon"
             viewBox="0 0 24 24"
@@ -99,6 +107,36 @@ const Navbar = () => {
                 </button>
               </li>
             </>
+          ) : user?.role === 'kurir' ? (
+            // Menu Khusus Kurir
+            <>
+              <li>
+                <Link to="/kurir/dashboard" className={`nav-link ${isActive('/kurir/dashboard')}`}>
+                  Dashboard Kurir
+                </Link>
+              </li>
+              <li>
+                <Link to="/kurir" className={`nav-link ${isActive('/kurir')}`}>
+                  Armada Kurir
+                </Link>
+              </li>
+              <li>
+                <span className="user-badge">
+                  <span>{user.nama || 'Agus Pratama'}</span>
+                  <span
+                    className="role-tag"
+                    style={{ backgroundColor: '#0284c7', color: '#fff', fontWeight: 700 }}
+                  >
+                    Kurir
+                  </span>
+                </span>
+              </li>
+              <li>
+                <button onClick={handleLogout} className="btn btn-outline btn-sm">
+                  Keluar
+                </button>
+              </li>
+            </>
           ) : (
             // Menu Pelanggan
             <>
@@ -132,3 +170,4 @@ const Navbar = () => {
 };
 
 export default Navbar;
+

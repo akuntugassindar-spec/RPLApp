@@ -14,14 +14,21 @@
  * AC-5: deleteDetailLayanan memastikan akses ditolak untuk user non-pemilik (HTTP 403).
  */
 
-const { describe, it } = require('node:test');
+const { describe, it, after } = require('node:test');
 const assert = require('node:assert/strict');
+const db = require('../config/db');
 
 const {
   createDetailLayanan,
   updateDetailLayanan,
   deleteDetailLayanan,
 } = require('../controllers/detailLayananController');
+
+after(async () => {
+  try {
+    await db.end();
+  } catch (err) {}
+});
 
 // Helper: buat mock res object
 const mockRes = () => {

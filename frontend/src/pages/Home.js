@@ -21,6 +21,8 @@ const Home = () => {
   const destination = token
     ? user?.role === 'admin'
       ? '/admin/dashboard'
+      : user?.role === 'kurir'
+      ? '/kurir/dashboard'
       : '/dashboard'
     : '/register';
 

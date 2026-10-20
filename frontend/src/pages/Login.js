@@ -48,9 +48,11 @@ const Login = () => {
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(user));
 
-      // Redirect berdasarkan role
+      // Redirect berdasarkan role (admin, kurir, atau pelanggan)
       if (user?.role === 'admin') {
         navigate('/admin/dashboard');
+      } else if (user?.role === 'kurir') {
+        navigate('/kurir/dashboard');
       } else {
         navigate('/dashboard');
       }

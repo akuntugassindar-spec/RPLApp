@@ -99,6 +99,22 @@ const ensureTableColumns = async (connection) => {
   } catch (tableErr) {
     // Abaikan jika tabel sudah ada atau ada constraint issue
   }
+
+  // Pastikan role enum pada tabel users mendukung 'kurir'
+  try {
+    await connection.query("ALTER TABLE users MODIFY COLUMN role ENUM('pelanggan', 'admin', 'kurir') DEFAULT 'pelanggan'");
+  } catch (err) {}
+
+  // Pastikan akun seed demo kurir tersedia
+  try {
+    const [kurirRows] = await connection.query("SELECT id FROM users WHERE email = 'kurir@gmail.com'");
+    if (kurirRows.length === 0) {
+      await connection.query(`
+        INSERT INTO users (nama, email, password, role, no_telepon)
+        VALUES ('Agus Pratama (Kurir Optik)', 'kurir@gmail.com', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'kurir', '081234567890')
+      `);
+    }
+  } catch (err) {}
 };
 
 

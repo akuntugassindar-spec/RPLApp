@@ -15,7 +15,7 @@ import { BuatLayanan, DaftarLayanan, DashboardLayanan } from './pages/layanan';
 import { DetailLayanan, AdminDetailLayanan } from './pages/detail_layanan';
 
 // Modul Halaman Kurir
-import { TrackingKurir, DaftarKurir } from './pages/kurir';
+import { TrackingKurir, DaftarKurir, KurirDashboard } from './pages/kurir';
 
 // Modul Halaman Pembayaran
 import { PembayaranPage, KonfirmasiPembayaran } from './pages/pembayaran';
@@ -93,9 +93,17 @@ function App() {
 
           {/* Modul 3: Kurir & Tracking GPS */}
           <Route
+            path="/kurir/dashboard"
+            element={
+              <PrivateRoute role="kurir">
+                <KurirDashboard />
+              </PrivateRoute>
+            }
+          />
+          <Route
             path="/kurir"
             element={
-              <PrivateRoute>
+              <PrivateRoute role={['kurir', 'admin']}>
                 <DaftarKurir />
               </PrivateRoute>
             }

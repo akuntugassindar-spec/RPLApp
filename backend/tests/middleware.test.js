@@ -20,6 +20,7 @@ const jwt = require('jsonwebtoken');
 
 const authMiddleware = require('../middleware/auth');
 const adminAuthMiddleware = require('../middleware/adminAuth');
+const staffAuth = require('../middleware/staffAuth');
 
 // Helper: buat mock req/res/next
 const mockRes = () => {
@@ -124,6 +125,43 @@ describe('User Story #3: Middleware Otorisasi JWT & Proteksi Admin', () => {
     const res = mockRes();
     let nextCalled = false;
     adminAuthMiddleware(req, res, () => { nextCalled = true; });
+    assert.strictEqual(nextCalled, true);
+  });
+
+  // --- staffAuth (Admin & Kurir) ---
+
+  it('AC-6: staffAuth menolak user tanpa autentikasi (req.user undefined)', () => {
+    const req = {};
+    const res = mockRes();
+    let nextCalled = false;
+    staffAuth(req, res, () => { nextCalled = true; });
+    assert.strictEqual(res.getStatus(), 401);
+    assert.strictEqual(nextCalled, false);
+  });
+
+  it('AC-6: staffAuth menolak user dengan role pelanggan (HTTP 403)', () => {
+    const req = { user: { id: 2, role: 'pelanggan' } };
+    const res = mockRes();
+    let nextCalled = false;
+    staffAuth(req, res, () => { nextCalled = true; });
+    assert.strictEqual(res.getStatus(), 403);
+    assert.match(res.getJson().message, /kurir atau administrator/i);
+    assert.strictEqual(nextCalled, false);
+  });
+
+  it('AC-6: staffAuth meneruskan request jika role kurir', () => {
+    const req = { user: { id: 4, role: 'kurir' } };
+    const res = mockRes();
+    let nextCalled = false;
+    staffAuth(req, res, () => { nextCalled = true; });
+    assert.strictEqual(nextCalled, true);
+  });
+
+  it('AC-6: staffAuth meneruskan request jika role admin', () => {
+    const req = { user: { id: 1, role: 'admin' } };
+    const res = mockRes();
+    let nextCalled = false;
+    staffAuth(req, res, () => { nextCalled = true; });
     assert.strictEqual(nextCalled, true);
   });
 });

@@ -378,7 +378,7 @@ const getAllLayanan = async (req, res) => {
     `;
     const conditions = [];
     const params = [];
-    if (role !== 'admin') { conditions.push('l.user_id = ?'); params.push(userId); }
+    if (role === 'pelanggan') { conditions.push('l.user_id = ?'); params.push(userId); }
     if (status && VALID_STATUSES.includes(status)) { conditions.push('l.status = ?'); params.push(status); }
     if (jenis_layanan && VALID_JENIS_LAYANAN.includes(jenis_layanan)) { conditions.push('l.jenis_layanan = ?'); params.push(jenis_layanan); }
     if (conditions.length > 0) query += ' WHERE ' + conditions.join(' AND ');
@@ -419,7 +419,7 @@ const getLayananById = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Layanan tidak ditemukan.' });
     }
     const item = layananRows[0];
-    if (role !== 'admin' && item.user_id !== userId) {
+    if (role !== 'admin' && role !== 'kurir' && item.user_id !== userId) {
       return res.status(403).json({ success: false, message: 'Akses ditolak.' });
     }
     const responseData = {
@@ -573,7 +573,7 @@ const prosesPembayaran = async (req, res) => {
     const [rows] = await db.query(`SELECT l.*, u.nama, u.email FROM layanan l JOIN users u ON l.user_id = u.id WHERE l.id = ?`, [layananId]);
     if (rows.length === 0) return res.status(404).json({ success: false, message: 'Pesanan tidak ditemukan.' });
     const pesanan = rows[0];
-    if (role !== 'admin' && pesanan.user_id !== userId) return res.status(403).json({ success: false, message: 'Akses ditolak.' });
+    if (role !== 'admin' && role !== 'kurir' && pesanan.user_id !== userId) return res.status(403).json({ success: false, message: 'Akses ditolak.' });
     const metode = metode_pembayaran || 'qris';
     if (!VALID_METODE_PEMBAYARAN.includes(metode)) {
       return res.status(400).json({ success: false, message: `Metode pembayaran tidak valid. Pilihan: ${VALID_METODE_PEMBAYARAN.join(', ')}` });
@@ -611,7 +611,7 @@ const konfirmasiPembayaran = async (req, res) => {
     const { role, id: userId } = req.user;
     const [rows] = await db.query(`SELECT l.*, u.nama FROM layanan l JOIN users u ON l.user_id = u.id WHERE l.id = ?`, [layananId]);
     if (rows.length === 0) return res.status(404).json({ success: false, message: 'Pesanan tidak ditemukan.' });
-    if (role !== 'admin' && rows[0].user_id !== userId) return res.status(403).json({ success: false, message: 'Akses ditolak.' });
+    if (role !== 'admin' && role !== 'kurir' && rows[0].user_id !== userId) return res.status(403).json({ success: false, message: 'Akses ditolak.' });
     await db.query(`UPDATE layanan SET status_pembayaran = 'lunas' WHERE id = ?`, [layananId]);
     return res.status(200).json({ success: true, message: 'Pembayaran berhasil dikonfirmasi LUNAS.', data: { layanan_id: parseInt(layananId, 10), status_pembayaran: 'lunas', id_transaksi_pembayaran: rows[0].id_transaksi_pembayaran } });
   } catch (error) {
@@ -636,7 +636,7 @@ const getTrackingKurir = async (req, res) => {
     );
     if (rows.length === 0) return res.status(404).json({ success: false, message: 'Layanan tidak ditemukan.' });
     const item = rows[0];
-    if (role !== 'admin' && item.user_id !== userId) return res.status(403).json({ success: false, message: 'Akses ditolak.' });
+    if (role !== 'admin' && role !== 'kurir' && item.user_id !== userId) return res.status(403).json({ success: false, message: 'Akses ditolak.' });
 
     const optikLocation = {
       nama: 'OptikExpress Store & Lab',

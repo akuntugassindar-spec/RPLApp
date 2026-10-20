@@ -134,9 +134,10 @@ Database otomatis di-seed dengan akun berikut (password sudah di-hash dengan BCr
 
 | Role | Email | Password | Keterangan |
 | :--- | :--- | :--- | :--- |
-| Admin | `admin@kacamata.com` | `admin123` | Akses penuh dashboard admin, kelola pesanan, update status, biaya, tracking kurir |
-| Pelanggan | `budi@gmail.com` | `password123` | Buat pengajuan layanan baru, pantau progres, bayar pesanan, cek rincian |
-| Pelanggan | `siti@gmail.com` | `password123` | Akun demo pelanggan alternatif |
+| Admin | `admin@optik.com` / `akuntugassindar@gmail.com` | `admin123` | Akses penuh dashboard admin, kelola pesanan, update status, biaya, tracking kurir |
+| Pelanggan | `pelanggan@gmail.com` / `budi@gmail.com` | `password123` | Buat pengajuan layanan baru, pantau progres, bayar pesanan, cek rincian |
+| Pelanggan | `siti.rahma@gmail.com` | `password123` | Akun demo pelanggan alternatif |
+| Kurir | `kurir@gmail.com` | `kurir123` / `password123` | Dashboard khusus kurir logistik, alur jemput/antar, broadcast GPS live, dan kasir COD/QRIS di tempat |
 
 > Anda juga bisa langsung mendaftarkan akun pelanggan baru lewat halaman registrasi (`/register`).
 
@@ -387,12 +388,13 @@ Tekan `Ctrl + C` pada masing-masing jendela terminal backend dan frontend.
 
 ---
 
-## Target Pengguna (2 Role RBAC)
+## Target Pengguna (3 Role RBAC)
 
 | Peran | Tanggung Jawab Utama |
 | :--- | :--- |
 | `admin` | Verifikasi pesanan, penetapan jadwal jemput, update 6 status state machine, input nominal tagihan servis, penugasan armada kurir otomatis/manual, dan konfirmasi pelunasan pembayaran. |
 | `pelanggan` | Registrasi akun, pengajuan layanan antar-jemput, unggah foto kerusakan frame & resep dokter optik, pemantauan kurir GPS real-time, simulasi pembayaran digital, dan cetak invoice tanda terima resmi. |
+| `kurir` | Menerima daftar tugas penjemputan/pengantaran kacamata, memperbarui status kurir di perjalanan (`diambil`, `diantar`, `selesai`), menyiarkan koordinat GPS live kurir, dan melayani kasir pelunasan di tempat (tunai COD atau QRIS scan di layar kurir). |
 
 ---
 
@@ -400,7 +402,7 @@ Tekan `Ctrl + C` pada masing-masing jendela terminal backend dan frontend.
 
 Status ditandai jujur: **[Ada]** = sudah terimplementasi di kode dan lolos pengujian otomatis.
 
-1. **[Ada] Autentikasi & RBAC Multi-Role** — sesi login stateless dengan token JWT, otorisasi peran `pelanggan` dan `admin`, proteksi rute halaman via `PrivateRoute`.
+1. **[Ada] Autentikasi & RBAC Multi-Role (3 Role)** — sesi login stateless dengan token JWT, otorisasi peran `admin`, `pelanggan`, dan `kurir`, proteksi rute halaman via `PrivateRoute`.
 2. **[Ada] Formulir Pengajuan Servis Digital** — pemilihan 3 kategori servis (`perbaikan`, `penggantian_lensa`, `perbaikan_dan_lensa`), keluhan kerusakan, alamat penjemputan lengkap, serta penentuan jadwal tanggal dan jam penjemputan.
 3. **[Ada] Rincian Spesifikasi Kacamata (Detail Layanan)** — pencatatan model frame, rincian tindakan teknis perbaikan, dan ukuran lensa resep (minus, plus, silinder, progresif) pada tabel relasional `detail_layanan`.
 4. **[Ada] Siklus Status Layanan (State Machine 6 Tahapan)** — alur siklus hidup pesanan deterministik: `pengajuan` -> `dijadwalkan` -> `diambil` -> `diproses` -> `diantar` -> `selesai`.
@@ -408,7 +410,7 @@ Status ditandai jujur: **[Ada]** = sudah terimplementasi di kode dan lolos pengu
 6. **[Ada] Pembatalan & Penghapusan Pesanan** — pembatalan mandiri oleh pelanggan pada tahap awal serta penghapusan data pesanan oleh admin dengan *cascading delete*.
 7. **[Ada] Notifikasi Otomatis Status (Email SMTP & WhatsApp Mock)** — pengiriman email otomatis via `nodemailer` (dukungan SMTP Gmail & testing Ethereal) serta pencatatan log simulasi pesan WhatsApp ke nomor telepon pelanggan setiap kali status diperbarui.
 8. **[Ada] Arsitektur Frontend Modular (5 Modul Domain)** — pengelompokan komponen antarmuka ke dalam 5 folder terisolasi (`kurir/`, `layanan/`, `detail_layanan/`, `pembayaran/`, `riwayat_status_layanan/`) dengan *barrel export*.
-9. **[Ada] Otomasi Pengujian Unit Backend (Unit Testing Suite)** — 48 unit tests otomatis menggunakan test runner bawaan Node.js (`node:test`, `node:assert/strict`) dengan tingkat kelulusan 100%.
+9. **[Ada] Otomasi Pengujian Unit Backend (Unit Testing Suite)** — 60 unit tests otomatis menggunakan test runner bawaan Node.js (`node:test`, `node:assert/strict`) dengan tingkat kelulusan 100%.
 10. **[Ada] Integrasi Gerbang Pembayaran Digital (Payment Gateway Midtrans)** — simulasi checkout pembayaran digital multi-kanal (QRIS dinamis, Virtual Account BCA/BNI/BRI/Mandiri, E-Wallet GoPay/ShopeePay, COD), batas waktu transaksi, serta invoice digital struk lunas dengan fitur cetak.
 11. **[Ada] Pelacakan Kurir Langsung (Live GPS Tracking & Auto-Assign Kurir)** — pemantauan posisi kurir real-time di atas peta Leaflet OpenStreetMap, animasi radar bergerak, estimasi waktu kedatangan (ETA), rute arah Google Maps turn-by-turn, dan penugasan kurir otomatis Round-Robin Gojek-style dari pool internal optik.
 12. **[Ada] Unggah Berkas Foto Fisik Kacamata & Resep Optik** — penyimpanan file gambar Base64 ke disk server dengan pratinjau instan (*thumbnail preview*) dan modal pembesar (*lightbox zoom*).
@@ -418,7 +420,7 @@ Status ditandai jujur: **[Ada]** = sudah terimplementasi di kode dan lolos pengu
 ## Keamanan
 
 - Autentikasi JWT via header `Authorization: Bearer <token>` dengan masa kedaluwarsa 24 jam
-- Middleware RBAC terpisah (`auth.js` dan `adminAuth.js`) dengan mitigasi pencegahan manipulasi identitas (*Anti-IDOR*)
+- Middleware RBAC multi-role (`auth.js`, `adminAuth.js`, dan `staffAuth.js`) dengan mitigasi pencegahan manipulasi identitas (*Anti-IDOR*)
 - Enkripsi password menggunakan BCrypt dengan *salt rounds* 10
 - Parameterized SQL queries (`?`) pada setiap query basis data untuk mencegah *SQL Injection*
 - `.env` dikecualikan dari Git melalui `.gitignore`, berkas `.env.example` hanya berisi template variabel publik
@@ -432,5 +434,5 @@ Target berikut adalah sasaran produk dan rekayasa perangkat lunak yang telah ter
 - Waktu pengajuan layanan oleh pelanggan: **< 2 menit** — **terpenuhi**
 - Integritas alur state machine 6 tahapan status operasional: **100% konsisten tanpa lompatan status ilegal** — **terpenuhi**
 - Proteksi Anti-IDOR pada endpoint servis & spesifikasi kacamata: **100% tervalidasi via unit tests** — **terpenuhi**
-- Tingkat kelulusan pengujian unit test backend: **100% (48 passing tests, 0 failing tests)** — **terpenuhi**
+- Tingkat kelulusan pengujian unit test backend: **100% (60 passing tests, 0 failing tests)** — **terpenuhi**
 - Ketersediaan multi-metode pembayaran digital & pelacakan kurir live GPS: **terpasang dan teruji** — **terpenuhi**

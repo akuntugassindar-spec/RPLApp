@@ -49,12 +49,13 @@ Siklus layanan kacamata diatur melalui alur terstruktur 6 status operasional (*S
 * **AC-3:** Password wajib di-hash menggunakan algoritma satu arah BCrypt (salt rounds 10) sebelum disimpan ke basis data.
 * **AC-4:** Login dengan kredensial yang valid menerbitkan JSON Web Token (JWT) yang membawa payload identitas (`id`, `nama`, `email`, `role`).
 
-### User Story 3: Middleware Otorisasi JWT dan Proteksi Administrator
-*Sebagai sistem, saya ingin memvalidasi hak akses token JWT agar pelanggan biasa tidak dapat memanipulasi data pengguna lain atau mengakses panel admin.*
+### User Story 3: Middleware Otorisasi JWT dan Proteksi Multi-Role RBAC (3 Role)
+*Sebagai sistem, saya ingin memvalidasi hak akses token JWT agar pengguna hanya dapat mengakses fitur sesuai perannya (Pelanggan, Kurir, Administrator).*
 * **AC-1:** Menolak request ke endpoint privat jika header Authorization kosong (HTTP 401 Unauthorized).
 * **AC-2:** Menolak token tanpa format Bearer atau token kadaluwarsa/salah secret key (HTTP 401).
-* **AC-3:** Pengguna dengan role `pelanggan` dilarang mengakses endpoint penetapan biaya, pembaruan status, atau update kurir (HTTP 403 Forbidden).
-* **AC-4:** Endpoint administrasi hanya dapat dieksekusi oleh akun dengan role `admin`.
+* **AC-3:** Pengguna dengan role `pelanggan` dilarang mengakses endpoint penetapan biaya atau panel kontrol staf (HTTP 403 Forbidden).
+* **AC-4:** Endpoint administrasi sistem (reset urutan antrean, hapus pesanan permanen) hanya dapat dieksekusi oleh akun dengan role `admin`.
+* **AC-5:** Pengguna dengan role `kurir` memiliki hak akses operasional lapangan: memproses status jemput/antar (`diambil`, `diproses`, `diantar`, `selesai`), menyiarkan koordinat live GPS, serta melayani kasir pelunasan di tempat (tunai COD & QRIS ASPI).
 
 ### User Story 4: Spesifikasi Teknis Kacamata dan Resep Lensa (CRUD)
 *Sebagai teknisi optik, saya ingin mencatat spesifikasi frame dan ukuran minus/silinder kacamata agar pengerjaan optik presisi.*
