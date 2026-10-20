@@ -128,39 +128,6 @@ const Login = () => {
             Daftar di sini
           </Link>
         </div>
-
-        {/* Akses Cepat Akun Demo (3 Role RBAC) */}
-        <div style={{ marginTop: '1.25rem', paddingTop: '1.25rem', borderTop: '1px solid #e2e8f0' }}>
-          <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.5rem', textAlign: 'center', fontWeight: 600 }}>
-            ⚡ Akses Cepat Akun Demo (3 Role RBAC):
-          </p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem' }}>
-            <button
-              type="button"
-              className="btn btn-outline btn-sm"
-              style={{ fontSize: '0.78rem', padding: '0.4rem 0.2rem' }}
-              onClick={() => setFormData({ email: 'pelanggan@gmail.com', password: 'password123' })}
-            >
-              👤 Pelanggan
-            </button>
-            <button
-              type="button"
-              className="btn btn-outline btn-sm"
-              style={{ fontSize: '0.78rem', padding: '0.4rem 0.2rem' }}
-              onClick={() => setFormData({ email: 'admin@optik.com', password: 'admin123' })}
-            >
-              🛡️ Admin
-            </button>
-            <button
-              type="button"
-              className="btn btn-outline btn-sm"
-              style={{ fontSize: '0.78rem', padding: '0.4rem 0.2rem', borderColor: '#0284c7', color: '#0284c7', fontWeight: 600 }}
-              onClick={() => setFormData({ email: 'kurir@gmail.com', password: 'kurir123' })}
-            >
-              🛵 Kurir
-            </button>
-          </div>
-        </div>
       </div>
     </div>
   );
