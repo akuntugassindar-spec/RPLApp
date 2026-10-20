@@ -155,13 +155,6 @@ const AdminDetailLayanan = () => {
     }
   };
 
-  const getImageUrl = (pathStr) => {
-    if (!pathStr) return '';
-    if (pathStr.startsWith('http://') || pathStr.startsWith('https://')) return pathStr;
-    const base = process.env.REACT_APP_API_URL ? process.env.REACT_APP_API_URL.replace(/\/api$/, '') : '';
-    return `${base}${pathStr}`;
-  };
-
   const steps = [
     { key: 'pengajuan', label: '1. Diajukan', desc: 'Menunggu konfirmasi' },
     { key: 'diambil', label: '2. Penjemputan', desc: 'Kurir menjemput kacamata' },

@@ -19,7 +19,6 @@ const DetailLayanan = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [selectedPhoto, setSelectedPhoto] = useState(null);
   const [copiedText, setCopiedText] = useState(false);
 
   // Tracking kurir GPS
@@ -184,15 +183,6 @@ const DetailLayanan = () => {
     navigator.clipboard.writeText(vaNumber);
     setCopiedText(true);
     setTimeout(() => setCopiedText(false), 2000);
-  };
-
-  const getImageUrl = (path) => {
-    if (!path) return '';
-    if (path.startsWith('http')) return path;
-    const base = process.env.REACT_APP_API_URL
-      ? process.env.REACT_APP_API_URL.replace(/\/api$/, '')
-      : '';
-    return `${base}${path}`;
   };
 
   // Tahapan alur status

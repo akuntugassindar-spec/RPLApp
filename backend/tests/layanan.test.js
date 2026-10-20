@@ -23,6 +23,7 @@ const db = require('../config/db');
 const {
   VALID_STATUSES, VALID_JENIS_LAYANAN, VALID_METODE_PEMBAYARAN,
   COURIER_POOL, autoAssignCourier,
+  geocodeSurabayaAddress, calculateDistanceKm, findNearestRandomCourier,
   saveBase64Image, sendWANotification, createLayanan, updateStatusLayanan
 } = require('../controllers/layananController');
 
@@ -134,4 +135,45 @@ describe('Pengujian Fitur 5: Penugasan Kurir Cerdas (Auto-Assign like Gojek/Grab
     assert.strictEqual(autoAssignCourier(4).nama, kurir1.nama);
   });
 });
+
+describe('Pengujian Fitur 6: Alokasi Kurir Terdekat Secara Acak Sesuai Alamat Penjemputan (Foto 2)', () => {
+  it('geocodeSurabayaAddress harus memetakan kata kunci wilayah Surabaya ke koordinat yang sesuai', () => {
+    const geoSukolilo = geocodeSurabayaAddress('Jl. Keputih Tegal No. 20, Sukolilo, Surabaya');
+    assert.strictEqual(geoSukolilo.lat, -7.2890);
+    assert.strictEqual(geoSukolilo.lng, 112.7950);
+    assert.match(geoSukolilo.wilayah, /Sukolilo/i);
+
+    const geoRungkut = geocodeSurabayaAddress('Rungkut Madya No. 1, Surabaya');
+    assert.strictEqual(geoRungkut.lat, -7.3180);
+    assert.strictEqual(geoRungkut.lng, 112.7800);
+    assert.match(geoRungkut.wilayah, /Rungkut/i);
+
+    const geoGubeng = geocodeSurabayaAddress('Jl. Raya Gubeng No. 15, Surabaya');
+    assert.strictEqual(geoGubeng.lat, -7.2750);
+    assert.strictEqual(geoGubeng.lng, 112.7530);
+    assert.match(geoGubeng.wilayah, /Gubeng/i);
+  });
+
+  it('calculateDistanceKm harus menghitung jarak Haversine antar koordinat dengan presisi', () => {
+    const distZero = calculateDistanceKm(-7.2625, 112.7485, -7.2625, 112.7485);
+    assert.strictEqual(distZero, 0);
+
+    const distOptikKeSukolilo = calculateDistanceKm(-7.2625, 112.7485, -7.2890, 112.7950);
+    assert.ok(distOptikKeSukolilo >= 4 && distOptikKeSukolilo <= 8, `Distance: ${distOptikKeSukolilo}`);
+  });
+
+  it('findNearestRandomCourier harus mengalokasikan kurir acak yang berjarak sangat dekat (< 1.5 km) dari alamat jemput (Foto 2)', () => {
+    const destLat = -7.2890;
+    const destLng = 112.7950;
+    const allocation = findNearestRandomCourier(destLat, destLng, 'Sukolilo');
+
+    assert.ok(allocation.kurir && allocation.kurir.nama);
+    assert.ok(typeof allocation.kurirLat === 'number');
+    assert.ok(typeof allocation.kurirLng === 'number');
+    assert.ok(allocation.jarakKm < 1.5, `Jarak kurir ke pelanggan (${allocation.jarakKm} km) harus kurang dari 1.5 km`);
+    assert.ok(allocation.jarakKm > 0, `Jarak kurir harus lebih dari 0 km`);
+    assert.match(allocation.trackingStatus, /Kurir terdekat/i);
+  });
+});
+
 

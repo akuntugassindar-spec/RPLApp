@@ -3,7 +3,8 @@
  * Mengelola pembuatan pengajuan layanan, pembaruan status pengerjaan,
  * penyimpanan foto bukti kacamata & resep dokter,
  * simulasi integrasi payment gateway (Midtrans Snap),
- * serta pelacakan langsung kurir GPS (Live Courier Tracking).
+ * serta pelacakan langsung kurir GPS (Live Courier Tracking)
+ * dengan alokasi kurir terdekat secara acak berdasarkan alamat penjemputan pelanggan.
  */
 
 const fs = require('fs');
@@ -54,13 +55,175 @@ const COURIER_POOL = [
 ];
 
 /**
+ * Pemetaan Wilayah Surabaya & Geocoding Cerdas berdasarkan Alamat Penjemputan (Foto 2)
+ */
+const SURABAYA_DISTRICTS = [
+  {
+    wilayah: 'Sukolilo / Keputih / ITS',
+    lat: -7.2890,
+    lng: 112.7950,
+    keywords: ['sukolilo', 'keputih', 'gebang', 'its', 'klampis', 'semolowaru', 'menur', 'kertajaya indah', 'mulyosari']
+  },
+  {
+    wilayah: 'Rungkut / Surabaya Timur',
+    lat: -7.3180,
+    lng: 112.7800,
+    keywords: ['rungkut', 'gunung anyar', 'pandugo', 'penjaringan', 'wonorejo', 'medokan', 'kali rungkut', 'rungkut industri', 'rungkut madya']
+  },
+  {
+    wilayah: 'Gubeng / Airlangga',
+    lat: -7.2750,
+    lng: 112.7530,
+    keywords: ['gubeng', 'airlangga', 'mojo', 'baratajaya', 'pucang', 'ngagel', 'dharmawangsa', 'karangmenjangan', 'kertajaya']
+  },
+  {
+    wilayah: 'Wonokromo / Darmo',
+    lat: -7.3000,
+    lng: 112.7380,
+    keywords: ['wonokromo', 'darmo', 'jagir', 'sawanggaling', 'ngagel rejo', 'diponegoro', 'ciliwung', 'joyoboyo']
+  },
+  {
+    wilayah: 'Tegalsari / Basuki Rahmat',
+    lat: -7.2680,
+    lng: 112.7390,
+    keywords: ['tegalsari', 'basuki rahmat', 'kedungdoro', 'dr soetomo', 'dr. soetomo', 'pandegiling', 'embong malang']
+  },
+  {
+    wilayah: 'Genteng / Pusat (Dekat Optik)',
+    lat: -7.2625,
+    lng: 112.7485,
+    keywords: ['genteng', 'pemuda', 'panglima sudirman', 'embong kaliasin', 'yos sudarso', 'tunjungan', 'gubernur suryo']
+  },
+  {
+    wilayah: 'Kenjeran / Tambaksari',
+    lat: -7.2350,
+    lng: 112.7850,
+    keywords: ['kenjeran', 'bulak', 'tambaksari', 'suramadu', 'ploso', 'gading', 'kapasan', 'sidotopo']
+  },
+  {
+    wilayah: 'Mulyorejo / Manyar',
+    lat: -7.2680,
+    lng: 112.7850,
+    keywords: ['mulyorejo', 'manyar', 'kalijudan', 'sutorejo', 'dharmahusada']
+  },
+  {
+    wilayah: 'Dukuh Pakis / Mayjen Sungkono',
+    lat: -7.2880,
+    lng: 112.7050,
+    keywords: ['dukuh pakis', 'hr muhammad', 'h.r. muhammad', 'mayjen sungkono', 'pradah', 'gunungsari']
+  },
+  {
+    wilayah: 'Wiyung / Surabaya Barat',
+    lat: -7.3100,
+    lng: 112.6950,
+    keywords: ['wiyung', 'babatan', 'balas klumprik', 'jajar tunggal']
+  },
+  {
+    wilayah: 'Sambikerep / Citraland',
+    lat: -7.2800,
+    lng: 112.6500,
+    keywords: ['sambikerep', 'citraland', 'lontar', 'made', 'lakarsantri']
+  },
+  {
+    wilayah: 'Jambangan / Ketintang',
+    lat: -7.3150,
+    lng: 112.7250,
+    keywords: ['jambangan', 'ketintang', 'karah', 'gayungan', 'menanggal', 'kebonsari']
+  },
+  {
+    wilayah: 'Krembangan / Tanjung Perak',
+    lat: -7.2250,
+    lng: 112.7350,
+    keywords: ['krembangan', 'perak', 'pabean cantikan', 'tanjung perak', 'rajawali', 'kembang jepun']
+  },
+  {
+    wilayah: 'Tandes / Sukomanunggal',
+    lat: -7.2600,
+    lng: 112.6800,
+    keywords: ['tandes', 'manukan', 'sukomanunggal', 'simomulyo', 'darmo indah']
+  },
+  {
+    wilayah: 'Sawahan / Banyu Urip',
+    lat: -7.2750,
+    lng: 112.7200,
+    keywords: ['sawahan', 'petemon', 'kupang', 'banyu urip', 'girilaya']
+  }
+];
+
+/**
+ * Helper geocoding alamat Surabaya (Foto 2)
+ */
+const geocodeSurabayaAddress = (alamatText = '') => {
+  if (!alamatText || typeof alamatText !== 'string') {
+    return { wilayah: 'Sukolilo / Surabaya Timur', lat: -7.2890, lng: 112.7950 };
+  }
+  const lower = alamatText.toLowerCase();
+  for (const dist of SURABAYA_DISTRICTS) {
+    if (dist.keywords.some(kw => lower.includes(kw))) {
+      return { wilayah: dist.wilayah, lat: dist.lat, lng: dist.lng };
+    }
+  }
+  // Fallback deterministik berbasis hash string dari alamat agar konsisten
+  let hash = 0;
+  for (let i = 0; i < alamatText.length; i++) {
+    hash = (hash << 5) - hash + alamatText.charCodeAt(i);
+    hash |= 0;
+  }
+  const latOffset = ((Math.abs(hash) % 40) - 20) * 0.001; // +/- 0.02
+  const lngOffset = ((Math.abs(hash >> 3) % 40) - 20) * 0.001;
+  return {
+    wilayah: 'Surabaya',
+    lat: Number((-7.2780 + latOffset).toFixed(6)),
+    lng: Number((112.7550 + lngOffset).toFixed(6))
+  };
+};
+
+/**
+ * Hitung jarak Haversine (km) antara dua koordinat GPS
+ */
+const calculateDistanceKm = (lat1, lon1, lat2, lon2) => {
+  const R = 6371; // km
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+            Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return Number((R * c).toFixed(2));
+};
+
+/**
+ * Cari kurir secara random tetapi lokasinya dicari yang TERDEKAT secara acak dengan alamat penjemputan (Foto 2)
+ */
+const findNearestRandomCourier = (tujuanLat, tujuanLng, wilayah = 'Surabaya', preferredCourier = null) => {
+  // 1. Pilih kurir secara acak dari pool kurir
+  const courier = preferredCourier || COURIER_POOL[Math.floor(Math.random() * COURIER_POOL.length)];
+
+  // 2. Tentukan koordinat kurir terdekat secara acak (radius ~400 meter s.d. 1.2 kilometer dari titik penjemputan pelanggan)
+  const angle = Math.random() * 2 * Math.PI;
+  const distDeg = 0.0035 + (Math.random() * 0.0065); // ~400m - 1.1km
+  const kurirLat = Number((tujuanLat + Math.sin(angle) * distDeg).toFixed(6));
+  const kurirLng = Number((tujuanLng + Math.cos(angle) * distDeg).toFixed(6));
+  const jarakKm = calculateDistanceKm(kurirLat, kurirLng, tujuanLat, tujuanLng);
+
+  const trackingStatus = `Kurir terdekat (${courier.nama}) dialokasikan di area ${wilayah} (~${jarakKm} km dari alamat jemput).`;
+
+  return {
+    kurir: courier,
+    kurirLat,
+    kurirLng,
+    jarakKm,
+    trackingStatus
+  };
+};
+
+/**
  * Helper untuk auto-assign kurir berdasarkan ID layanan (Deterministic Round-Robin)
  */
 const autoAssignCourier = (seedId = 0) => {
   const num = Math.abs(parseInt(seedId, 10) || 0);
   return COURIER_POOL[num % COURIER_POOL.length];
 };
-
 
 /**
  * Helper untuk menyimpan gambar Base64 ke disk server (/uploads/)
@@ -252,28 +415,53 @@ const createLayanan = async (req, res) => {
     }
     const savedFotoKacamata = saveBase64Image(foto_kacamata, 'kacamata');
     const savedFotoResep = saveBase64Image(foto_resep, 'resep');
+
+    // Penentuan Kurir Terdekat Secara Acak Berdasarkan Alamat Penjemputan (Foto 2)
+    const geoTujuan = geocodeSurabayaAddress(alamat);
+    const nearestAllocation = findNearestRandomCourier(geoTujuan.lat, geoTujuan.lng, geoTujuan.wilayah);
+    const kurirNama = nearestAllocation.kurir.nama;
+    const kurirTelepon = nearestAllocation.kurir.telepon;
+    const kurirLat = nearestAllocation.kurirLat;
+    const kurirLng = nearestAllocation.kurirLng;
+    const trackingStatus = nearestAllocation.trackingStatus;
+
     const connection = await db.getConnection();
     try {
-    await connection.beginTransaction();
-    const statusAwal = 'pengajuan';
-    const [layananResult] = await connection.query(
-      `INSERT INTO layanan (user_id, jenis_layanan, keluhan, alamat, tanggal_jemput, jam_jemput, status, foto_kacamata, foto_resep) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [userId, jenis_layanan, keluhan, alamat, tanggal_jemput, jam_jemput, statusAwal, savedFotoKacamata, savedFotoResep]
-    );
-    const layananId = layananResult.insertId;
-    let detailId = null;
-    if (jenis_kacamata || detail_perbaikan || keterangan) {
-      const [detailResult] = await connection.query(
-        `INSERT INTO detail_layanan (layanan_id, jenis_kacamata, detail_perbaikan, keterangan) VALUES (?, ?, ?, ?)`,
-        [layananId, jenis_kacamata || '-', detail_perbaikan || '-', keterangan || '-']
+      await connection.beginTransaction();
+      const statusAwal = 'pengajuan';
+      const [layananResult] = await connection.query(
+        `INSERT INTO layanan (
+          user_id, jenis_layanan, keluhan, alamat, tanggal_jemput, jam_jemput,
+          status, foto_kacamata, foto_resep,
+          kurir_nama, kurir_telepon, kurir_lat, kurir_lng, tracking_status
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          userId, jenis_layanan, keluhan, alamat, tanggal_jemput, jam_jemput,
+          statusAwal, savedFotoKacamata, savedFotoResep,
+          kurirNama, kurirTelepon, kurirLat, kurirLng, trackingStatus
+        ]
       );
-      detailId = detailResult.insertId;
-    }
-    await connection.commit();
-    return res.status(201).json({
-      success: true, message: 'Pengajuan layanan antar-jemput kacamata berhasil dibuat.',
-      data: { id: layananId, user_id: userId, jenis_layanan, keluhan, alamat, tanggal_jemput, jam_jemput, status: statusAwal, foto_kacamata: savedFotoKacamata, foto_resep: savedFotoResep, total_biaya: 0, status_pembayaran: 'belum_bayar', detail_layanan: detailId ? { id: detailId, layanan_id: layananId, jenis_kacamata: jenis_kacamata || '-', detail_perbaikan: detail_perbaikan || '-', keterangan: keterangan || '-' } : null }
-    });
+      const layananId = layananResult.insertId;
+      let detailId = null;
+      if (jenis_kacamata || detail_perbaikan || keterangan) {
+        const [detailResult] = await connection.query(
+          `INSERT INTO detail_layanan (layanan_id, jenis_kacamata, detail_perbaikan, keterangan) VALUES (?, ?, ?, ?)`,
+          [layananId, jenis_kacamata || '-', detail_perbaikan || '-', keterangan || '-']
+        );
+        detailId = detailResult.insertId;
+      }
+      await connection.commit();
+      return res.status(201).json({
+        success: true, message: 'Pengajuan layanan antar-jemput kacamata berhasil dibuat.',
+        data: {
+          id: layananId, user_id: userId, jenis_layanan, keluhan, alamat, tanggal_jemput, jam_jemput,
+          status: statusAwal, foto_kacamata: savedFotoKacamata, foto_resep: savedFotoResep,
+          total_biaya: 0, status_pembayaran: 'belum_bayar',
+          kurir_nama: kurirNama, kurir_telepon: kurirTelepon,
+          kurir_lat: kurirLat, kurir_lng: kurirLng, tracking_status: trackingStatus,
+          detail_layanan: detailId ? { id: detailId, layanan_id: layananId, jenis_kacamata: jenis_kacamata || '-', detail_perbaikan: detail_perbaikan || '-', keterangan: keterangan || '-' } : null
+        }
+      });
     } catch (dbError) {
       await connection.rollback();
       throw dbError;
@@ -311,30 +499,16 @@ const updateStatusLayanan = async (req, res) => {
     if (total_biaya !== undefined && total_biaya !== null) { updateFields.push('total_biaya = ?'); updateParams.push(parseInt(total_biaya, 10) || 0); }
     if (status_pembayaran) { updateFields.push('status_pembayaran = ?'); updateParams.push(status_pembayaran); }
     if (metode_pembayaran) { updateFields.push('metode_pembayaran = ?'); updateParams.push(metode_pembayaran); }
-    if (kurir_nama) {
-      updateFields.push('kurir_nama = ?');
-      updateParams.push(kurir_nama);
-    } else if (!dataLama.kurir_nama && ['dijadwalkan', 'diambil', 'diantar'].includes(status)) {
-      // Auto-assign kurir internal jika status masuk ke operasional dan belum ditugaskan (pola Gojek/Grab)
-      const autoKurir = autoAssignCourier(layananId);
-      updateFields.push('kurir_nama = ?');
-      updateParams.push(autoKurir.nama);
-      if (!kurir_telepon && !dataLama.kurir_telepon) {
-        updateFields.push('kurir_telepon = ?');
-        updateParams.push(autoKurir.telepon);
-      }
-    }
+    if (catatan_admin !== undefined) { updateFields.push('catatan_admin = ?'); updateParams.push(catatan_admin); }
+    if (kurir_nama) { updateFields.push('kurir_nama = ?'); updateParams.push(kurir_nama); }
     if (kurir_telepon) { updateFields.push('kurir_telepon = ?'); updateParams.push(kurir_telepon); }
     if (tracking_status) { updateFields.push('tracking_status = ?'); updateParams.push(tracking_status); }
-    if (req.body.kurir_lat !== undefined && req.body.kurir_lat !== null) { updateFields.push('kurir_lat = ?'); updateParams.push(req.body.kurir_lat); }
-    if (req.body.kurir_lng !== undefined && req.body.kurir_lng !== null) { updateFields.push('kurir_lng = ?'); updateParams.push(req.body.kurir_lng); }
     updateParams.push(layananId);
     await db.query(`UPDATE layanan SET ${updateFields.join(', ')} WHERE id = ?`, updateParams);
     sendEmailNotification(dataLama.email, dataLama.nama, status);
     sendWANotification(dataLama.no_telepon, dataLama.nama, status);
     return res.status(200).json({
-      success: true, message: `Status layanan berhasil diperbarui menjadi '${status}'.`,
-      data: { id: parseInt(layananId, 10), status_sebelumnya: dataLama.status, status_baru: status }
+      success: true, message: `Status layanan berhasil diperbarui menjadi '${status}'.`
     });
   } catch (error) {
     console.error('[Error updateStatusLayanan]:', error);
@@ -407,37 +581,123 @@ const getTrackingKurir = async (req, res) => {
   try {
     const layananId = req.params.id;
     const { role, id: userId } = req.user;
-    const [rows] = await db.query(`SELECT l.*, u.nama AS nama_pelanggan, u.no_telepon AS no_telepon_pelanggan FROM layanan l JOIN users u ON l.user_id = u.id WHERE l.id = ?`, [layananId]);
+    const [rows] = await db.query(
+      `SELECT l.*, u.nama AS nama_pelanggan, u.no_telepon AS no_telepon_pelanggan 
+       FROM layanan l 
+       JOIN users u ON l.user_id = u.id 
+       WHERE l.id = ?`,
+      [layananId]
+    );
     if (rows.length === 0) return res.status(404).json({ success: false, message: 'Layanan tidak ditemukan.' });
     const item = rows[0];
     if (role !== 'admin' && item.user_id !== userId) return res.status(403).json({ success: false, message: 'Akses ditolak.' });
-    const optikLocation = { nama: 'OptikExpress Store & Lab', alamat: 'Jl. Pemuda No. 48, Surabaya', lat: -7.2625, lng: 112.7485 };
-    const tujuanLocation = { nama: item.nama_pelanggan, alamat: item.alamat || 'Alamat Pelanggan', lat: -7.2890, lng: 112.7950 };
-    let progress = 10, eta = '30-45 Menit', statusKet = 'Menunggu konfirmasi jadwal kurir.';
-    switch (item.status) {
-      case 'pengajuan': progress = 10; statusKet = 'Permintaan diterima, sedang verifikasi.'; eta = '1-2 Jam'; break;
-      case 'dijadwalkan': progress = 25; statusKet = 'Kurir ditugaskan, bersiap menuju lokasi.'; eta = '20-30 Menit'; break;
-      case 'diambil': progress = 50; statusKet = 'Kurir dalam perjalanan menjemput kacamata.'; eta = '10-15 Menit'; break;
-      case 'diproses': progress = 75; statusKet = 'Kacamata di laboratorium optik.'; eta = 'Dalam pengerjaan'; break;
-      case 'diantar': progress = 90; statusKet = 'Kurir mengantar kacamata ke alamat Anda.'; eta = '15-25 Menit'; break;
-      case 'selesai': progress = 100; statusKet = 'Layanan selesai!'; eta = 'Tiba di lokasi'; break;
-      default: progress = 10;
+
+    const optikLocation = {
+      nama: 'OptikExpress Store & Lab',
+      alamat: 'Jl. Pemuda No. 48, Surabaya',
+      lat: -7.2625,
+      lng: 112.7485
+    };
+
+    // Geocoding alamat penjemputan pelanggan dari input form Foto 2
+    const geoTujuan = geocodeSurabayaAddress(item.alamat);
+    const tujuanLocation = {
+      nama: item.nama_pelanggan || 'Pelanggan',
+      alamat: item.alamat || 'Alamat Penjemputan Pelanggan',
+      wilayah: geoTujuan.wilayah,
+      lat: geoTujuan.lat,
+      lng: geoTujuan.lng
+    };
+
+    let kurirNama = item.kurir_nama;
+    let kurirTelepon = item.kurir_telepon;
+    let kurirLat = item.kurir_lat !== null ? Number(item.kurir_lat) : null;
+    let kurirLng = item.kurir_lng !== null ? Number(item.kurir_lng) : null;
+    let trackingStatus = item.tracking_status;
+
+    // Jika kurir atau lokasinya belum tersimpan (pesanan lama), alokasikan kurir random terdekat sekarang
+    if (!kurirNama || kurirLat === null || kurirLng === null) {
+      const nearest = findNearestRandomCourier(
+        geoTujuan.lat,
+        geoTujuan.lng,
+        geoTujuan.wilayah,
+        kurirNama ? { nama: kurirNama, telepon: kurirTelepon, kendaraan: 'Sepeda Motor' } : null
+      );
+      kurirNama = nearest.kurir.nama;
+      kurirTelepon = nearest.kurir.telepon;
+      kurirLat = nearest.kurirLat;
+      kurirLng = nearest.kurirLng;
+      trackingStatus = nearest.trackingStatus;
+
+      // Update database agar persistent
+      await db.query(
+        `UPDATE layanan SET kurir_nama = ?, kurir_telepon = ?, kurir_lat = ?, kurir_lng = ?, tracking_status = ? WHERE id = ?`,
+        [kurirNama, kurirTelepon, kurirLat, kurirLng, trackingStatus, layananId]
+      );
     }
-    const ratio = progress / 100;
-    const kurirLat = item.kurir_lat !== null ? Number(item.kurir_lat) : optikLocation.lat + (tujuanLocation.lat - optikLocation.lat) * ratio;
-    const kurirLng = item.kurir_lng !== null ? Number(item.kurir_lng) : optikLocation.lng + (tujuanLocation.lng - optikLocation.lng) * ratio;
-    const autoKurir = autoAssignCourier(layananId);
+
+    const jarakKurirKePelanggan = calculateDistanceKm(kurirLat, kurirLng, tujuanLocation.lat, tujuanLocation.lng);
+
+    let progress = 10, eta = '1-2 Jam', statusKet = 'Permintaan diterima, sedang verifikasi.';
+    switch (item.status) {
+      case 'pengajuan':
+        progress = 10;
+        statusKet = 'Permintaan diterima, sedang verifikasi.';
+        eta = '1-2 Jam';
+        break;
+      case 'dijadwalkan':
+        progress = 25;
+        statusKet = `Kurir terdekat (${kurirNama}) ditugaskan dan bersiap menuju lokasi Anda.`;
+        eta = '20-30 Menit';
+        break;
+      case 'diambil':
+        progress = 50;
+        statusKet = `Kurir (${kurirNama}) dalam perjalanan menjemput kacamata (~${jarakKurirKePelanggan} km).`;
+        eta = '10-15 Menit';
+        break;
+      case 'diproses':
+        progress = 75;
+        statusKet = 'Kacamata di laboratorium optik sedang dikerjakan teknisi.';
+        eta = 'Dalam pengerjaan';
+        break;
+      case 'diantar':
+        progress = 90;
+        statusKet = `Kurir (${kurirNama}) mengantar kacamata ke alamat Anda.`;
+        eta = '10-20 Menit';
+        break;
+      case 'selesai':
+        progress = 100;
+        statusKet = 'Layanan selesai! Kacamata telah diterima pelanggan.';
+        eta = 'Tiba di lokasi';
+        break;
+      default:
+        progress = 10;
+    }
+
+    // Cari info kendaraan kurir
+    const courierObj = COURIER_POOL.find(c => c.nama === kurirNama) || {
+      nama: kurirNama,
+      telepon: kurirTelepon,
+      kendaraan: 'Honda Vario 160 (L 4589 AB)'
+    };
+
     return res.status(200).json({
       success: true,
       data: {
-        layanan_id: parseInt(layananId, 10), status_layanan: item.status, persentase_perjalanan: progress, estimasi_tiba: eta, status_deskripsi: item.tracking_status || statusKet,
+        layanan_id: parseInt(layananId, 10),
+        status_layanan: item.status,
+        persentase_perjalanan: progress,
+        estimasi_tiba: eta,
+        status_deskripsi: trackingStatus || statusKet,
         kurir: {
-          nama: item.kurir_nama || autoKurir.nama,
-          telepon: item.kurir_telepon || autoKurir.telepon,
-          kendaraan: autoKurir.kendaraan,
-          posisi_saat_ini: { lat: kurirLat, lng: kurirLng }
+          nama: kurirNama,
+          telepon: kurirTelepon,
+          kendaraan: courierObj.kendaraan,
+          posisi_saat_ini: { lat: kurirLat, lng: kurirLng },
+          jarak_ke_pelanggan_km: jarakKurirKePelanggan
         },
-        lokasi_optik: optikLocation, lokasi_tujuan: tujuanLocation
+        lokasi_optik: optikLocation,
+        lokasi_tujuan: tujuanLocation
       }
     });
   } catch (error) {
@@ -491,8 +751,9 @@ const deleteLayanan = async (req, res) => {
 };
 
 module.exports = {
-  VALID_STATUSES, VALID_JENIS_LAYANAN, VALID_METODE_PEMBAYARAN, COURIER_POOL, autoAssignCourier, saveBase64Image,
-  sendEmailNotification, sendWANotification,
+  VALID_STATUSES, VALID_JENIS_LAYANAN, VALID_METODE_PEMBAYARAN, COURIER_POOL, autoAssignCourier,
+  SURABAYA_DISTRICTS, geocodeSurabayaAddress, calculateDistanceKm, findNearestRandomCourier,
+  saveBase64Image, sendEmailNotification, sendWANotification,
   getAllLayanan, getLayananById, createLayanan, updateStatusLayanan,
   prosesPembayaran, konfirmasiPembayaran, getTrackingKurir, updateTrackingKurir, deleteLayanan
 };
