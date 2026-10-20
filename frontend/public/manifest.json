@@ -1,0 +1,9 @@
+{
+  "short_name": "OptikExpress",
+  "name": "Sistem Informasi Layanan Antar-Jemput Kacamata",
+  "icons": [],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#0284c7",
+  "background_color": "#ffffff"
+}

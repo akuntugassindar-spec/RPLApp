@@ -79,7 +79,8 @@ app.use((err, req, res, next) => {
 
 // Jalankan Server pada Port yang Ditentukan
 const PORT = process.env.PORT || 5000;
-const server = app.listen(PORT, () => {
+const HOST = process.env.HOST || '0.0.0.0';
+const server = app.listen(PORT, HOST, () => {
   console.log('====================================================');
   console.log(` Server Layanan Kacamata berjalan aktif`);
   console.log(` URL: http://localhost:${PORT}`);

@@ -1,14 +1,25 @@
 import axios from 'axios';
 
 /**
- * Konfigurasi instance Axios untuk komunikasi ke Backend API.
- *
- * REACT_APP_API_URL dapat diisi saat frontend dan backend berjalan pada host
- * berbeda. Jika kosong, request memakai /api agar proxy development atau
- * reverse proxy production yang meneruskan request ke backend.
+ * Mendapatkan Base URL backend API secara dinamis.
+ * Menghubungkan browser langsung ke port 5000 (Express API) sehingga tidak bergantung
+ * pada Webpack dev-server proxy CRA yang rentan masalah ECONNREFUSED di Windows.
  */
+const getBaseURL = () => {
+  if (process.env.REACT_APP_API_URL) {
+    return process.env.REACT_APP_API_URL;
+  }
+  if (typeof window !== 'undefined' && window.location) {
+    const { hostname } = window.location;
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+      return `http://${hostname}:5000/api`;
+    }
+  }
+  return 'http://localhost:5000/api';
+};
+
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || '/api',
+  baseURL: getBaseURL(),
   headers: {
     'Content-Type': 'application/json',
   },
