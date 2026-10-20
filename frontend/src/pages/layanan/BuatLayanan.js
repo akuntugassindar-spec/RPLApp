@@ -26,12 +26,7 @@ const BuatLayanan = () => {
     tanggal_jemput: defaultDate,
     jam_jemput: '10:00',
     keterangan: '',
-    foto_kacamata: '',
-    foto_resep: '',
   });
-
-  const [previewKacamata, setPreviewKacamata] = useState('');
-  const [previewResep, setPreviewResep] = useState('');
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -46,24 +41,6 @@ const BuatLayanan = () => {
     if (error) setError('');
   };
 
-  const handleFileChange = (e, field) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    if (file.size > 5 * 1024 * 1024) {
-      alert('Ukuran foto maksimal 5 MB.');
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const base64 = reader.result;
-      setFormData((prev) => ({ ...prev, [field]: base64 }));
-      if (field === 'foto_kacamata') setPreviewKacamata(base64);
-      if (field === 'foto_resep') setPreviewResep(base64);
-    };
-    reader.readAsDataURL(file);
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -178,46 +155,6 @@ const BuatLayanan = () => {
             />
           </div>
 
-          {/* Unggah Foto Kerusakan & Foto Resep */}
-          <div className="form-grid" style={{ marginBottom: '1rem' }}>
-            <div className="form-group">
-              <label className="form-label">Foto Kerusakan Kacamata (Opsional)</label>
-              <input
-                type="file"
-                accept="image/*"
-                className="form-control"
-                onChange={(e) => handleFileChange(e, 'foto_kacamata')}
-              />
-              {previewKacamata && (
-                <div style={{ marginTop: '0.5rem', textAlign: 'center' }}>
-                  <img
-                    src={previewKacamata}
-                    alt="Preview Kacamata"
-                    style={{ maxHeight: '120px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
-                  />
-                </div>
-              )}
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">Foto Resep Dokter Optik (Opsional)</label>
-              <input
-                type="file"
-                accept="image/*"
-                className="form-control"
-                onChange={(e) => handleFileChange(e, 'foto_resep')}
-              />
-              {previewResep && (
-                <div style={{ marginTop: '0.5rem', textAlign: 'center' }}>
-                  <img
-                    src={previewResep}
-                    alt="Preview Resep"
-                    style={{ maxHeight: '120px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
-                  />
-                </div>
-              )}
-            </div>
-          </div>
 
           {/* Baris 4: Alamat Penjemputan */}
           <div className="form-group">

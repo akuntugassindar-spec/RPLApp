@@ -20,7 +20,6 @@ const AdminDetailLayanan = () => {
   const [updating, setUpdating] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [selectedPhoto, setSelectedPhoto] = useState(null);
 
   // State Form Status & Biaya
   const [statusDipilih, setStatusDipilih] = useState('');
@@ -460,61 +459,6 @@ const AdminDetailLayanan = () => {
         </div>
       )}
 
-      {/* Lampiran Foto */}
-      {(layanan?.foto_kacamata || layanan?.foto_resep) ? (
-        <div className="card">
-          <div className="card-header">
-            <h3 className="card-title" style={{ fontSize: '1.1rem' }}> Foto Kacamata & Resep yang Diunggah Pelanggan</h3>
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.5rem' }}>
-            {layanan.foto_kacamata && (
-              <div style={{ background: '#f8fafc', padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)', textAlign: 'center' }}>
-                <p style={{ fontWeight: 600, fontSize: '0.9rem', marginBottom: '0.5rem', color: 'var(--dark)' }}> Foto Fisik / Kerusakan Frame</p>
-                <img
-                  src={getImageUrl(layanan.foto_kacamata)}
-                  alt="Foto Kerusakan Kacamata"
-                  onClick={() => setSelectedPhoto(getImageUrl(layanan.foto_kacamata))}
-                  style={{ width: '100%', maxHeight: '220px', objectFit: 'cover', borderRadius: '8px', cursor: 'pointer', border: '1px solid #cbd5e1' }}
-                />
-                <button
-                  type="button"
-                  onClick={() => setSelectedPhoto(getImageUrl(layanan.foto_kacamata))}
-                  className="btn btn-outline btn-sm"
-                  style={{ marginTop: '0.5rem', width: '100%' }}
-                >
-                  Perbesar Foto Kacamata
-                </button>
-              </div>
-            )}
-
-            {layanan.foto_resep && (
-              <div style={{ background: '#f8fafc', padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)', textAlign: 'center' }}>
-                <p style={{ fontWeight: 600, fontSize: '0.9rem', marginBottom: '0.5rem', color: 'var(--dark)' }}> Foto Kartu Resep Dokter</p>
-                <img
-                  src={getImageUrl(layanan.foto_resep)}
-                  alt="Foto Resep Dokter"
-                  onClick={() => setSelectedPhoto(getImageUrl(layanan.foto_resep))}
-                  style={{ width: '100%', maxHeight: '220px', objectFit: 'cover', borderRadius: '8px', cursor: 'pointer', border: '1px solid #cbd5e1' }}
-                />
-                <button
-                  type="button"
-                  onClick={() => setSelectedPhoto(getImageUrl(layanan.foto_resep))}
-                  className="btn btn-outline btn-sm"
-                  style={{ marginTop: '0.5rem', width: '100%' }}
-                >
-                  Perbesar Foto Resep
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      ) : (
-        <div className="card" style={{ padding: '1.25rem', backgroundColor: '#f8fafc' }}>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', margin: 0 }}>
-             Pelanggan tidak mengunggah lampiran foto kacamata atau resep dokter untuk pesanan ini.
-          </p>
-        </div>
-      )}
 
       {/* Grid: Form Update & Info Pelanggan */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem', marginBottom: '1.5rem' }}>
@@ -834,31 +778,6 @@ const AdminDetailLayanan = () => {
         )}
       </div>
 
-      {/* Modal Lightbox Foto */}
-      {selectedPhoto && (
-        <div
-          onClick={() => setSelectedPhoto(null)}
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.85)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 10000,
-            padding: '2rem',
-          }}
-        >
-          <img
-            src={selectedPhoto}
-            alt="Perbesar Foto"
-            style={{ maxWidth: '90%', maxHeight: '90%', borderRadius: '8px', boxShadow: '0 0 20px rgba(0,0,0,0.5)' }}
-          />
-        </div>
-      )}
     </div>
   );
 };
