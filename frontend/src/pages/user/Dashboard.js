@@ -167,7 +167,8 @@ const Dashboard = () => {
             <table className="table">
               <thead>
                 <tr>
-                  <th>No / ID</th>
+                  <th style={{ width: '50px' }}>No</th>
+                  <th>ID Pesanan</th>
                   <th>Jenis Layanan</th>
                   <th>Kacamata / Keluhan</th>
                   <th>Jadwal Jemput</th>
@@ -182,7 +183,8 @@ const Dashboard = () => {
                   const total = item.total_biaya && item.total_biaya > 0 ? item.total_biaya : 150000;
                   return (
                     <tr key={item.id || item._id || idx}>
-                      <td style={{ fontWeight: 600 }}>#{item.id || item._id || idx + 1}</td>
+                      <td style={{ color: 'var(--text-muted)', fontWeight: 600 }}>{idx + 1}</td>
+                      <td style={{ fontWeight: 700 }}>#{item.id || item._id || idx + 1}</td>
                       <td>
                         <strong style={{ textTransform: 'capitalize' }}>
                           {item.jenis_layanan ? item.jenis_layanan.replace('_', ' ') : 'Perbaikan'}

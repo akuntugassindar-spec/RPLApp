@@ -795,10 +795,50 @@ const deleteLayanan = async (req, res) => {
     if (role !== 'admin' && layanan.status !== 'pengajuan') return res.status(400).json({ success: false, message: `Pengajuan layanan tidak dapat dibatalkan karena sudah berstatus '${layanan.status}'.` });
     await db.query('DELETE FROM detail_layanan WHERE layanan_id = ?', [layananId]);
     await db.query('DELETE FROM layanan WHERE id = ?', [layananId]);
+
+    // Jika seluruh data layanan sudah kosong, reset AUTO_INCREMENT kembali ke 1
+    const [countRows] = await db.query('SELECT COUNT(*) AS total FROM layanan');
+    if (countRows[0].total === 0) {
+      await db.query('ALTER TABLE layanan AUTO_INCREMENT = 1');
+      await db.query('ALTER TABLE detail_layanan AUTO_INCREMENT = 1');
+    }
+
     return res.status(200).json({ success: true, message: 'Pengajuan layanan berhasil dibatalkan/dihapus.' });
   } catch (error) {
     console.error('[Error deleteLayanan]:', error);
     return res.status(500).json({ success: false, message: 'Terjadi kesalahan saat menghapus data layanan.', error: error.message });
+  }
+};
+
+/**
+ * @route   POST /api/layanan/reset-urutan
+ * @desc    Merapikan nomor urut ID pesanan mulai dari #1 dan mereset auto-increment
+ */
+const resetLayananAutoIncrement = async (req, res) => {
+  try {
+    await db.query('SET FOREIGN_KEY_CHECKS = 0');
+    const [rows] = await db.query('SELECT id FROM layanan ORDER BY id ASC');
+    let newId = 1;
+    for (const r of rows) {
+      const oldId = r.id;
+      if (oldId !== newId) {
+        await db.query('UPDATE detail_layanan SET layanan_id = ? WHERE layanan_id = ?', [newId, oldId]);
+        await db.query('UPDATE detail_layanan SET id = ? WHERE id = ?', [newId, oldId]);
+        await db.query('UPDATE layanan SET id = ? WHERE id = ?', [newId, oldId]);
+      }
+      newId++;
+    }
+    await db.query(`ALTER TABLE layanan AUTO_INCREMENT = ${newId}`);
+    await db.query(`ALTER TABLE detail_layanan AUTO_INCREMENT = ${newId}`);
+    await db.query('SET FOREIGN_KEY_CHECKS = 1');
+
+    return res.status(200).json({
+      success: true,
+      message: `Nomor urut ID pesanan berhasil dirapikan kembali mulai dari #1 (Total ${rows.length} pesanan).`
+    });
+  } catch (error) {
+    console.error('[Error resetLayananAutoIncrement]:', error);
+    return res.status(500).json({ success: false, message: 'Gagal merapikan nomor urut ID.', error: error.message });
   }
 };
 
@@ -807,5 +847,6 @@ module.exports = {
   SURABAYA_DISTRICTS, geocodeSurabayaAddress, geocodeAddress, calculateDistanceKm, findNearestRandomCourier,
   saveBase64Image, sendEmailNotification, sendWANotification,
   getAllLayanan, getLayananById, createLayanan, updateStatusLayanan,
-  prosesPembayaran, konfirmasiPembayaran, getTrackingKurir, updateTrackingKurir, deleteLayanan
+  prosesPembayaran, konfirmasiPembayaran, getTrackingKurir, updateTrackingKurir, deleteLayanan,
+  resetLayananAutoIncrement
 };

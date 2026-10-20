@@ -52,6 +52,17 @@ const DaftarLayanan = () => {
     fetchLayanan();
   }, []);
 
+  const handleResetUrutan = async () => {
+    if (!window.confirm('Rapikan nomor urut ID seluruh pesanan kembali mulai dari #1?')) return;
+    try {
+      const res = await api.post('/layanan/reset-urutan');
+      alert(res.data?.message || 'Nomor ID berhasil dirapikan mulai dari #1!');
+      fetchLayanan();
+    } catch (err) {
+      alert(err.response?.data?.message || 'Gagal merapikan nomor urut ID.');
+    }
+  };
+
   const renderBadge = (status) => {
     const s = (status || '').toLowerCase();
     if (s.includes('selesai')) return <span className="badge badge-selesai">Selesai</span>;
@@ -117,9 +128,20 @@ const DaftarLayanan = () => {
             Daftar lengkap seluruh transaksi dan pesanan antar-jemput pelanggan
           </p>
         </div>
-        <button onClick={fetchLayanan} className="btn btn-outline btn-sm">
-          Segarkan Data
-        </button>
+        <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'center', flexWrap: 'wrap' }}>
+          <button
+            type="button"
+            onClick={handleResetUrutan}
+            className="btn btn-outline btn-sm"
+            style={{ borderColor: '#0284c7', color: '#0284c7', fontWeight: 600 }}
+            title="Merapikan kembali nomor ID pesanan mulai dari #1"
+          >
+            🔄 Reset Urutan ID (Mulai #1)
+          </button>
+          <button onClick={fetchLayanan} className="btn btn-outline btn-sm">
+            Segarkan Data
+          </button>
+        </div>
       </div>
 
       {error && <div className="alert alert-danger">{error}</div>}
@@ -182,6 +204,7 @@ const DaftarLayanan = () => {
             <table className="table">
               <thead>
                 <tr>
+                  <th style={{ width: '50px' }}>No</th>
                   <th>ID</th>
                   <th>Nama Pelanggan</th>
                   <th>Jenis Layanan</th>
@@ -195,6 +218,7 @@ const DaftarLayanan = () => {
               <tbody>
                 {filteredLayanan.map((item, idx) => (
                   <tr key={item.id || item._id || idx}>
+                    <td style={{ color: 'var(--text-muted)', fontWeight: 600 }}>{idx + 1}</td>
                     <td style={{ fontWeight: 700 }}>#{item.id || item._id || idx + 1}</td>
                     <td>
                       <div>
