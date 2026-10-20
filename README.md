@@ -1,73 +1,70 @@
 # OptikExpress — Sistem Informasi Layanan Antar-Jemput Kacamata
 
-**OptikExpress** adalah aplikasi web layanan servis dan penggantian lensa kacamata terintegrasi yang dirancang untuk mempermudah masyarakat merawat alat bantu penglihatan tanpa harus datang langsung ke gerai optik fisik. Sistem ini menjembatani seluruh alur operasional antara pelanggan, teknisi laboratorium optik, dan armada kurir lapangan secara terpusat, mulai dari pengajuan perbaikan, penjemputan frame, pemotongan dan pemasangan lensa, pelacakan kurir GPS real-time, hingga transaksi pembayaran digital dan pengantaran kacamata kembali ke alamat pelanggan.
-
----
+**OptikExpress** adalah aplikasi web layanan perbaikan dan penggantian lensa kacamata terintegrasi berbasis antar-jemput yang dirancang untuk mempermudah masyarakat merawat alat bantu penglihatan tanpa harus datang langsung ke toko optik fisik. Sistem ini menjembatani alur operasional antara pelanggan, teknisi laboratorium optik, dan armada kurir lapangan secara terpusat.
 
 ## Tech Stack
 
-* **Backend:** Node.js, Express.js REST API, MySQL 8.0 / MariaDB (`mysql2/promise`), JWT Authentication, BCrypt.js
-* **Frontend:** React.js 18 (SPA), React Router DOM v6, Leaflet (OpenStreetMap), Axios HTTP Client
-* **Arsitektur:** Decoupled Monorepo (`backend/` & `frontend/`), RESTful API, State Machine 6 Tahapan, Anti-IDOR Security
-* **Pengujian Otomatis:** Node.js Native Test Runner (`node:test`, `node:assert/strict`) — 48 passing unit tests (100% lulus)
+- **Backend:** Node.js (Express.js), MySQL 8.0 / MariaDB (`mysql2/promise`)
+- **Frontend:** React.js 18 (SPA), Leaflet (OpenStreetMap), Axios HTTP Client
+- **Arsitektur:** Decoupled Monorepo, RESTful API, State Machine 6 Tahapan, Anti-IDOR Security
+- **Pengujian Otomatis:** Node.js Native Test Runner (`node:test`, `node:assert/strict`) — 48 passing unit tests (100% lulus)
 
 ---
 
 ## Prerequisites
 
-Sebelum mulai, pastikan kebutuhan lingkungan pengembangan berikut sudah terpenuhi:
+Sebelum mulai, pastikan hal berikut sudah terpenuhi:
 
-| Kebutuhan | Versi Minimum | Keterangan |
-| :--- | :--- | :--- |
-| **Node.js** | `>= 16.x` | Disarankan menggunakan versi LTS (v18.x atau v20.x). Cek dengan `node -v`. |
-| **npm** | `>= 8.x` | Node Package Manager (otomatis terpasang bersama Node.js). Cek dengan `npm -v`. |
-| **MySQL / MariaDB** | `>= 8.0` / `>= 10.4` | Dapat menggunakan XAMPP, Laragon, MySQL Server standalone, atau Docker. Port `3306`. |
-| **Port Bebas** | `3000`, `5000`, `3306` | Pastikan ketiga port ini tidak sedang digunakan oleh aplikasi lain. |
-| **Koneksi Internet** | Aktif | Diperlukan pada instalasi pertama untuk mengunduh pustaka dependensi npm. |
+| Kebutuhan | Keterangan |
+| :--- | :--- |
+| **Docker Desktop** | Windows / macOS / Linux. Untuk Windows disarankan mengaktifkan backend **WSL 2**. |
+| **Docker Compose v2** | Sudah termasuk di Docker Desktop. Cek dengan `docker compose version`. |
+| **Node.js & npm** | Minimal Node.js 16.x (disarankan LTS 18.x / 20.x). Cek dengan `node -v` dan `npm -v`. |
+| **MySQL / MariaDB** | Melalui XAMPP, Laragon, MySQL standalone, atau Docker di port `3306`. |
+| **Port bebas** | Port `3000`, `5000`, dan `3306` tidak dipakai aplikasi lain. |
+| **Koneksi internet** | Diperlukan saat build pertama (download image + dependency). |
 
-> **Catatan untuk pengguna Windows:** Seluruh perintah di panduan ini dijalankan melalui **PowerShell** atau **Git Bash**. Jika menggunakan Command Prompt (CMD), perintah `cp` diganti menjadi `copy`.
+> **Catatan untuk pengguna Windows:** seluruh perintah di panduan ini dijalankan di **PowerShell** atau **Git Bash**. Kalau memakai CMD, perintah `cp` diganti `copy`.
 
 ---
 
-## Quick Start (Panduan Instalasi & Menjalankan Aplikasi)
+## Quick Start (Docker) — Cara Termudah & Disarankan
 
-Ikuti langkah-langkah terstruktur berikut untuk menjalankan aplikasi di komputer lokal:
+Cara ini **tidak perlu** mengonfigurasi database MySQL secara manual. Semua service sudah dibungkus di dalam Docker Compose.
 
-### 1. Masuk ke Direktori Proyek
-
-Buka terminal dan arahkan ke folder root proyek:
+### 1. Masuk ke Folder Project
 
 ```bash
-cd RPLApp
+cd "RPLApp"
 ```
 
-### 2. Konfigurasi Environment (`.env`)
+### 2. Buat File `.env`
 
-Salin berkas template konfigurasi environment yang telah disediakan di folder backend:
+File `.env` menyimpan konfigurasi database dan keamanan. Template-nya sudah tersedia di `backend/.env.example`.
 
 ```bash
 cp backend/.env.example backend/.env
 ```
 
-Buka berkas `backend/.env` dan sesuaikan parameter konfigurasi database dan keamanan:
+Lalu buka `backend/.env` dan isi nilainya:
 
 ```dotenv
-# Konfigurasi Server
+# Server
 PORT=5000
 
-# Konfigurasi Basis Data MySQL
+# MySQL
 DB_HOST=localhost
 DB_USER=root
 DB_PASSWORD=
 DB_NAME=db_kacamata
 DB_PORT=3306
 
-# Keamanan Token Autentikasi (JWT)
+# Keamanan Backend
 JWT_SECRET=super_secret_jwt_kacamata_key_2026_universitas_rpl
 JWT_EXPIRES_IN=24h
 ```
 
-**Membuat `JWT_SECRET` Acak Baru (Opsional, minimal 32 karakter):**
+**Generate `JWT_SECRET`** (wajib, minimal 32 karakter):
 
 ```bash
 # Linux / macOS / Git Bash
@@ -81,289 +78,318 @@ $b = New-Object byte[] 32
 [Convert]::ToBase64String($b)
 ```
 
-Salin teks hasil generasi ke baris `JWT_SECRET=` pada berkas `backend/.env`.
+Copy hasilnya ke baris `JWT_SECRET=` pada file `backend/.env`.
 
-### 3. Setup Basis Data MySQL
+> **Penting:** jangan pakai `echo "JWT_SECRET=..." > .env`. Tanda `>` akan **menimpa seluruh isi** `.env`. Kalau mau menambah lewat terminal, pakai `>>` (append) atau edit manual dengan text editor.
 
-1. Pastikan layanan MySQL pada XAMPP Control Panel atau Laragon telah berstatus aktif (**Running** di port `3306`).
-2. Buka phpMyAdmin di browser (`http://localhost/phpmyadmin`) atau terminal MySQL.
-3. Impor berkas skema DDL dan data awal (*seed*) yang berada di:
-   ```text
-   backend/database/schema.sql
-   ```
-   Atau impor secara langsung via terminal:
-   ```bash
-   mysql -u root -p < backend/database/schema.sql
-   ```
-   Skrip ini secara otomatis membuat database `db_kacamata`, 6 tabel relasional 3NF (`users`, `kurir`, `layanan`, `detail_layanan`, `pembayaran`, `riwayat_status_layanan`), relasi foreign key, serta data akun demo awal.
-
-### 4. Pasang Dependensi Proyek
-
-Jalankan instalasi dependensi pada backend dan frontend:
+### 3. Build & Run
 
 ```bash
-# Instal dependensi backend
-cd backend
-npm install
-
-# Instal dependensi frontend
-cd ../frontend
-npm install
-
-# Kembali ke root direktori
-cd ..
+# Build semua image + start containers di background
+docker compose up --build -d
 ```
 
-### 5. Jalankan Server Aplikasi
+> **Build pertama memakan waktu 2–5 menit** (download image MySQL & Node, `npm install`). Ini normal. Build berikutnya jauh lebih cepat karena cache.
 
-Buka dua jendela terminal terpisah (atau gunakan dua tab terminal di VS Code):
+### 4. Verifikasi Semua Service Jalan
 
-**Terminal 1 — Menjalankan Server Backend REST API:**
+Tunggu ±20 detik setelah build selesai, lalu cek:
+
 ```bash
-cd backend
-npm start
+docker compose ps
 ```
-*Server backend akan aktif di `http://localhost:5000`.*
 
-**Terminal 2 — Menjalankan Server Frontend React:**
-```bash
-cd frontend
-npm start
+Semua service harus berstatus **`Up`**:
+
+```text
+NAME               SERVICE    STATUS
+rplapp-mysql-1     mysql      Up             0.0.0.0:3306->3306/tcp
+rplapp-backend-1   backend    Up             0.0.0.0:5000->5000/tcp
+rplapp-frontend-1  frontend   Up             0.0.0.0:3000->3000/tcp
 ```
-*Aplikasi frontend web akan terbuka otomatis di `http://localhost:3000`.*
 
-### 6. Verifikasi Status Layanan
-
-Pastikan seluruh endpoint server berjalan normal dengan melakukan pengecekan health check:
+Cek health endpoint backend:
 
 ```bash
 curl http://localhost:5000/api/health
 ```
 
-Respon yang diharapkan:
+Harus membalas:
+
 ```json
-{
-  "status": "UP",
-  "timestamp": "2026-10-20T..."
-}
+{ "status": "UP", "timestamp": "2026-10-20T..." }
 ```
 
-Root endpoint:
-```bash
-curl http://localhost:5000/
-```
+> Kalau ada service yang **`Exit`** atau **`Restarting`**, cek log-nya: `docker compose logs backend` (atau ganti `backend` dengan nama service lain).
 
-Respon yang diharapkan:
-```json
-{
-  "success": true,
-  "message": "Selamat Datang di API Sistem Informasi Layanan Antar-Jemput Kacamata"
-}
-```
+### 5. Akses Aplikasi & Login
 
-### 7. Akses Aplikasi & Akun Pengujian (Demo)
-
-Buka peramban (*browser*) pada alamat:
+Buka browser:
 
 ```text
 http://localhost:3000
 ```
 
-Gunakan akun pengujian yang telah disediakan di dalam basis data untuk mencoba berbagai hak akses (*Role-Based Access Control*):
+Saat pertama kali dijalankan, basis data **otomatis mengimpor skema DDL (auto-migrate)** dan **otomatis mengisi akun demo (auto-seed)** dari berkas `backend/database/schema.sql`. Jadi kamu bisa langsung login tanpa setup database manual.
 
-| Email Pengguna | Peran (Role) | Kata Sandi | Cakupan Hak Akses |
+**Akun demo yang tersedia** — password semuanya `admin123`:
+
+| Username / Email | Role | Password | Hak Akses |
 | :--- | :--- | :--- | :--- |
-| `admin@optik.com` | `admin` | `admin123` | Akses penuh dashboard admin, verifikasi pesanan, update status pengerjaan, input biaya, penugasan kurir, dan konfirmasi pembayaran. |
-| `bahrul@gmail.com` | `pelanggan` | `admin123` | Pengajuan servis antar-jemput, upload foto kerusakan & resep, pantau live GPS kurir, checkout pembayaran digital, dan cetak bukti invoice. |
+| `admin@optik.com` | `admin` | `admin123` | Akses penuh dashboard admin, kelola antrean pesanan, update status state machine, input biaya, alokasi armada kurir, dan konfirmasi pembayaran. |
+| `bahrul@gmail.com` | `pelanggan` | `admin123` | Pengajuan servis antar-jemput, upload foto kerusakan frame & resep dokter, pelacakan live GPS kurir, checkout pembayaran digital, cetak invoice struk lunas. |
 
-### 8. Menjalankan Pengujian Unit Otomatis (Unit Testing)
+> Gunakan akun `admin` untuk akses penuh, dan akun `pelanggan` untuk mencoba pembatasan hak akses (RBAC) per role.
 
-Untuk memvalidasi integritas logika bisnis, state machine, anti-IDOR, dan payment gateway:
+### 6. Stop & Cleanup
 
 ```bash
-cd backend
-npm test
+# Stop semua service (data database TETAP tersimpan)
+docker compose down
+
+# Stop + hapus volume (data DB dan akun akan di-seed ulang saat start berikutnya)
+docker compose down -v
 ```
-
-*Output:* **48 passing unit tests (100% lulus, 0 fail across 9 test suites)**.
-
-### 9. Menghentikan Aplikasi
-
-Tekan tombol `Ctrl + C` pada masing-masing jendela terminal (backend dan frontend). Seluruh data transaksi dan histori pengerjaan kacamata pada database MySQL tetap tersimpan secara permanen.
 
 ---
 
 ## Troubleshooting
 
-Panduan penanganan kendala teknis operasional sistem:
-
-| Pesan Kendala / Error | Akar Penyebab | Solusi Penanganan |
+| Masalah | Penyebab | Solusi |
 | :--- | :--- | :--- |
-| `port 5000 is already allocated` | Port 5000 sedang digunakan oleh proses Node.js lain | Buka Task Manager lalu hentikan proses Node.js yang berjalan di background, atau ubah nilai `PORT=5001` pada `backend/.env`. |
-| `port 3000 is already allocated` | Port 3000 sedang digunakan oleh aplikasi React lain | Saat terminal frontend menanyakan *Would you like to run the app on another port instead?*, ketik `Y` untuk beralih ke port 3001. |
-| `[Database Error] connect ECONNREFUSED 127.0.0.1:3306` | Layanan MySQL pada XAMPP / Laragon belum aktif | Buka XAMPP Control Panel, klik tombol **Start** pada modul MySQL hingga indikator berwarna hijau. |
-| `FATAL: ER_ACCESS_DENIED_ERROR` | Kredensial username/password MySQL di `.env` keliru | Buka berkas `backend/.env`, pastikan `DB_USER=root` dan `DB_PASSWORD=` (kosongkan password jika default XAMPP). |
-| `FATAL: ER_BAD_DB_ERROR: Unknown database 'db_kacamata'` | Basis data `db_kacamata` belum diimpor | Buka phpMyAdmin (`http://localhost/phpmyadmin`), buat database baru bernama `db_kacamata` dan impor berkas `backend/database/schema.sql`. |
-| `Cannot find module ...` | Modul pustaka dependensi belum terpasang | Masuk ke direktori yang bersangkutan (`backend` atau `frontend`), lalu jalankan perintah `npm install`. |
-| Halaman blank putih / `Network Error` | Backend belum aktif saat frontend memanggil endpoint | Pastikan terminal backend sudah menampilkan pesan sukses berjalan di port 5000 sebelum membuka browser. |
-| Perubahan UI tidak langsung terlihat | Browser masih menyimpan cache lama | Lakukan Hard Refresh pada peramban web dengan menekan kombinasi tombol `Ctrl + Shift + R` atau `Ctrl + F5`. |
+| `port is already allocated` | Port 5000/3000/3306 dipakai proses lain | Matikan aplikasi tersebut di Task Manager, atau ubah port pada `backend/.env` dan `docker-compose.yml`. |
+| `FATAL: DB connection refused` | Layanan MySQL belum siap saat backend start | Pastikan MySQL sudah running, atau tunggu 15 detik lalu restart container backend. |
+| `FATAL: JWT_SECRET not set in .env` | `JWT_SECRET` masih kosong atau placeholder | Isi dengan hasil `openssl rand -base64 32` pada `backend/.env`. |
+| Backend `Restarting` terus | Kredensial MySQL tidak cocok | Cek `DB_*` di `backend/.env`, lalu jalankan `docker compose down -v && docker compose up --build -d`. |
+| Halaman blank / `Failed to fetch` | Backend belum selesai booting | Tunggu 30 detik, cek log dengan `docker compose logs -f backend`. |
+| Perubahan kode tidak muncul | Browser masih menyimpan cache lama | Lakukan Hard Refresh dengan menekan tombol `Ctrl + Shift + R` atau `Ctrl + F5`. |
+| Tidak bisa login | Database belum ter-seed | Impor manual berkas `backend/database/schema.sql` via phpMyAdmin atau CLI MySQL. |
 
 ---
 
-## Struktur Direktori Proyek
-
-Arsitektur direktori proyek mengadopsi standar *Domain-Driven Modular Structure*:
+## Struktur Project
 
 ```text
 RPLApp/
-├── backend/                            # RESTful API Server (Node.js + Express.js)
-│   ├── config/                         # Konfigurasi koneksi MySQL pool (db.js)
-│   ├── controllers/                    # Logika bisnis transaksi, otentikasi, dan pelacakan
-│   │   ├── authController.js           # Registrasi, login, verifikasi JWT, hash password
-│   │   ├── layananController.js        # CRUD layanan, state machine, payment, GPS tracking
-│   │   └── detailLayananController.js  # Spesifikasi teknis kacamata & anti-IDOR guard
-│   ├── database/                       # Skrip DDL 6 tabel relasional 3NF & data seed demo
-│   │   └── schema.sql                  # users, kurir, layanan, detail_layanan, pembayaran, riwayat
-│   ├── middleware/                     # Middleware pipeline keamanan & otorisasi
-│   │   ├── auth.js                     # Verifikasi token JWT pelanggan
-│   │   └── adminAuth.js                # Proteksi hak akses khusus peran administrator
-│   ├── routes/                         # Pemetaan endpoint HTTP REST
-│   │   ├── authRoutes.js               # /api/auth (register, login, profile)
-│   │   ├── layananRoutes.js            # /api/layanan (CRUD, status, pembayaran, tracking)
-│   │   └── detailLayananRoutes.js      # /api/detail-layanan (CRUD spesifikasi kacamata)
-│   ├── tests/                          # 5 berkas pengujian otomatis unit testing (48 passing tests)
-│   │   ├── auth.test.js                # Pengujian otentikasi, validasi email, hashing BCrypt
-│   │   ├── detailLayanan.test.js       # Pengujian detail spesifikasi & hak kepemilikan Anti-IDOR
-│   │   ├── layanan.test.js             # Pengujian validasi input layanan & state machine
-│   │   ├── middleware.test.js          # Pengujian otorisasi header Bearer JWT & role admin
-│   │   └── pembayaran.test.js          # Pengujian 8 kanal pembayaran & tracking kurir
-│   ├── .env.example                    # Template variabel lingkungan server
-│   ├── package.json                    # Dependensi Express, mysql2, jsonwebtoken, bcryptjs
-│   └── server.js                       # Titik masuk utama aplikasi backend
-├── frontend/                           # Single Page Application (React.js)
-│   ├── public/                         # index.html, favicon, dan manifest aplikasi
-│   ├── src/
-│   │   ├── components/                 # Komponen antarmuka global
-│   │   │   ├── Navbar.js               # Navigasi responsif multi-role
-│   │   │   └── LiveMapKurir.js         # Peta interaktif Leaflet OpenStreetMap & marker animasi
-│   │   ├── pages/                      # Modul halaman antarmuka terorganisir per domain
-│   │   │   ├── kurir/                  # Modul Pelacakan & Armada Kurir
-│   │   │   │   ├── TrackingKurir.js    # Pelacakan live GPS kurir, ETA, dan direct Google Maps
-│   │   │   │   ├── DaftarKurir.js      # Pemantauan ketersediaan armada kurir internal optik
-│   │   │   │   └── index.js            # Barrel export modul kurir
-│   │   │   ├── layanan/                # Modul Layanan Servis Kacamata
-│   │   │   │   ├── BuatLayanan.js      # Formulir pengajuan baru + upload foto bukti & resep
-│   │   │   │   ├── DaftarLayanan.js    # Daftar antrean pesanan dengan filter status & search
-│   │   │   │   ├── DashboardLayanan.js # Dashboard ringkasan metrik pesanan pelanggan
-│   │   │   │   └── index.js            # Barrel export modul layanan
-│   │   │   ├── detail_layanan/         # Modul Spesifikasi Teknis Kacamata
-│   │   │   │   ├── DetailLayanan.js    # Rincian kacamata, resep dokter, lightbox foto zoom
-│   │   │   │   ├── AdminDetailLayanan.js # Panel admin kelola status, biaya servis, penugasan kurir
-│   │   │   │   └── index.js            # Barrel export modul detail layanan
-│   │   │   ├── pembayaran/             # Modul Transaksi Pembayaran Digital
-│   │   │   │   ├── PembayaranPage.js   # Checkout multi-channel Midtrans (QRIS, VA, E-Wallet, COD)
-│   │   │   │   ├── KonfirmasiPembayaran.js # Bukti transaksi digital / struk invoice resmi + tombol print
-│   │   │   │   └── index.js            # Barrel export modul pembayaran
-│   │   │   ├── riwayat_status_layanan/ # Modul Linimasa & Audit Trail
-│   │   │   │   ├── RiwayatStatusLayanan.js # Visualisasi grafis 6 tahapan siklus & tabel riwayat audit
-│   │   │   │   └── index.js            # Barrel export modul riwayat status
-│   │   │   ├── admin/                  # Modul Halaman Administrator
-│   │   │   │   ├── AdminDashboard.js   # Ringkasan analitik operasional gerai optik
-│   │   │   │   └── index.js            # Backward compatibility re-export
-│   │   │   ├── user/                   # Modul Halaman Pelanggan
-│   │   │   │   └── index.js            # Backward compatibility re-export
-│   │   │   ├── Home.js                 # Landing page publik pengenalan OptikExpress
-│   │   │   ├── Login.js                # Formulir login pengguna & admin
-│   │   │   ├── Register.js             # Formulir pendaftaran akun pelanggan baru
-│   │   │   └── index.js                # Main pages aggregator export
-│   │   ├── utils/                      # Utilitas pendukung frontend
-│   │   │   ├── api.js                  # Axios instance dengan interceptor otomatis token JWT
-│   │   │   └── PrivateRoute.js         # Guard proteksi rute halaman berbasis peran
-│   │   ├── App.js                      # Root component & konfigurasi routing React Router v6
-│   │   ├── App.css                     # Sistem gaya CSS tema Navy, Ocean Blue, & Mint Green
-│   │   └── index.js                    # Inisialisasi React DOM
-│   └── package.json                    # Dependensi React, React Router, Leaflet, Axios
+├── backend/                            # API Node.js (Express.js + mysql2)
+│   ├── config/                         # Koneksi database connection pool (db.js)
+│   ├── controllers/                    # Logika bisnis: auth, layanan, detail-layanan
+│   ├── database/                       # schema.sql (DDL 6 tabel 3NF + seed akun & transaksi)
+│   ├── middleware/                     # Middleware JWT auth & proteksi admin RBAC
+│   ├── routes/                         # Definisi rute RESTful API (/api/auth, /api/layanan, ...)
+│   ├── tests/                          # 5 test suites unit test backend (48 passing tests)
+│   ├── .env.example                    # Template konfigurasi environment
+│   └── server.js                       # Titik masuk server Express
+├── frontend/                           # SPA React.js
+│   ├── public/                         # index.html, favicon, aset publik
+│   └── src/
+│       ├── components/                 # Komponen global: Navbar.js, LiveMapKurir.js
+│       ├── pages/                      # Modul halaman domain bisnis
+│       │   ├── kurir/                  # TrackingKurir.js, DaftarKurir.js
+│       │   ├── layanan/                # BuatLayanan.js, DaftarLayanan.js, DashboardLayanan.js
+│       │   ├── detail_layanan/         # DetailLayanan.js, AdminDetailLayanan.js
+│       │   ├── pembayaran/             # PembayaranPage.js, KonfirmasiPembayaran.js
+│       │   ├── riwayat_status_layanan/ # RiwayatStatusLayanan.js
+│       │   ├── admin/                  # AdminDashboard.js & backward compatibility export
+│       │   ├── user/                   # Backward compatibility export
+│       │   ├── Home.js                 # Landing page publik
+│       │   ├── Login.js                # Formulir login pengguna
+│       │   ├── Register.js             # Formulir pendaftaran akun baru
+│       │   └── index.js                # Aggregator re-export
+│       ├── utils/                      # api.js (Axios interceptor) & PrivateRoute.js (RBAC guard)
+│       ├── App.js                      # Root router configuration (React Router v6)
+│       └── App.css                     # Sistem gaya antarmuka global
 ├── docs/                               # Dokumentasi rekayasa perangkat lunak akademik (7 Dokumen)
-│   ├── ide_proyek.md                   # Identitas tugas mahasiswa, eksplorasi 3 tema, in/out scope
+│   ├── ide_proyek.md                   # Identitas tugas mahasiswa, eksplorasi 3 tema, scope
 │   ├── OptikExpress (PRD).md           # Product Requirement Document komprehensif
-│   ├── Coding_Style.md                 # Standar arsitektur 3-tier, gaya kode, ERD relasional 3NF
-│   ├── Design_UI.md                    # Panduan sistem desain, warna resmi, tipografi, komponen
-│   ├── DevLog.md                       # Log kronologi perkembangan Pertemuan 1 s/d 6 & bukti test
-│   ├── Logging.md                      # Arsitektur audit trail, log GPS kurir, logger notifikasi
+│   ├── Coding_Style.md                 # Standar arsitektur 3-tier, konvensi kode, ERD 6 tabel 3NF
+│   ├── Design_UI.md                    # Panduan sistem desain antarmuka, warna, komponen
+│   ├── DevLog.md                       # Log kronologi perkembangan Pertemuan 1 s/d 6 & test log
+│   ├── Logging.md                      # Audit trail, log pelacakan kurir GPS, logger notifikasi
 │   └── Agent.md                        # Panduan teknis dan batasan bagi AI Coding Agent
-├── docker-compose.yml                  # Orkestrasi multi-kontainer Docker MySQL, API, & React
-├── .gitignore                          # Konfigurasi pengabaian berkas Git
+├── docker-compose.yml                  # Orkestrasi multi-kontainer MySQL + backend + frontend
+├── .env.example                        # Template konfigurasi root
+├── .gitignore                          # Pengabaian git
 └── README.md                           # Dokumentasi utama proyek
 ```
 
 ---
 
-## Fitur Utama Aplikasi (100% Selesai Terimplementasi)
+## Quick Start (Local) — Tanpa Docker
 
-Seluruh fitur di bawah ini telah terpasang, terintegrasi penuh pada basis data, lolos pengujian unit test, dan siap dioperasikan:
+Untuk development lokal yang membutuhkan hot-reload cepat atau debugging langsung. **Lewati bagian ini kalau sudah berhasil memakai Docker.**
 
-1. **Autentikasi & RBAC Multi-Role Terenkripsi** — Pendaftaran akun baru, login dengan hashing password BCrypt (salt rounds 10), penerbitan token sesi stateless JWT, dan pemisahan hak akses antara peran `pelanggan` dan `admin`.
-2. **Formulir Pengajuan Servis Digital** — Pengajuan perbaikan kacamata atau penggantian lensa kustom dengan pilihan kategori (`perbaikan`, `penggantian_lensa`, `perbaikan_dan_lensa`), keluhan kerusakan, alamat penjemputan, serta penentuan jadwal tanggal dan jam penjemputan.
-3. **Pencatatan Spesifikasi Teknis Kacamata (Detail Layanan)** — Pencatatan model frame, rincian tindakan teknis perbaikan (engsel, nosepad, baut patah), dan ukuran resep kacamata (minus, plus, silinder, progresif) pada tabel relasional `detail_layanan`.
-4. **Alur Siklus Status Terstruktur (State Machine 6 Tahapan)** — Siklus pengerjaan deterministik yang menjamin integritas alur operasional:
-   $$\text{pengajuan} \longrightarrow \text{dijadwalkan} \longrightarrow \text{diambil} \longrightarrow \text{diproses} \longrightarrow \text{diantar} \longrightarrow \text{selesai}$$
-5. **Dashboard Interaktif Pelanggan & Administrator** — Dasbor ringkasan metrik statistik operasional, kartu pesanan aktif, pesanan tuntas, status tagihan, dan tabel antrean servis dengan filter status dan pencarian kata kunci.
-6. **Pembatalan & Penghapusan Pesanan** — Fasilitas pembatalan pengajuan oleh pelanggan pada tahap awal, serta penghapusan pesanan oleh administrator dengan mekanisme *cascading delete* pada basis data relasional.
-7. **Notifikasi Otomatis Status (Email SMTP & WhatsApp Mock)** — Integrasi pengiriman email konfirmasi status otomatis via `nodemailer` (dukungan SMTP Gmail dan mode simulasi Ethereal) serta pencatatan log pesan WhatsApp otomatis ke nomor telepon pelanggan setiap kali status pengerjaan diperbarui.
-8. **Arsitektur Frontend Modular (5 Modul Domain)** — Pemisahan struktur halaman antarmuka ke dalam 5 folder terisolasi (`kurir/`, `layanan/`, `detail_layanan/`, `pembayaran/`, `riwayat_status_layanan/`) dengan *barrel export* dan backward compatibility.
-9. **Otomasi Pengujian Unit Komprehensif (Unit Testing Suite)** — 48 unit tests otomatis berbasis modul bawaan Node.js (`node:test`, `node:assert/strict`) yang mencakup validasi payload, validasi enum, otentikasi JWT, Anti-IDOR, state machine, dan simulasi transaksi.
-10. **Integrasi Gerbang Pembayaran Digital (Payment Gateway Midtrans Simulation)** — Sistem transaksi digital multi-kanal yang mendukung QRIS (dengan QR Code dinamis otomatis), Virtual Account Bank (BCA, BNI, BRI, Mandiri) dengan tombol salin rekening, dompet digital E-Wallet (GoPay, ShopeePay), serta pembayaran tunai di tempat (COD) yang dilengkapi batas waktu transaksi (*countdown timer*) dan konfirmasi pelunasan instan.
-11. **Pelacakan Kurir Langsung (Live GPS Tracking & Auto-Assign Kurir)** — Pemantauan lokasi armada kurir penjemput dan pengantar secara real-time di atas peta interaktif Leaflet OpenStreetMap, marker kendaraan animasi bergerak, persentase progres perjalanan, estimasi waktu kedatangan (ETA), rute alternatif radar vektor, tombol navigasi langsung turn-by-turn Google Maps, serta algoritma penugasan kurir otomatis (*Round-Robin Auto-Assign* ala Gojek/Grab) dari pool internal optik.
-12. **Unggah Berkas Foto Fisik Kacamata & Resep Optik Dokter** — Fitur upload bukti foto kondisi frame kacamata rusak dan kartu resep resmi dari dokter spesialis mata/optometris berbasis pengkodean Base64 dengan penyimpanan aman di direktori server, dilengkapi pratinjau instan (*thumbnail preview*) dan modal pembesar foto (*lightbox zoom*).
+### 1. Install Dependencies
 
----
+**Windows:**
 
-## Alur Transaksi & State Machine Operasional
+- **Node.js 18+ LTS**: [https://nodejs.org/](https://nodejs.org/)
+- **MySQL / MariaDB**: Melalui XAMPP ([https://www.apachefriends.org/](https://www.apachefriends.org/)) atau Laragon
 
-Diagram alur perjalanan permintaan servis kacamata dari inisiasi pelanggan hingga penyerahan kembali:
+Verifikasi instalasi di terminal:
 
-```text
-Pelanggan                         Admin / Teknisi Optik                     Armada Kurir
-    │                                       │                                     │
-    ├─► Register / Login Akun               │                                     │
-    ├─► Isi Formulir Pengajuan Servis       │                                     │
-    ├─► Upload Foto Kerusakan & Resep       │                                     │
-    │   [Status: PENGAJUAN]                 │                                     │
-    │                                       ├─► Verifikasi Pesanan                │
-    │                                       ├─► Tetapkan Jadwal Jemput            │
-    │                                       │   [Status: DIJADWALKAN]             │
-    │                                       ├─► Alokasi Kurir (Auto/Manual)───────┼─► Jemput Kacamata ke Alamat
-    │                                       │                                     │   [Status: DIAMBIL]
-    │                                       │◄── Serahkan Kacamata ke Lab Optik ──┘
-    │                                       ├─► Analisis Fisik & Input Biaya Servis
-    │                                       ├─► Teknisi Kerjakan Frame & Lensa
-    │                                       │   [Status: DIPROSES]
-    │                                       ├─► Pengerjaan Lab Tuntas
-    │                                       │   [Status: SELESAI]
-    │◄── Pilih Metode Bayar (QRIS/VA/COD)───┤
-    │    (Simulasi Pembayaran / Lunas)      │
-    │                                       ├─► Tugaskan Kurir Pengantaran────────┼─► Antar Kacamata ke Pelanggan
-    │                                       │                                     │   (Live GPS Tracking Aktif)
-    │                                       │                                     │   [Status: DIANTAR]
-    │◄──────────────────────────────────────┴─────────────────────────────────────┼─► Serah Terima Kacamata Tuntas
-    │   Unduh / Cetak Invoice Struk Lunas                                         │
+```bash
+node -v      # minimal v16.x (disarankan v18+)
+npm -v       # minimal v8.x
+mysql --version
 ```
 
+### 2. Jalankan Layanan Basis Data MySQL
+
+- Buka **XAMPP Control Panel** (`C:\xampp\xampp-control.exe`)
+- Klik tombol **Start** pada modul **MySQL** (berjalan di port `3306`)
+- Buka phpMyAdmin di browser (`http://localhost/phpmyadmin`)
+- Buat database baru bernama `db_kacamata`, lalu impor file `backend/database/schema.sql`
+
+Atau via command line:
+
+```bash
+mysql -u root -p -e "CREATE DATABASE IF NOT EXISTS db_kacamata;"
+mysql -u root -p db_kacamata < backend/database/schema.sql
+```
+
+### 3. Setup Backend
+
+```bash
+cd backend
+cp .env.example .env
+```
+
+Generate JWT secret:
+
+```bash
+openssl rand -base64 32
+```
+
+Edit `backend/.env`:
+
+```dotenv
+PORT=5000
+DB_HOST=localhost
+DB_USER=root
+DB_PASSWORD=
+DB_NAME=db_kacamata
+DB_PORT=3306
+JWT_SECRET="HASIL_OUTPUT_DARI_OPENSSL"
+JWT_EXPIRES_IN=24h
+```
+
+Pasang dependensi dan jalankan server backend:
+
+```bash
+npm install
+npm start
+```
+
+-> Backend berjalan aktif di `http://localhost:5000`.
+
+### 4. Setup Frontend
+
+Buka jendela terminal baru:
+
+```bash
+cd frontend
+npm install
+npm start
+```
+
+-> Frontend berjalan aktif di `http://localhost:3000`.
+
+### 5. Menghentikan Layanan
+
+Tekan `Ctrl + C` pada masing-masing jendela terminal backend dan frontend.
+
 ---
 
-## Indeks Dokumentasi Proyek Lengkap (`docs/`)
+## Security Notes
 
-Dokumentasi komprehensif perjalanan rekayasa perangkat lunak proyek OptikExpress tersimpan di dalam folder [docs/](file:///c:/Users/sinda/OneDrive/RPLApp/docs):
+- `.env` TIDAK di-commit (sudah terdaftar di `.gitignore`)
+- `.env.example` hanya berisi template tanpa kredensial rahasia
+- JWT secret harus acak dengan panjang minimal 32 byte (`openssl rand -base64 32`)
+- Token JWT dikirim via HTTP header `Authorization: Bearer <token>`
+- Password dienkripsi menggunakan BCrypt dengan salt rounds 10
+- Anti-IDOR: proteksi verifikasi kepemilikan data pengguna pada seluruh endpoint operasional servis kacamata
+- **Akun demo di atas hanya untuk keperluan pengujian dan evaluasi tugas.** Untuk lingkungan produksi, seluruh password wajib diubah.
 
-| Berkas Dokumen | Cakupan dan Topik Pembahasan |
+---
+
+## Dokumen Lengkap
+
+### Dokumen Produk & Ide
+
+| File | Deskripsi |
 | :--- | :--- |
-| **[`docs/ide_proyek.md`](file:///c:/Users/sinda/OneDrive/RPLApp/docs/ide_proyek.md)** | Identitas tugas mahasiswa (**Sindar Felix Sihole \|\| 2510101031**), eksplorasi 3 alternatif tema, perumusan tema mengerucut, profil target pengguna, manfaat aplikasi, dan batasan in/out-of-scope. |
-| **[`docs/OptikExpress (PRD).md`](file:///c:/Users/sinda/OneDrive/RPLApp/docs/OptikExpress%20(PRD).md)** | *Product Requirement Document* resmi yang mencakup visi produk, alur State Machine operasional, 5 User Stories utama, Acceptance Criteria (AC), dan persyaratan non-fungsional. |
-| **[`docs/Coding_Style.md`](file:///c:/Users/sinda/OneDrive/RPLApp/docs/Coding_Style.md)** | Standar arsitektur 3-tier, tech stack, konvensi gaya kode (PascalCase, camelCase, snake_case), format standar respon API, diagram ERD 6 tabel relasional 3NF (Mermaid), dan prinsip keamanan Anti-IDOR. |
-| **[`docs/Design_UI.md`](file:///c:/Users/sinda/OneDrive/RPLApp/docs/Design_UI.md)** | Filosofi antarmuka UI/UX, sistem warna resmi (*Navy, Ocean Blue, Mint Green*), tipografi, hierarki komponen, pelacakan live kurir GPS Leaflet OSM, dan responsivitas multi-layar. |
-| **[`docs/DevLog.md`](file:///c:/Users/sinda/OneDrive/RPLApp/docs/DevLog.md)** | Catatan riwayat perkembangan pengerjaan proyek dari Pertemuan 1 s/d 6, bukti eksekusi 48 unit tests (100% all passed), dan catatan riwayat commit bermakna (*meaningful git commits*). |
-| **[`docs/Logging.md`](file:///c:/Users/sinda/OneDrive/RPLApp/docs/Logging.md)** | Arsitektur multi-layer logging: audit trail riwayat status layanan pada tabel database, pencatatan koordinat pelacakan kurir GPS, logging notifikasi Email SMTP & WhatsApp mock, serta error handling. |
-| **[`docs/Agent.md`](file:///c:/Users/sinda/OneDrive/RPLApp/docs/Agent.md)** | Panduan dan aturan main teknis bagi AI Coding Agent, batasan implementasi, pembagian peran antara AI dan mahasiswa, serta kepatuhan standar kode akademik. |
+| [`docs/ide_proyek.md`](docs/ide_proyek.md) | Ide proyek, masalah nyata, profil target pengguna, fitur inti, dan kriteria keberhasilan (Identitas Mahasiswa: **Sindar Felix Sihole \|\| 2510101031**) |
+| [`docs/OptikExpress (PRD).md`](<docs/OptikExpress%20(PRD).md>) | Product Requirement Document (PRD) lengkap mencakup 5 User Stories, Acceptance Criteria, dan state machine |
+
+### Dokumen Panduan Pengembangan
+
+| File | Deskripsi |
+| :--- | :--- |
+| [`docs/Agent.md`](docs/Agent.md) | Panduan perilaku AI coding agent (main rules, alur kerja per task, batasan akademis) |
+| [`docs/Coding_Style.md`](docs/Coding_Style.md) | Standar gaya kode Backend (Node.js/Express) & Frontend (React), diagram ERD 6 tabel 3NF, konvensi respons API |
+| [`docs/Design_UI.md`](docs/Design_UI.md) | Panduan desain antarmuka, sistem warna resmi (*Navy, Ocean Blue, Mint Green*), komponen UI, dan peta kurir GPS Leaflet |
+| [`docs/Logging.md`](docs/Logging.md) | Arsitektur multi-layer logging: audit trail tabel database, log koordinat kurir GPS, logger notifikasi Email SMTP & WhatsApp mock |
+| [`docs/DevLog.md`](docs/DevLog.md) | Dev log kronologis Pertemuan 1 s/d 6, riwayat commit bermakna, dan bukti 48 unit tests lulus (100% all passed) |
+
+---
+
+## Masalah yang Diselesaikan
+
+1. **Hambatan Aksesibilitas & Waktu** — jam operasional toko optik konvensional berbenturan dengan rutinitas kantor dan perkuliahan.
+2. **Ketergantungan Penglihatan** — penderita kelainan refraksi mata tinggi tidak dapat mengemudi secara aman saat kacamata patah atau lensa terlepas.
+3. **Ketidakpastian Biaya & Status Pengerjaan** — ketiadaan estimasi biaya di muka dan sulit melacak apakah kacamata sudah selesai atau masih dalam antrean bengkel optik.
+4. **Pencatatan Resep Medis Terfragmentasi** — kartu resep ukuran kacamata fisik dari dokter mata mudah hilang atau rusak.
+
+---
+
+## Target Pengguna (2 Role RBAC)
+
+| Peran | Tanggung Jawab Utama |
+| :--- | :--- |
+| `admin` | Verifikasi pesanan, penetapan jadwal jemput, update 6 status state machine, input nominal tagihan servis, penugasan armada kurir otomatis/manual, dan konfirmasi pelunasan pembayaran. |
+| `pelanggan` | Registrasi akun, pengajuan layanan antar-jemput, unggah foto kerusakan frame & resep dokter optik, pemantauan kurir GPS real-time, simulasi pembayaran digital, dan cetak invoice tanda terima resmi. |
+
+---
+
+## Fitur Inti
+
+Status ditandai jujur: **[Ada]** = sudah terimplementasi di kode dan lolos pengujian otomatis.
+
+1. **[Ada] Autentikasi & RBAC Multi-Role** — sesi login stateless dengan token JWT, otorisasi peran `pelanggan` dan `admin`, proteksi rute halaman via `PrivateRoute`.
+2. **[Ada] Formulir Pengajuan Servis Digital** — pemilihan 3 kategori servis (`perbaikan`, `penggantian_lensa`, `perbaikan_dan_lensa`), keluhan kerusakan, alamat penjemputan lengkap, serta penentuan jadwal tanggal dan jam penjemputan.
+3. **[Ada] Rincian Spesifikasi Kacamata (Detail Layanan)** — pencatatan model frame, rincian tindakan teknis perbaikan, dan ukuran lensa resep (minus, plus, silinder, progresif) pada tabel relasional `detail_layanan`.
+4. **[Ada] Siklus Status Layanan (State Machine 6 Tahapan)** — alur siklus hidup pesanan deterministik: `pengajuan` -> `dijadwalkan` -> `diambil` -> `diproses` -> `diantar` -> `selesai`.
+5. **[Ada] Dasbor Interaktif Pelanggan & Administrator** — metrik ringkasan pesanan aktif, pesanan tuntas, status tagihan, dan tabel antrean servis dengan filter status dan pencarian instan.
+6. **[Ada] Pembatalan & Penghapusan Pesanan** — pembatalan mandiri oleh pelanggan pada tahap awal serta penghapusan data pesanan oleh admin dengan *cascading delete*.
+7. **[Ada] Notifikasi Otomatis Status (Email SMTP & WhatsApp Mock)** — pengiriman email otomatis via `nodemailer` (dukungan SMTP Gmail & testing Ethereal) serta pencatatan log simulasi pesan WhatsApp ke nomor telepon pelanggan setiap kali status diperbarui.
+8. **[Ada] Arsitektur Frontend Modular (5 Modul Domain)** — pengelompokan komponen antarmuka ke dalam 5 folder terisolasi (`kurir/`, `layanan/`, `detail_layanan/`, `pembayaran/`, `riwayat_status_layanan/`) dengan *barrel export*.
+9. **[Ada] Otomasi Pengujian Unit Backend (Unit Testing Suite)** — 48 unit tests otomatis menggunakan test runner bawaan Node.js (`node:test`, `node:assert/strict`) dengan tingkat kelulusan 100%.
+10. **[Ada] Integrasi Gerbang Pembayaran Digital (Payment Gateway Midtrans)** — simulasi checkout pembayaran digital multi-kanal (QRIS dinamis, Virtual Account BCA/BNI/BRI/Mandiri, E-Wallet GoPay/ShopeePay, COD), batas waktu transaksi, serta invoice digital struk lunas dengan fitur cetak.
+11. **[Ada] Pelacakan Kurir Langsung (Live GPS Tracking & Auto-Assign Kurir)** — pemantauan posisi kurir real-time di atas peta Leaflet OpenStreetMap, animasi radar bergerak, estimasi waktu kedatangan (ETA), rute arah Google Maps turn-by-turn, dan penugasan kurir otomatis Round-Robin Gojek-style dari pool internal optik.
+12. **[Ada] Unggah Berkas Foto Fisik Kacamata & Resep Optik** — penyimpanan file gambar Base64 ke disk server dengan pratinjau instan (*thumbnail preview*) dan modal pembesar (*lightbox zoom*).
+
+---
+
+## Keamanan
+
+- Autentikasi JWT via header `Authorization: Bearer <token>` dengan masa kedaluwarsa 24 jam
+- Middleware RBAC terpisah (`auth.js` dan `adminAuth.js`) dengan mitigasi pencegahan manipulasi identitas (*Anti-IDOR*)
+- Enkripsi password menggunakan BCrypt dengan *salt rounds* 10
+- Parameterized SQL queries (`?`) pada setiap query basis data untuk mencegah *SQL Injection*
+- `.env` dikecualikan dari Git melalui `.gitignore`, berkas `.env.example` hanya berisi template variabel publik
+
+---
+
+## Target Keberhasilan
+
+Target berikut adalah sasaran produk dan rekayasa perangkat lunak yang telah terpenuhi pada rilis ini:
+
+- Waktu pengajuan layanan oleh pelanggan: **< 2 menit** — **terpenuhi**
+- Integritas alur state machine 6 tahapan status operasional: **100% konsisten tanpa lompatan status ilegal** — **terpenuhi**
+- Proteksi Anti-IDOR pada endpoint servis & spesifikasi kacamata: **100% tervalidasi via unit tests** — **terpenuhi**
+- Tingkat kelulusan pengujian unit test backend: **100% (48 passing tests, 0 failing tests)** — **terpenuhi**
+- Ketersediaan multi-metode pembayaran digital & pelacakan kurir live GPS: **terpasang dan teruji** — **terpenuhi**
 
 ---
 
