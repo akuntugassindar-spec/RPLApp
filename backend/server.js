@@ -30,8 +30,8 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-app.use(express.json()); // Parser payload JSON
-app.use(express.urlencoded({ extended: true })); // Parser form-data / x-www-form-urlencoded
+app.use(express.json({ limit: '50mb' })); // Parser payload JSON (limit dinaikkan untuk upload foto Base64)
+app.use(express.urlencoded({ extended: true, limit: '50mb' })); // Parser form-data / x-www-form-urlencoded
 
 // Rute Pengecekan Status Server (Health Check)
 app.get('/', (req, res) => {
