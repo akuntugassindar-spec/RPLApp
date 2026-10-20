@@ -62,7 +62,7 @@ const BuatLayanan = () => {
       }, 1200);
     } catch (err) {
       console.error('Gagal membuat layanan:', err);
-      const msg = err.response?.data?.message || 'Terjadi kesalahan saat menyimpan data.';
+      const msg = err.response?.data?.message || err.response?.data?.error || (err.message === 'Network Error' ? 'Koneksi ke backend gagal. Pastikan server backend berjalan di port 5000.' : err.message || 'Terjadi kesalahan saat menyimpan data.');
       setError(msg);
     } finally {
       setLoading(false);

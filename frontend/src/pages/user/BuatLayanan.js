@@ -65,7 +65,7 @@ const BuatLayanan = () => {
       const message =
         err.response?.data?.message ||
         err.response?.data?.error ||
-        'Gagal mengirim permintaan layanan. Pastikan data terisi dengan benar.';
+        (err.message === 'Network Error' ? 'Koneksi ke backend gagal. Pastikan server backend berjalan di port 5000.' : err.message || 'Gagal mengirim permintaan layanan. Pastikan data terisi dengan benar.');
       setError(message);
     } finally {
       setLoading(false);
