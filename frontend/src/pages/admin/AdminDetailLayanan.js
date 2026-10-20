@@ -227,9 +227,12 @@ const AdminDetailLayanan = () => {
     lokasi_tujuan: { nama: layanan?.nama_pelanggan || 'Pelanggan', alamat: layanan?.alamat || 'Alamat Pelanggan' }
   };
 
-  const pRatio = (effectiveTracking.persentase_perjalanan || 25) / 100;
-  const adminKurirLat = Number((-7.2625 + (-7.2890 - -7.2625) * pRatio).toFixed(4));
-  const adminKurirLng = Number((112.7485 + (112.7950 - 112.7485) * pRatio).toFixed(4));
+  const adminDestLat = Number(effectiveTracking.lokasi_tujuan?.lat) || -7.2890;
+  const adminDestLng = Number(effectiveTracking.lokasi_tujuan?.lng) || 112.7950;
+  const defaultKurirLat = adminDestLat + 0.003;
+  const defaultKurirLng = adminDestLng + 0.003;
+  const adminKurirLat = Number(effectiveTracking.kurir?.posisi_saat_ini?.lat) || (layanan?.kurir_lat ? Number(layanan.kurir_lat) : defaultKurirLat);
+  const adminKurirLng = Number(effectiveTracking.kurir?.posisi_saat_ini?.lng) || (layanan?.kurir_lng ? Number(layanan.kurir_lng) : defaultKurirLng);
 
   const handleApplyPreset = (statusVal, deskripsi) => {
     setStatusDipilih(statusVal);
@@ -400,6 +403,8 @@ const AdminDetailLayanan = () => {
                 <LiveMapKurir
                   kurirLat={adminKurirLat}
                   kurirLng={adminKurirLng}
+                  destLat={adminDestLat}
+                  destLng={adminDestLng}
                   kurirNama={kurirNama || effectiveTracking.kurir?.nama}
                   alamatTujuan={layanan?.alamat}
                   height="200px"

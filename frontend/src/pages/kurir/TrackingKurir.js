@@ -142,11 +142,20 @@ const TrackingKurir = () => {
   // Koordinat lokasi
   const optikLat = -7.2625;
   const optikLng = 112.7485;
-  const destLat = -7.2890;
-  const destLng = 112.7950;
+  const destLat = Number(trackingData?.lokasi_tujuan?.lat) || -7.2890;
+  const destLng = Number(trackingData?.lokasi_tujuan?.lng) || 112.7950;
+  const defaultKurirLat = destLat + 0.003;
+  const defaultKurirLng = destLng + 0.003;
+  const actualKurirLat = Number(trackingData?.kurir?.posisi_saat_ini?.lat) || (layanan?.kurir_lat ? Number(layanan.kurir_lat) : defaultKurirLat);
+  const actualKurirLng = Number(trackingData?.kurir?.posisi_saat_ini?.lng) || (layanan?.kurir_lng ? Number(layanan.kurir_lng) : defaultKurirLng);
+
   const ratio = persentase / 100;
-  const kurirLat = trackingData?.kurir?.posisi_saat_ini?.lat || (optikLat + (destLat - optikLat) * ratio);
-  const kurirLng = trackingData?.kurir?.posisi_saat_ini?.lng || (optikLng + (destLng - optikLng) * ratio);
+  const kurirLat = simulasiPersen !== null
+    ? Number((actualKurirLat + (destLat - actualKurirLat) * ratio).toFixed(5))
+    : actualKurirLat;
+  const kurirLng = simulasiPersen !== null
+    ? Number((actualKurirLng + (destLng - actualKurirLng) * ratio).toFixed(5))
+    : actualKurirLng;
 
   return (
     <div style={{ maxWidth: '1060px', margin: '0 auto', paddingBottom: '3rem' }}>
@@ -302,9 +311,9 @@ const TrackingKurir = () => {
                 <svg viewBox="0 0 320 140" style={{ width: '100%', height: '220px', background: '#f8fafc', borderRadius: '8px' }}>
                   <path d="M 30 70 Q 110 20, 160 70 T 290 70" fill="none" stroke="#cbd5e1" strokeWidth="8" strokeLinecap="round" />
                   <path d="M 30 70 Q 110 20, 160 70 T 290 70" fill="none" stroke="#0284c7" strokeWidth="4" strokeDasharray="6,4" strokeLinecap="round" />
-                  <circle cx="30" cy="70" r="14" fill="#0369a1" />
-                  <text x="30" y="74" textAnchor="middle" fill="#fff" fontSize="10" fontWeight="bold">OPTIK</text>
-                  <text x="30" y="98" textAnchor="middle" fill="#0f172a" fontSize="9" fontWeight="bold">Lab Optik</text>
+                  <circle cx="30" cy="70" r="14" fill="#0284c7" />
+                  <text x="30" y="74" textAnchor="middle" fill="#fff" fontSize="10" fontWeight="bold">🛵</text>
+                  <text x="30" y="98" textAnchor="middle" fill="#0f172a" fontSize="9" fontWeight="bold">{kurirInfo.nama}</text>
 
                   {(() => {
                     const cx = 30 + 260 * ratio;
@@ -315,14 +324,14 @@ const TrackingKurir = () => {
                           <animate attributeName="r" values="14;24;14" dur="2s" repeatCount="indefinite" />
                         </circle>
                         <circle cx="0" cy="0" r="12" fill="#0d9488" stroke="#fff" strokeWidth="2" />
-                        <text x="0" y="4" textAnchor="middle" fill="#fff" fontSize="8" fontWeight="bold">KURIR</text>
+                        <text x="0" y="4" textAnchor="middle" fill="#fff" fontSize="8" fontWeight="bold">🛵</text>
                       </g>
                     );
                   })()}
 
                   <circle cx="290" cy="70" r="14" fill="#10b981" />
-                  <text x="290" y="74" textAnchor="middle" fill="#fff" fontSize="10" fontWeight="bold">TUJUAN</text>
-                  <text x="290" y="98" textAnchor="middle" fill="#0f172a" fontSize="9" fontWeight="bold">Pelanggan</text>
+                  <text x="290" y="74" textAnchor="middle" fill="#fff" fontSize="10" fontWeight="bold">🏠</text>
+                  <text x="290" y="98" textAnchor="middle" fill="#0f172a" fontSize="9" fontWeight="bold">Alamat Jemput</text>
                 </svg>
               </div>
             )}
@@ -330,7 +339,7 @@ const TrackingKurir = () => {
             {/* Direct Google Maps Navigation */}
             <div style={{ marginTop: '0.75rem', textAlign: 'center' }}>
               <a
-                href={`https://www.google.com/maps/dir/?api=1&origin=${optikLat},${optikLng}&destination=${encodeURIComponent(layanan.alamat || 'Surabaya')}&travelmode=driving`}
+                href={`https://www.google.com/maps/dir/?api=1&origin=${kurirLat},${kurirLng}&destination=${destLat},${destLng}&travelmode=driving`}
                 target="_blank"
                 rel="noreferrer"
                 className="btn btn-outline btn-sm"

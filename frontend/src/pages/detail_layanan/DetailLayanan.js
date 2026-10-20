@@ -264,12 +264,26 @@ const DetailLayanan = () => {
   const kurirTelepon = layanan?.kurir_telepon || trackingData?.kurir?.telepon || '0812-3456-7890';
   const kurirKendaraan = trackingData?.kurir?.kendaraan || 'Honda Vario 160 (L 4589 AB)';
 
-  // Posisi Kurir di SVG Map (koordinat kurva)
+  // Koordinat Titik Tujuan Pelanggan (dari geocoding alamat penjemputan Foto 2)
+  const destLat = Number(trackingData?.lokasi_tujuan?.lat) || -7.2890;
+  const destLng = Number(trackingData?.lokasi_tujuan?.lng) || 112.7950;
+
+  // Koordinat Kurir Terdekat (dialokasikan dekat alamat penjemputan)
+  const defaultKurirLat = destLat + 0.003;
+  const defaultKurirLng = destLng + 0.003;
+  const actualKurirLat = Number(trackingData?.kurir?.posisi_saat_ini?.lat) || (layanan?.kurir_lat ? Number(layanan.kurir_lat) : defaultKurirLat);
+  const actualKurirLng = Number(trackingData?.kurir?.posisi_saat_ini?.lng) || (layanan?.kurir_lng ? Number(layanan.kurir_lng) : defaultKurirLng);
+
+  // Posisi Kurir di SVG Map & Simulasi Bergerak
   const ratio = displayProgress / 100;
   const markerX = 30 + 260 * ratio;
   const markerY = 70 + Math.sin(ratio * Math.PI) * -38;
-  const currentLat = Number((-7.2625 + (-7.2890 - -7.2625) * ratio).toFixed(4));
-  const currentLng = Number((112.7485 + (112.7950 - 112.7485) * ratio).toFixed(4));
+  const currentLat = simulasiPersen !== null
+    ? Number((actualKurirLat + (destLat - actualKurirLat) * ratio).toFixed(5))
+    : actualKurirLat;
+  const currentLng = simulasiPersen !== null
+    ? Number((actualKurirLng + (destLng - actualKurirLng) * ratio).toFixed(5))
+    : actualKurirLng;
 
   if (loading) {
     return (
@@ -472,6 +486,8 @@ const DetailLayanan = () => {
               <LiveMapKurir
                 kurirLat={currentLat}
                 kurirLng={currentLng}
+                destLat={destLat}
+                destLng={destLng}
                 kurirNama={kurirNama}
                 alamatTujuan={layanan?.alamat}
                 height="210px"
@@ -485,10 +501,10 @@ const DetailLayanan = () => {
                   {/* Garis Rute Berwarna (Sudah ditempuh) */}
                   <path d="M 30 70 Q 110 20, 160 70 T 290 70" fill="none" stroke="#0284c7" strokeWidth="4" strokeDasharray="6,4" strokeLinecap="round" />
 
-                  {/* Titik Awal: Lab Toko Optik */}
-                  <circle cx="30" cy="70" r="14" fill="#0369a1" />
-                  <text x="30" y="74" textAnchor="middle" fill="#fff" fontSize="11" fontWeight="bold"></text>
-                  <text x="30" y="98" textAnchor="middle" fill="#0f172a" fontSize="9" fontWeight="bold">OptikExpress</text>
+                  {/* Titik Awal: Posisi Kurir Terdekat */}
+                  <circle cx="30" cy="70" r="14" fill="#0284c7" />
+                  <text x="30" y="74" textAnchor="middle" fill="#fff" fontSize="11" fontWeight="bold">🛵</text>
+                  <text x="30" y="98" textAnchor="middle" fill="#0f172a" fontSize="9" fontWeight="bold">{kurirNama}</text>
 
                   {/* Ikon Kurir Bergerak Dinamis dengan Efek Radar Pulsing */}
                   <g transform={`translate(${markerX},${markerY})`}>
@@ -496,21 +512,21 @@ const DetailLayanan = () => {
                       <animate attributeName="r" values="14;24;14" dur="1.8s" repeatCount="indefinite" />
                     </circle>
                     <circle cx="0" cy="0" r="12" fill="#0d9488" stroke="#ffffff" strokeWidth="2.5" />
-                    <text x="0" y="4" textAnchor="middle" fill="#fff" fontSize="10"></text>
+                    <text x="0" y="4" textAnchor="middle" fill="#fff" fontSize="10">🛵</text>
                   </g>
 
                   {/* Titik Akhir: Alamat Pelanggan */}
                   <circle cx="290" cy="70" r="14" fill="#10b981" />
-                  <text x="290" y="74" textAnchor="middle" fill="#fff" fontSize="11" fontWeight="bold"></text>
-                  <text x="290" y="98" textAnchor="middle" fill="#0f172a" fontSize="9" fontWeight="bold">Tujuan Anda</text>
+                  <text x="290" y="74" textAnchor="middle" fill="#fff" fontSize="11" fontWeight="bold">🏠</text>
+                  <text x="290" y="98" textAnchor="middle" fill="#0f172a" fontSize="9" fontWeight="bold">Alamat Jemput</text>
                 </svg>
 
                 <div style={{ marginTop: '0.6rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
                   <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
-                    <span> Jl. Pemuda 48</span> &bull; <span> {layanan?.alamat ? layanan.alamat.slice(0, 20) + '...' : 'Tujuan'}</span>
+                    <span>🛵 Kurir Terdekat: {kurirNama}</span> &bull; <span>🏠 {layanan?.alamat ? layanan.alamat.slice(0, 20) + '...' : 'Tujuan Jemput'}</span>
                   </div>
                   <a
-                    href={`https://www.google.com/maps/dir/?api=1&origin=-7.2625,112.7485&destination=${currentLat},${currentLng}&travelmode=driving`}
+                    href={`https://www.google.com/maps/dir/?api=1&origin=${currentLat},${currentLng}&destination=${destLat},${destLng}&travelmode=driving`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="btn btn-sm"

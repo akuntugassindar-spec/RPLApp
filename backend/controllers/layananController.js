@@ -151,7 +151,7 @@ const SURABAYA_DISTRICTS = [
 ];
 
 /**
- * Helper geocoding alamat Surabaya (Foto 2)
+ * Helper geocoding alamat Surabaya (Foto 2) - Kamus Lokal Cepat
  */
 const geocodeSurabayaAddress = (alamatText = '') => {
   if (!alamatText || typeof alamatText !== 'string') {
@@ -179,6 +179,49 @@ const geocodeSurabayaAddress = (alamatText = '') => {
 };
 
 /**
+ * Geocoding Pintar: Coba OpenStreetMap Nominatim terlebih dahulu untuk akurasi alamat nyata
+ * di manapun pengguna berada, dengan fallback instan ke kamus lokal.
+ */
+const geocodeAddress = async (alamatText = '') => {
+  if (!alamatText || typeof alamatText !== 'string') {
+    return { wilayah: 'Sukolilo / Surabaya Timur', lat: -7.2890, lng: 112.7950 };
+  }
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 2000);
+    const cleanQuery = alamatText.replace(/blok\s+[a-z0-9]+/gi, '').replace(/no\.?\s*\d+/gi, '').trim() || alamatText;
+
+    let res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(cleanQuery)}&limit=1`, {
+      headers: { 'User-Agent': 'RPLApp-Kacamata/1.0' },
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
+
+    if (res.ok) {
+      let data = await res.json();
+      if ((!data || data.length === 0) && cleanQuery !== alamatText) {
+        const res2 = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(alamatText)}&limit=1`, {
+          headers: { 'User-Agent': 'RPLApp-Kacamata/1.0' }
+        });
+        if (res2.ok) data = await res2.json();
+      }
+
+      if (data && data.length > 0) {
+        const item = data[0];
+        const lat = Number(parseFloat(item.lat).toFixed(6));
+        const lng = Number(parseFloat(item.lon).toFixed(6));
+        const wilayah = (item.name || item.display_name?.split(',')[0] || 'Wilayah Penjemputan').trim();
+        return { wilayah, lat, lng, formatted: item.display_name };
+      }
+    }
+  } catch (err) {
+    // Offline atau timeout: lanjut ke kamus lokal
+  }
+
+  return geocodeSurabayaAddress(alamatText);
+};
+
+/**
  * Hitung jarak Haversine (km) antara dua koordinat GPS
  */
 const calculateDistanceKm = (lat1, lon1, lat2, lon2) => {
@@ -194,25 +237,28 @@ const calculateDistanceKm = (lat1, lon1, lat2, lon2) => {
 
 /**
  * Cari kurir secara random tetapi lokasinya dicari yang TERDEKAT secara acak dengan alamat penjemputan (Foto 2)
+ * Kurir ditempatkan di radius sangat dekat (~250 meter - 600 meter) dari alamat penjemputan pelanggan yang dimasukkan.
  */
 const findNearestRandomCourier = (tujuanLat, tujuanLng, wilayah = 'Surabaya', preferredCourier = null) => {
   // 1. Pilih kurir secara acak dari pool kurir
   const courier = preferredCourier || COURIER_POOL[Math.floor(Math.random() * COURIER_POOL.length)];
 
-  // 2. Tentukan koordinat kurir terdekat secara acak (radius ~400 meter s.d. 1.2 kilometer dari titik penjemputan pelanggan)
+  // 2. Tentukan koordinat kurir terdekat secara acak (radius ~250m - 600m dari titik penjemputan pelanggan)
   const angle = Math.random() * 2 * Math.PI;
-  const distDeg = 0.0035 + (Math.random() * 0.0065); // ~400m - 1.1km
+  const distDeg = 0.0025 + (Math.random() * 0.0035); // ~280m - 650m
   const kurirLat = Number((tujuanLat + Math.sin(angle) * distDeg).toFixed(6));
   const kurirLng = Number((tujuanLng + Math.cos(angle) * distDeg).toFixed(6));
   const jarakKm = calculateDistanceKm(kurirLat, kurirLng, tujuanLat, tujuanLng);
+  const jarakMeter = Math.round(jarakKm * 1000);
 
-  const trackingStatus = `Kurir terdekat (${courier.nama}) dialokasikan di area ${wilayah} (~${jarakKm} km dari alamat jemput).`;
+  const trackingStatus = `Kurir terdekat (${courier.nama}) dialokasikan di dekat ${wilayah} (~${jarakMeter} m dari alamat jemput).`;
 
   return {
     kurir: courier,
     kurirLat,
     kurirLng,
     jarakKm,
+    jarakMeter,
     trackingStatus
   };
 };
@@ -417,7 +463,7 @@ const createLayanan = async (req, res) => {
     const savedFotoResep = saveBase64Image(foto_resep, 'resep');
 
     // Penentuan Kurir Terdekat Secara Acak Berdasarkan Alamat Penjemputan (Foto 2)
-    const geoTujuan = geocodeSurabayaAddress(alamat);
+    const geoTujuan = await geocodeAddress(alamat);
     const nearestAllocation = findNearestRandomCourier(geoTujuan.lat, geoTujuan.lng, geoTujuan.wilayah);
     const kurirNama = nearestAllocation.kurir.nama;
     const kurirTelepon = nearestAllocation.kurir.telepon;
@@ -600,7 +646,7 @@ const getTrackingKurir = async (req, res) => {
     };
 
     // Geocoding alamat penjemputan pelanggan dari input form Foto 2
-    const geoTujuan = geocodeSurabayaAddress(item.alamat);
+    const geoTujuan = await geocodeAddress(item.alamat);
     const tujuanLocation = {
       nama: item.nama_pelanggan || 'Pelanggan',
       alamat: item.alamat || 'Alamat Penjemputan Pelanggan',
@@ -615,8 +661,14 @@ const getTrackingKurir = async (req, res) => {
     let kurirLng = item.kurir_lng !== null ? Number(item.kurir_lng) : null;
     let trackingStatus = item.tracking_status;
 
-    // Jika kurir atau lokasinya belum tersimpan (pesanan lama), alokasikan kurir random terdekat sekarang
-    if (!kurirNama || kurirLat === null || kurirLng === null) {
+    // Hitung jarak kurir ke tujuan jika koordinat kurir sudah ada
+    const distCurrent = (kurirLat !== null && kurirLng !== null)
+      ? calculateDistanceKm(kurirLat, kurirLng, geoTujuan.lat, geoTujuan.lng)
+      : null;
+
+    // Jika kurir atau lokasinya belum tersimpan, atau kurir lama terlalu jauh (>2.5 km karena masih koordinat default optik),
+    // alokasikan kurir random terdekat langsung di dekat alamat penjemputan pelanggan yang dimasukkan di awal
+    if (!kurirNama || kurirLat === null || kurirLng === null || (distCurrent !== null && distCurrent > 2.5)) {
       const nearest = findNearestRandomCourier(
         geoTujuan.lat,
         geoTujuan.lng,
@@ -752,7 +804,7 @@ const deleteLayanan = async (req, res) => {
 
 module.exports = {
   VALID_STATUSES, VALID_JENIS_LAYANAN, VALID_METODE_PEMBAYARAN, COURIER_POOL, autoAssignCourier,
-  SURABAYA_DISTRICTS, geocodeSurabayaAddress, calculateDistanceKm, findNearestRandomCourier,
+  SURABAYA_DISTRICTS, geocodeSurabayaAddress, geocodeAddress, calculateDistanceKm, findNearestRandomCourier,
   saveBase64Image, sendEmailNotification, sendWANotification,
   getAllLayanan, getLayananById, createLayanan, updateStatusLayanan,
   prosesPembayaran, konfirmasiPembayaran, getTrackingKurir, updateTrackingKurir, deleteLayanan
