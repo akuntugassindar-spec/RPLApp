@@ -174,6 +174,12 @@ describe('Pengujian Fitur 6: Alokasi Kurir Terdekat Secara Acak Sesuai Alamat Pe
     assert.ok(allocation.jarakKm > 0, `Jarak kurir harus lebih dari 0 km`);
     assert.match(allocation.trackingStatus, /Kurir terdekat/i);
   });
+
+  it('resetLayananAutoIncrement harus terdefinisi sebagai fungsi controller', () => {
+    const { resetLayananAutoIncrement } = require('../controllers/layananController');
+    assert.strictEqual(typeof resetLayananAutoIncrement, 'function');
+  });
 });
+
 
 

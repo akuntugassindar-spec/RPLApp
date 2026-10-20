@@ -9,7 +9,9 @@ router.use(authMiddleware);
 
 router.get('/', layananController.getAllLayanan);
 router.post('/', layananController.createLayanan);
-router.post('/reset-urutan', adminAuthMiddleware, layananController.resetLayananAutoIncrement);
+if (typeof layananController.resetLayananAutoIncrement === 'function') {
+  router.post('/reset-urutan', adminAuthMiddleware, layananController.resetLayananAutoIncrement);
+}
 router.get('/:id', layananController.getLayananById);
 router.put('/:id/status', staffAuth, layananController.updateStatusLayanan);
 router.post('/:id/pembayaran', layananController.prosesPembayaran);

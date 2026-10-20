@@ -33,6 +33,9 @@ app.use(cors({
 app.use(express.json({ limit: '50mb' })); // Parser payload JSON (limit dinaikkan untuk upload foto Base64)
 app.use(express.urlencoded({ extended: true, limit: '50mb' })); // Parser form-data / x-www-form-urlencoded
 
+// Sajikan folder uploads foto kacamata & resep secara statis
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 // Rute Pengecekan Status Server (Health Check)
 app.get('/', (req, res) => {
   res.status(200).json({
