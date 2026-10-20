@@ -120,34 +120,33 @@ Harus membalas:
 { "status": "UP", "timestamp": "2026-10-20T..." }
 ```
 
-> Kalau ada service yang **`Exit`** atau **`Restarting`**, cek log-nya: `docker compose logs backend` (atau ganti `backend` dengan nama service lain).
+### 5. Akses Aplikasi
 
-### 5. Akses Aplikasi & Login
+Buka browser dan arahkan ke:
 
-Buka browser:
+- **Frontend:** [http://localhost:3000](http://localhost:3000)
+- **Backend API:** [http://localhost:5000](http://localhost:5000)
+- **Health Check:** [http://localhost:5000/api/health](http://localhost:5000/api/health)
 
-```text
-http://localhost:3000
-```
+### 6. Akun Demo Siap Pakai
 
-Saat pertama kali dijalankan, basis data **otomatis mengimpor skema DDL (auto-migrate)** dan **otomatis mengisi akun demo (auto-seed)** dari berkas `backend/database/schema.sql`. Jadi kamu bisa langsung login tanpa setup database manual.
+Database otomatis di-seed dengan akun berikut (password sudah di-hash dengan BCrypt):
 
-**Akun demo yang tersedia** — password semuanya `admin123`:
-
-| Username / Email | Role | Password | Hak Akses |
+| Role | Email | Password | Keterangan |
 | :--- | :--- | :--- | :--- |
-| `admin@optik.com` | `admin` | `admin123` | Akses penuh dashboard admin, kelola antrean pesanan, update status state machine, input biaya, alokasi armada kurir, dan konfirmasi pembayaran. |
-| `bahrul@gmail.com` | `pelanggan` | `admin123` | Pengajuan servis antar-jemput, upload foto kerusakan frame & resep dokter, pelacakan live GPS kurir, checkout pembayaran digital, cetak invoice struk lunas. |
+| Admin | `admin@kacamata.com` | `admin123` | Akses penuh dashboard admin, kelola pesanan, update status, biaya, tracking kurir |
+| Pelanggan | `budi@gmail.com` | `password123` | Buat pengajuan layanan baru, pantau progres, bayar pesanan, cek rincian |
+| Pelanggan | `siti@gmail.com` | `password123` | Akun demo pelanggan alternatif |
 
-> Gunakan akun `admin` untuk akses penuh, dan akun `pelanggan` untuk mencoba pembatasan hak akses (RBAC) per role.
+> Anda juga bisa langsung mendaftarkan akun pelanggan baru lewat halaman registrasi (`/register`).
 
-### 6. Stop & Cleanup
+### 7. Menghentikan Layanan
 
 ```bash
-# Stop semua service (data database TETAP tersimpan)
+# Stop containers (data database tetap tersimpan di Docker volume)
 docker compose down
 
-# Stop + hapus volume (data DB dan akun akan di-seed ulang saat start berikutnya)
+# Stop + hapus semua volume (database akan di-reset saat up berikutnya)
 docker compose down -v
 ```
 
@@ -155,15 +154,37 @@ docker compose down -v
 
 ## Troubleshooting
 
-| Masalah | Penyebab | Solusi |
-| :--- | :--- | :--- |
-| `port is already allocated` | Port 5000/3000/3306 dipakai proses lain | Matikan aplikasi tersebut di Task Manager, atau ubah port pada `backend/.env` dan `docker-compose.yml`. |
-| `FATAL: DB connection refused` | Layanan MySQL belum siap saat backend start | Pastikan MySQL sudah running, atau tunggu 15 detik lalu restart container backend. |
-| `FATAL: JWT_SECRET not set in .env` | `JWT_SECRET` masih kosong atau placeholder | Isi dengan hasil `openssl rand -base64 32` pada `backend/.env`. |
-| Backend `Restarting` terus | Kredensial MySQL tidak cocok | Cek `DB_*` di `backend/.env`, lalu jalankan `docker compose down -v && docker compose up --build -d`. |
-| Halaman blank / `Failed to fetch` | Backend belum selesai booting | Tunggu 30 detik, cek log dengan `docker compose logs -f backend`. |
-| Perubahan kode tidak muncul | Browser masih menyimpan cache lama | Lakukan Hard Refresh dengan menekan tombol `Ctrl + Shift + R` atau `Ctrl + F5`. |
-| Tidak bisa login | Database belum ter-seed | Impor manual berkas `backend/database/schema.sql` via phpMyAdmin atau CLI MySQL. |
+### Port sudah terpakai (`bind: address already in use`)
+
+Paling sering terjadi kalau ada MySQL lokal (XAMPP / Service MySQL) yang sudah berjalan di port 3306.
+
+**Solusi:**
+
+- **Windows:** Matikan service MySQL lokal via Services (`services.msc`) atau stop MySQL di panel XAMPP.
+- Atau ubah mapping port di `docker-compose.yml`, misalnya `"3307:3306"` untuk MySQL, `"5001:5000"` untuk backend, `"3001:3000"` untuk frontend.
+
+### Backend gagal connect ke MySQL saat pertama kali up
+
+MySQL container butuh beberapa detik untuk inisialisasi basis data dan menjalankan `schema.sql`.
+
+**Solusi:**
+
+Cek log backend:
+
+```bash
+docker compose logs backend
+```
+
+Kalau ada error `ECONNREFUSED`, backend akan otomatis restart karena diset `restart: always`. Tunggu ±15 detik, backend akan terkoneksi begitu MySQL siap.
+
+### Ingin reset total database
+
+```bash
+docker compose down -v
+docker compose up --build -d
+```
+
+Semua data akan dihapus dan skema database `schema.sql` akan diimpor ulang secara otomatis.
 
 ---
 
@@ -171,53 +192,74 @@ docker compose down -v
 
 ```text
 RPLApp/
-├── backend/                            # API Node.js (Express.js + mysql2)
-│   ├── config/                         # Koneksi database connection pool (db.js)
-│   ├── controllers/                    # Logika bisnis: auth, layanan, detail-layanan
-│   ├── database/                       # schema.sql (DDL 6 tabel 3NF + seed akun & transaksi)
-│   ├── middleware/                     # Middleware JWT auth & proteksi admin RBAC
-│   ├── routes/                         # Definisi rute RESTful API (/api/auth, /api/layanan, ...)
-│   ├── tests/                          # 5 test suites unit test backend (48 passing tests)
-│   ├── .env.example                    # Template konfigurasi environment
-│   └── server.js                       # Titik masuk server Express
-├── frontend/                           # SPA React.js
-│   ├── public/                         # index.html, favicon, aset publik
-│   └── src/
-│       ├── components/                 # Komponen global: Navbar.js, LiveMapKurir.js
-│       ├── pages/                      # Modul halaman domain bisnis
-│       │   ├── kurir/                  # TrackingKurir.js, DaftarKurir.js
-│       │   ├── layanan/                # BuatLayanan.js, DaftarLayanan.js, DashboardLayanan.js
-│       │   ├── detail_layanan/         # DetailLayanan.js, AdminDetailLayanan.js
-│       │   ├── pembayaran/             # PembayaranPage.js, KonfirmasiPembayaran.js
-│       │   ├── riwayat_status_layanan/ # RiwayatStatusLayanan.js
-│       │   ├── admin/                  # AdminDashboard.js & backward compatibility export
-│       │   ├── user/                   # Backward compatibility export
-│       │   ├── Home.js                 # Landing page publik
-│       │   ├── Login.js                # Formulir login pengguna
-│       │   ├── Register.js             # Formulir pendaftaran akun baru
-│       │   └── index.js                # Aggregator re-export
-│       ├── utils/                      # api.js (Axios interceptor) & PrivateRoute.js (RBAC guard)
-│       ├── App.js                      # Root router configuration (React Router v6)
-│       └── App.css                     # Sistem gaya antarmuka global
-├── docs/                               # Dokumentasi rekayasa perangkat lunak akademik (7 Dokumen)
-│   ├── ide_proyek.md                   # Identitas tugas mahasiswa, eksplorasi 3 tema, scope
-│   ├── OptikExpress (PRD).md           # Product Requirement Document komprehensif
-│   ├── Coding_Style.md                 # Standar arsitektur 3-tier, konvensi kode, ERD 6 tabel 3NF
-│   ├── Design_UI.md                    # Panduan sistem desain antarmuka, warna, komponen
-│   ├── DevLog.md                       # Log kronologi perkembangan Pertemuan 1 s/d 6 & test log
-│   ├── Logging.md                      # Audit trail, log pelacakan kurir GPS, logger notifikasi
-│   └── Agent.md                        # Panduan teknis dan batasan bagi AI Coding Agent
-├── docker-compose.yml                  # Orkestrasi multi-kontainer MySQL + backend + frontend
-├── .env.example                        # Template konfigurasi root
-├── .gitignore                          # Pengabaian git
-└── README.md                           # Dokumentasi utama proyek
+├── backend/
+│   ├── config/
+│   │   └── db.js                        # Pool koneksi MySQL2 (Promise-based)
+│   ├── controllers/
+│   │   ├── authController.js            # Registrasi, Login, Profile
+│   │   ├── layananController.js         # Layanan, State Machine, Kurir, Bayar
+│   │   └── detailLayananController.js   # Spesifikasi kacamata & resep optik
+│   ├── database/
+│   │   └── schema.sql                   # DDL 6 tabel 3NF + seed data demo
+│   ├── middleware/
+│   │   ├── auth.js                      # Verifikasi token JWT & Anti-IDOR
+│   │   └── adminAuth.js                 # Otorisasi khusus role admin
+│   ├── routes/
+│   │   ├── authRoutes.js                # Rute /api/auth
+│   │   ├── layananRoutes.js             # Rute /api/layanan
+│   │   └── detailLayananRoutes.js       # Rute /api/detail-layanan
+│   ├── tests/
+│   │   └── layanan.test.js              # 48 unit test (node:test & assert)
+│   ├── uploads/                         # Direktori berkas foto kacamata & resep
+│   ├── Dockerfile
+│   ├── package.json
+│   ├── .env.example
+│   └── server.js                        # Entry point Express.js
+│
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   │   └── Navbar.js                # Navigasi responsif multi-role
+│   │   ├── pages/
+│   │   │   ├── kurir/                   # Modul pelacakan kurir & Leaflet map
+│   │   │   ├── layanan/                 # Modul form pengajuan servis kacamata
+│   │   │   ├── detail_layanan/          # Modul rincian kacamata & resep optik
+│   │   │   ├── pembayaran/              # Modul Midtrans gateway & invoice
+│   │   │   ├── riwayat_status_layanan/  # Modul timeline 6 status operasional
+│   │   │   ├── admin/                   # Dasbor & manajemen pesanan admin
+│   │   │   ├── user/                    # Dasbor & detail pesanan pelanggan
+│   │   │   ├── Home.js                  # Halaman landing page publik
+│   │   │   ├── Login.js                 # Halaman autentikasi login
+│   │   │   └── Register.js              # Halaman registrasi pelanggan
+│   │   ├── utils/
+│   │   │   ├── api.js                   # Axios interceptor JWT
+│   │   │   └── PrivateRoute.js          # Route guard pelanggan & admin
+│   │   ├── App.js                       # Deklarasi router aplikasi
+│   │   └── index.js
+│   ├── Dockerfile
+│   └── package.json
+│
+├── docs/
+│   ├── ide_proyek.md                    # Dokumen ide, masalah, & target
+│   ├── OptikExpress (PRD).md            # PRD format Markdown
+│   ├── OptikExpress (PRD).docx          # PRD format Word
+│   ├── OptikExpress (PRD).pdf           # PRD format PDF
+│   ├── Agent.md                         # Panduan kerja AI coding agent
+│   ├── Coding_Style.md                  # Konvensi coding backend/frontend & ERD
+│   ├── Design_UI.md                     # Panduan antarmuka, warna, & Leaflet
+│   ├── Logging.md                       # Arsitektur audit trail & logger
+│   └── DevLog.md                        # Log kronologis & 48 unit test pass
+│
+├── docker-compose.yml                   # Konfigurasi orkestrasi 3 service
+├── .gitignore
+└── README.md
 ```
 
 ---
 
 ## Quick Start (Local) — Tanpa Docker
 
-Untuk development lokal yang membutuhkan hot-reload cepat atau debugging langsung. **Lewati bagian ini kalau sudah berhasil memakai Docker.**
+Gunakan opsi ini jika ingin menjalankan backend dan frontend langsung pada lingkungan lokal.
 
 ### 1. Install Dependencies
 
@@ -319,18 +361,20 @@ Tekan `Ctrl + C` pada masing-masing jendela terminal backend dan frontend.
 
 | File | Deskripsi |
 | :--- | :--- |
-| [`docs/ide_proyek.md`](docs/ide_proyek.md) | Ide proyek, masalah nyata, profil target pengguna, fitur inti, dan kriteria keberhasilan (Identitas Mahasiswa: **Sindar Felix Sihole \|\| 2510101031**) |
-| [`docs/OptikExpress (PRD).md`](<docs/OptikExpress%20(PRD).md>) | Product Requirement Document (PRD) lengkap mencakup 5 User Stories, Acceptance Criteria, dan state machine |
+| [`docs/ide_proyek.md`](docs/ide_proyek.md) | Ide proyek, masalah, target pengguna, fitur inti, dan kriteria keberhasilan |
+| [`docs/OptikExpress (PRD).md`](<docs/OptikExpress%20(PRD).md>) | Product Requirement Document (PRD) lengkap dalam format Markdown |
+| [`docs/OptikExpress (PRD).pdf`](<docs/OptikExpress%20(PRD).pdf>) | PRD dalam format PDF |
+| [`docs/OptikExpress (PRD).docx`](<docs/OptikExpress%20(PRD).docx>) | PRD dalam format Word |
 
 ### Dokumen Panduan Pengembangan
 
 | File | Deskripsi |
 | :--- | :--- |
-| [`docs/Agent.md`](docs/Agent.md) | Panduan perilaku AI coding agent (main rules, alur kerja per task, batasan akademis) |
-| [`docs/Coding_Style.md`](docs/Coding_Style.md) | Standar gaya kode Backend (Node.js/Express) & Frontend (React), diagram ERD 6 tabel 3NF, konvensi respons API |
-| [`docs/Design_UI.md`](docs/Design_UI.md) | Panduan desain antarmuka, sistem warna resmi (*Navy, Ocean Blue, Mint Green*), komponen UI, dan peta kurir GPS Leaflet |
-| [`docs/Logging.md`](docs/Logging.md) | Arsitektur multi-layer logging: audit trail tabel database, log koordinat kurir GPS, logger notifikasi Email SMTP & WhatsApp mock |
-| [`docs/DevLog.md`](docs/DevLog.md) | Dev log kronologis Pertemuan 1 s/d 6, riwayat commit bermakna, dan bukti 48 unit tests lulus (100% all passed) |
+| [`docs/Agent.md`](docs/Agent.md) | Panduan perilaku AI coding agent (main rules, alur kerja per task, larangan khusus) |
+| [`docs/Coding_Style.md`](docs/Coding_Style.md) | Standar gaya penulisan kode Backend (Node.js/Express) & Frontend (React), ERD 6 tabel 3NF |
+| [`docs/Design_UI.md`](docs/Design_UI.md) | Panduan desain antarmuka dan komponen UI |
+| [`docs/Logging.md`](docs/Logging.md) | Konvensi dev log — aturan pencatatan pekerjaan ke `DEVLOG.md` |
+| [`docs/DevLog.md`](docs/DevLog.md) | Dev log kronologis — riwayat fitur, fix, refactor, dan bukti 48 unit tests lulus (100% all passed) |
 
 ---
 
