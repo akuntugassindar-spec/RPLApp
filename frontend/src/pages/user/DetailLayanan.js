@@ -35,6 +35,12 @@ const DetailLayanan = () => {
   const [processingPay, setProcessingPay] = useState(false);
   const [qrCodeUrl, setQrCodeUrl] = useState('');
   const [transactionId, setTransactionId] = useState('');
+  const [paymentDetail, setPaymentDetail] = useState(null);
+
+  // Opsi custom QRIS toko sendiri (jika ingin scan saldo uang riil dengan aplikasi GoPay/BCA di HP)
+  const [showCustomQris, setShowCustomQris] = useState(false);
+  const [customQrisInput, setCustomQrisInput] = useState('');
+  const [isCustomQrisActive, setIsCustomQrisActive] = useState(false);
 
   const fetchDetail = useCallback(async () => {
     setLoading(true);
@@ -47,14 +53,33 @@ const DetailLayanan = () => {
       if (data) {
         const trx = data.id_transaksi_pembayaran || `MIDTRANS-${Date.now()}-${data.id || id}`;
         setTransactionId(trx);
-        setQrCodeUrl(`https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=OPTIKEXPRESS-PAYMENT-${trx}`);
+
+        let initialMetode = 'qris';
         if (data.metode_pembayaran) {
           if (data.metode_pembayaran.includes('va')) {
-            setActiveMetode('va');
+            initialMetode = 'va';
             setSelectedVaBank(data.metode_pembayaran);
           } else {
-            setActiveMetode(data.metode_pembayaran);
+            initialMetode = data.metode_pembayaran;
           }
+        }
+        setActiveMetode(initialMetode);
+
+        // Inisialisasi pembayaran di backend untuk mengambil payload EMVCo QRIS Bank Indonesia
+        try {
+          const payRes = await api.post(`/layanan/${id}/pembayaran`, {
+            metode_pembayaran: initialMetode === 'va' ? (data.metode_pembayaran || 'bca_va') : initialMetode
+          });
+          const payData = payRes.data?.data;
+          if (payData) {
+            setTransactionId(payData.transaction_id || trx);
+            setPaymentDetail(payData.payment_detail || null);
+            if (payData.payment_detail?.qr_image) {
+              setQrCodeUrl(payData.payment_detail.qr_image);
+            }
+          }
+        } catch (ePay) {
+          setQrCodeUrl(`https://api.qrserver.com/v1/create-qr-code/?size=280x280&data=00020101021253033605802ID5912OPTIKEXPRESS6008SURABAYA6304`);
         }
       }
     } catch (err) {
@@ -135,13 +160,17 @@ const DetailLayanan = () => {
     const targetMetode = metodeBaru === 'va' ? selectedVaBank : metodeBaru;
     try {
       const res = await api.post(`/layanan/${id}/pembayaran`, {
-        metode_pembayaran: targetMetode
+        metode_pembayaran: targetMetode,
+        custom_qris_image: isCustomQrisActive ? customQrisInput : null
       });
       const data = res.data?.data;
-      if (data?.transaction_id) {
-        setTransactionId(data.transaction_id);
-        if (data.payment_detail?.qr_image) {
-          setQrCodeUrl(data.payment_detail.qr_image);
+      if (data) {
+        if (data.transaction_id) setTransactionId(data.transaction_id);
+        if (data.payment_detail) {
+          setPaymentDetail(data.payment_detail);
+          if (data.payment_detail.qr_image) {
+            setQrCodeUrl(data.payment_detail.qr_image);
+          }
         }
       }
     } catch (err) {
@@ -155,11 +184,42 @@ const DetailLayanan = () => {
       const res = await api.post(`/layanan/${id}/pembayaran`, {
         metode_pembayaran: bankKode
       });
-      if (res.data?.data?.transaction_id) {
-        setTransactionId(res.data.data.transaction_id);
+      if (res.data?.data) {
+        if (res.data.data.transaction_id) setTransactionId(res.data.data.transaction_id);
+        if (res.data.data.payment_detail) setPaymentDetail(res.data.data.payment_detail);
       }
     } catch (err) {
       console.error('Info VA init:', err);
+    }
+  };
+
+  const handleTerapkanCustomQris = async (e) => {
+    e.preventDefault();
+    if (!customQrisInput) {
+      alert('Masukkan tautan atau file gambar QRIS toko Anda terlebih dahulu.');
+      return;
+    }
+    setIsCustomQrisActive(true);
+    setQrCodeUrl(customQrisInput);
+    try {
+      await api.post(`/layanan/${id}/pembayaran`, {
+        metode_pembayaran: 'qris',
+        custom_qris_image: customQrisInput
+      });
+      alert('QRIS Toko Pribadi berhasil dipasang! Pengguna/pelanggan dapat memindai langsung menggunakan GoPay/BCA dengan saldo nyata.');
+    } catch (err) {
+      console.error('Gagal simpan custom QRIS:', err);
+    }
+  };
+
+  const handleCustomQrisFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setCustomQrisInput(reader.result);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -264,12 +324,26 @@ const DetailLayanan = () => {
   const kurirTelepon = layanan?.kurir_telepon || trackingData?.kurir?.telepon || '0812-3456-7890';
   const kurirKendaraan = trackingData?.kurir?.kendaraan || 'Honda Vario 160 (L 4589 AB)';
 
-  // Posisi Kurir di SVG Map (koordinat kurva)
+  // Koordinat Titik Tujuan Pelanggan (dari geocoding alamat penjemputan Foto 2)
+  const destLat = Number(trackingData?.lokasi_tujuan?.lat) || -7.2890;
+  const destLng = Number(trackingData?.lokasi_tujuan?.lng) || 112.7950;
+
+  // Koordinat Kurir Terdekat (dialokasikan dekat alamat penjemputan)
+  const defaultKurirLat = destLat + 0.003;
+  const defaultKurirLng = destLng + 0.003;
+  const actualKurirLat = Number(trackingData?.kurir?.posisi_saat_ini?.lat) || (layanan?.kurir_lat ? Number(layanan.kurir_lat) : defaultKurirLat);
+  const actualKurirLng = Number(trackingData?.kurir?.posisi_saat_ini?.lng) || (layanan?.kurir_lng ? Number(layanan.kurir_lng) : defaultKurirLng);
+
+  // Posisi Kurir di SVG Map & Simulasi Bergerak
   const ratio = displayProgress / 100;
   const markerX = 30 + 260 * ratio;
   const markerY = 70 + Math.sin(ratio * Math.PI) * -38;
-  const currentLat = Number((-7.2625 + (-7.2890 - -7.2625) * ratio).toFixed(4));
-  const currentLng = Number((112.7485 + (112.7950 - 112.7485) * ratio).toFixed(4));
+  const currentLat = simulasiPersen !== null
+    ? Number((actualKurirLat + (destLat - actualKurirLat) * ratio).toFixed(5))
+    : actualKurirLat;
+  const currentLng = simulasiPersen !== null
+    ? Number((actualKurirLng + (destLng - actualKurirLng) * ratio).toFixed(5))
+    : actualKurirLng;
 
   if (loading) {
     return (
@@ -472,6 +546,8 @@ const DetailLayanan = () => {
               <LiveMapKurir
                 kurirLat={currentLat}
                 kurirLng={currentLng}
+                destLat={destLat}
+                destLng={destLng}
                 kurirNama={kurirNama}
                 alamatTujuan={layanan?.alamat}
                 height="210px"
@@ -485,10 +561,10 @@ const DetailLayanan = () => {
                   {/* Garis Rute Berwarna (Sudah ditempuh) */}
                   <path d="M 30 70 Q 110 20, 160 70 T 290 70" fill="none" stroke="#0284c7" strokeWidth="4" strokeDasharray="6,4" strokeLinecap="round" />
 
-                  {/* Titik Awal: Lab Toko Optik */}
-                  <circle cx="30" cy="70" r="14" fill="#0369a1" />
-                  <text x="30" y="74" textAnchor="middle" fill="#fff" fontSize="11" fontWeight="bold"></text>
-                  <text x="30" y="98" textAnchor="middle" fill="#0f172a" fontSize="9" fontWeight="bold">OptikExpress</text>
+                  {/* Titik Awal: Posisi Kurir Terdekat */}
+                  <circle cx="30" cy="70" r="14" fill="#0284c7" />
+                  <text x="30" y="74" textAnchor="middle" fill="#fff" fontSize="11" fontWeight="bold">🛵</text>
+                  <text x="30" y="98" textAnchor="middle" fill="#0f172a" fontSize="9" fontWeight="bold">{kurirNama}</text>
 
                   {/* Ikon Kurir Bergerak Dinamis dengan Efek Radar Pulsing */}
                   <g transform={`translate(${markerX},${markerY})`}>
@@ -496,21 +572,21 @@ const DetailLayanan = () => {
                       <animate attributeName="r" values="14;24;14" dur="1.8s" repeatCount="indefinite" />
                     </circle>
                     <circle cx="0" cy="0" r="12" fill="#0d9488" stroke="#ffffff" strokeWidth="2.5" />
-                    <text x="0" y="4" textAnchor="middle" fill="#fff" fontSize="10"></text>
+                    <text x="0" y="4" textAnchor="middle" fill="#fff" fontSize="10">🛵</text>
                   </g>
 
                   {/* Titik Akhir: Alamat Pelanggan */}
                   <circle cx="290" cy="70" r="14" fill="#10b981" />
-                  <text x="290" y="74" textAnchor="middle" fill="#fff" fontSize="11" fontWeight="bold"></text>
-                  <text x="290" y="98" textAnchor="middle" fill="#0f172a" fontSize="9" fontWeight="bold">Tujuan Anda</text>
+                  <text x="290" y="74" textAnchor="middle" fill="#fff" fontSize="11" fontWeight="bold">🏠</text>
+                  <text x="290" y="98" textAnchor="middle" fill="#0f172a" fontSize="9" fontWeight="bold">Alamat Jemput</text>
                 </svg>
 
                 <div style={{ marginTop: '0.6rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
                   <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
-                    <span> Jl. Pemuda 48</span> &bull; <span> {layanan?.alamat ? layanan.alamat.slice(0, 20) + '...' : 'Tujuan'}</span>
+                    <span>🛵 Kurir Terdekat: {kurirNama}</span> &bull; <span>🏠 {layanan?.alamat ? layanan.alamat.slice(0, 20) + '...' : 'Tujuan Jemput'}</span>
                   </div>
                   <a
-                    href={`https://www.google.com/maps/dir/?api=1&origin=-7.2625,112.7485&destination=${currentLat},${currentLng}&travelmode=driving`}
+                    href={`https://www.google.com/maps/dir/?api=1&origin=${currentLat},${currentLng}&destination=${destLat},${destLng}&travelmode=driving`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="btn btn-sm"
@@ -676,21 +752,42 @@ const DetailLayanan = () => {
                   {/* Gambar Kode QR */}
                   <div style={{ textAlign: 'center', background: '#fff', padding: '1rem', borderRadius: '10px', border: '1px solid #cbd5e1' }}>
                     <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#dc2626', background: '#fee2e2', padding: '2px 8px', borderRadius: '4px', letterSpacing: '1px' }}>
-                      QRIS STANDAR NASIONAL
+                      {isCustomQrisActive ? 'QRIS MERCHANT PRIBADI' : 'QRIS RESMI BANK INDONESIA (ASPI)'}
                     </span>
                     <div style={{ marginTop: '0.75rem', display: 'flex', justifyContent: 'center' }}>
                       <img
                         src={qrCodeUrl}
                         alt="QR Code QRIS"
-                        style={{ width: '220px', height: '220px', borderRadius: '8px', border: '1px solid #e2e8f0', boxShadow: '0 2px 6px rgba(0,0,0,0.08)' }}
+                        style={{ width: '220px', height: '220px', borderRadius: '8px', border: '1px solid #e2e8f0', boxShadow: '0 2px 6px rgba(0,0,0,0.08)', objectFit: 'contain' }}
                       />
                     </div>
-                    <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.5rem', marginBottom: 0 }}>
-                      Merchant: <strong>OptikExpress Payment Gateway</strong>
+                    <p style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--dark)', marginTop: '0.5rem', marginBottom: '2px' }}>
+                      OPTIKEXPRESS STORE & LAB
+                    </p>
+                    <p style={{ fontSize: '0.8rem', color: '#0369a1', fontWeight: 700, margin: '2px 0' }}>
+                      NMID: {paymentDetail?.nmid || 'ID1020304050607'}
                     </p>
                     <small style={{ fontSize: '0.75rem', color: '#64748b' }}>
                       ID Transaksi: <code>{transactionId}</code>
                     </small>
+
+                    {/* Tombol Salin String EMVCo */}
+                    {paymentDetail?.qris_payload && (
+                      <div style={{ marginTop: '0.5rem' }}>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            navigator.clipboard.writeText(paymentDetail.qris_payload);
+                            setCopiedText('qris_string');
+                            setTimeout(() => setCopiedText(''), 2500);
+                          }}
+                          className="btn btn-outline btn-sm"
+                          style={{ fontSize: '0.75rem', padding: '0.2rem 0.5rem' }}
+                        >
+                          {copiedText === 'qris_string' ? '✓ String QRIS Tersalin!' : '📋 Salin Kode EMVCo QRIS'}
+                        </button>
+                      </div>
+                    )}
                   </div>
 
                   {/* Panduan & Tombol Konfirmasi */}
@@ -698,17 +795,76 @@ const DetailLayanan = () => {
                     <h4 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0369a1', marginBottom: '0.5rem' }}>
                       Cara Bayar Pakai QRIS:
                     </h4>
-                    <ol style={{ fontSize: '0.85rem', color: '#334155', paddingLeft: '1.2rem', lineHeight: '1.6', margin: '0 0 1rem 0' }}>
-                      <li>Buka aplikasi e-Wallet (<strong>GoPay, OVO, Dana, ShopeePay, LinkAja</strong>) atau Mobile Banking (<strong>BCA, Livin Mandiri, BRImo, BNI</strong>).</li>
+                    <ol style={{ fontSize: '0.85rem', color: '#334155', paddingLeft: '1.2rem', lineHeight: '1.6', margin: '0 0 0.75rem 0' }}>
+                      <li>Buka aplikasi e-Wallet (<strong>GoPay, OVO, Dana, ShopeePay</strong>) atau Mobile Banking (<strong>BCA, Livin Mandiri, BRImo, BNI</strong>).</li>
                       <li>Pilih menu <strong>Scan / Bayar QR</strong>.</li>
                       <li>Arahkan kamera ke kode QR di samping.</li>
                       <li>Periksa nominal tagihan (<strong>Rp {Number(totalBiaya).toLocaleString('id-ID')}</strong>) lalu masukkan PIN Anda.</li>
                     </ol>
 
-                    <div style={{ background: '#e0f2fe', padding: '0.75rem', borderRadius: '8px', marginBottom: '1rem', borderLeft: '4px solid #0284c7' }}>
-                      <p style={{ margin: 0, fontSize: '0.85rem', color: '#0369a1' }}>
-                         <strong>Simulasi Midtrans Sandbox:</strong> Setelah melakukan scan atau ingin langsung menandai lunas, klik tombol konfirmasi di bawah.
+                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.75rem' }}>
+                      <a
+                        href="gojek://gopay/pay"
+                        className="btn btn-outline btn-sm"
+                        style={{ borderColor: '#00aa13', color: '#00aa13', fontWeight: 700, fontSize: '0.75rem' }}
+                      >
+                        📱 Buka GoPay
+                      </a>
+                      <a
+                        href="shopeeid://shopeepay"
+                        className="btn btn-outline btn-sm"
+                        style={{ borderColor: '#ee4d2d', color: '#ee4d2d', fontWeight: 700, fontSize: '0.75rem' }}
+                      >
+                        📱 Buka ShopeePay
+                      </a>
+                    </div>
+
+                    {/* Informasi Deteksi GoPay & Opsi Custom QRIS */}
+                    <div style={{ background: '#e0f2fe', padding: '0.75rem', borderRadius: '8px', marginBottom: '0.75rem', borderLeft: '4px solid #0284c7', fontSize: '0.8rem', color: '#0369a1' }}>
+                      <p style={{ margin: '0 0 0.35rem 0' }}>
+                        💡 <strong>Info Scan GoPay di HP:</strong> Jika ingin mencoba transfer dengan <em>saldo uang nyata</em> di GoPay asli, pasang gambar QRIS toko Anda sendiri di bawah ini, atau gunakan tombol simulasi instan.
                       </p>
+                      <button
+                        type="button"
+                        onClick={() => setShowCustomQris(!showCustomQris)}
+                        style={{ background: 'none', border: 'none', color: '#0369a1', textDecoration: 'underline', fontWeight: 700, cursor: 'pointer', padding: 0, fontSize: '0.8rem' }}
+                      >
+                        {showCustomQris ? 'Sembunyikan Form QRIS Toko' : '🖼️ Pasang Gambar QRIS Toko Anda (Opsional)'}
+                      </button>
+
+                      {showCustomQris && (
+                        <form onSubmit={handleTerapkanCustomQris} style={{ marginTop: '0.5rem', background: '#fff', padding: '0.75rem', borderRadius: '6px', border: '1px solid #bae6fd' }}>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleCustomQrisFileUpload}
+                            style={{ display: 'block', marginBottom: '0.4rem', fontSize: '0.75rem' }}
+                          />
+                          <input
+                            type="text"
+                            placeholder="Atau tautan gambar QRIS (https://...)"
+                            value={customQrisInput}
+                            onChange={(e) => setCustomQrisInput(e.target.value)}
+                            className="form-control"
+                            style={{ fontSize: '0.8rem', marginBottom: '0.4rem', padding: '0.3rem 0.5rem' }}
+                          />
+                          <div style={{ display: 'flex', gap: '0.5rem' }}>
+                            <button type="submit" className="btn btn-primary btn-sm" style={{ fontSize: '0.75rem', padding: '0.25rem 0.6rem' }}>
+                              Pasang QRIS
+                            </button>
+                            {isCustomQrisActive && (
+                              <button
+                                type="button"
+                                onClick={() => { setIsCustomQrisActive(false); setCustomQrisInput(''); handlePilihMetode('qris'); }}
+                                className="btn btn-outline btn-sm"
+                                style={{ fontSize: '0.75rem', padding: '0.25rem 0.6rem' }}
+                              >
+                                Reset Standar
+                              </button>
+                            )}
+                          </div>
+                        </form>
+                      )}
                     </div>
 
                     <button
@@ -718,7 +874,7 @@ const DetailLayanan = () => {
                       className="btn btn-primary"
                       style={{ width: '100%', padding: '0.75rem', fontSize: '0.95rem', background: 'linear-gradient(135deg, #16a34a, #15803d)', borderColor: '#16a34a', fontWeight: 700 }}
                     >
-                      {processingPay ? 'Memverifikasi...' : ' Simulasi: Saya Sudah Bayar via QRIS'}
+                      {processingPay ? 'Memverifikasi...' : '✓ Simulasi: Saya Sudah Bayar via QRIS (Tandai Lunas)'}
                     </button>
                   </div>
                 </div>
