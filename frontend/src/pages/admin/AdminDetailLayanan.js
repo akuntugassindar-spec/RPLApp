@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import api from '../../utils/api';
 import LiveMapKurir from '../../components/LiveMapKurir';
+import SuccessOverlay from '../../components/SuccessOverlay';
 
 /**
  * Halaman Detail & Manajemen Layanan (Admin)
@@ -266,6 +267,12 @@ const AdminDetailLayanan = () => {
 
       {error && <div className="alert alert-danger">{error}</div>}
       {success && <div className="alert alert-success">{success}</div>}
+      {/* Overlay Notifikasi Berhasil saat Mengubah Data Pesanan */}
+      <SuccessOverlay
+        message={success}
+        onClose={() => setSuccess('')}
+        title="Data Pesanan Berhasil Diperbarui!"
+      />
 
       {/* Timeline Status */}
       <div className="card">

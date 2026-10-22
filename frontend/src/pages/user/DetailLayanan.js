@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import api from '../../utils/api';
 import LiveMapKurir from '../../components/LiveMapKurir';
+import SuccessOverlay from '../../components/SuccessOverlay';
 
 /**
  * Halaman Detail Permintaan Layanan (Pelanggan)
@@ -385,6 +386,12 @@ const DetailLayanan = () => {
       </div>
 
       {success && <div className="alert alert-success" style={{ fontSize: '1rem', fontWeight: 600 }}>{success}</div>}
+      {/* Overlay Notifikasi Berhasil saat Mengubah Data Pesanan */}
+      <SuccessOverlay
+        message={success}
+        onClose={() => setSuccess('')}
+        title="Status Pesanan Berhasil Diperbarui!"
+      />
       {error && <div className="alert alert-danger">{error}</div>}
 
       {/* Visualisasi Timeline Status */}

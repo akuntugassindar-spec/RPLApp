@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../../utils/api';
+import SuccessOverlay from '../../components/SuccessOverlay';
 
 /**
  * Halaman Dashboard Khusus Kurir Logistik (Kurir OptikExpress)
@@ -250,6 +251,12 @@ const KurirDashboard = () => {
 
       {error && <div className="alert alert-danger">{error}</div>}
       {success && <div className="alert alert-success">{success}</div>}
+      {/* Overlay Notifikasi Berhasil saat Mengubah Data Pesanan */}
+      <SuccessOverlay
+        message={success}
+        onClose={() => setSuccess('')}
+        title="Tugas Kurir Berhasil Diperbarui!"
+      />
 
       {/* Grid Statistik Tugas Kurir */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
