@@ -5,7 +5,7 @@
 
 ---
 
-## 1. Kronologi Pengembangan Proyek
+## 1. Kronologi Pengembangan Proyek (Pertemuan 1 s/d 6)
 
 ### Pertemuan 1: Inisiasi dan Eksplorasi Tema
 * **Fokus:** Brainstorming ide proyek berbasis masalah nyata.
@@ -23,8 +23,8 @@
 * **Hasil:** Dokumen arsitektur lengkap yang siap dijadikan acuan implementasi kode.
 
 ### Pertemuan 4: Generasi Kode AI dan Verifikasi Runnable
-* **Fokus:** Pemanfaatan AI untuk code generation dan verifikasi aplikasi runnable.
-* **Aktivitas:** Melakukan scaffolding backend Express.js dan frontend React.js, konfigurasi CORS, Connection Pool MySQL, dan JWT handling.
+* **Fokus:** Pemanfaatan AI Gemini untuk code generation dan verifikasi aplikasi runnable.
+* **Aktivitas:** Melakukan prompt scaffolding backend Express.js dan frontend React.js, mempelajari aliran data antar-komponen, serta menyelesaikan kendala konfigurasi (CORS, Connection Pool MySQL, dan JWT handling).
 * **Hasil:** Aplikasi runnable dengan UI yang berhasil tampil di port 3000 dan 5000.
 
 ### Pertemuan 5: Pembangunan MVP Version 1 (2 Fitur Inti)
@@ -35,48 +35,38 @@
 * **Hasil:** Rilis MVP v1 dengan minimal 2 meaningful commits dan bukti pengujian fungsional.
 
 ### Pertemuan 6: Penyempurnaan MVP Version 2 dan Pengujian Komprehensif
-* **Fokus:** Penyempurnaan MVP, perumusan 5 User Stories + Acceptance Criteria, pembuatan unit test, dan integrasi fitur lanjutan.
+* **Fokus:** Penyempurnaan MVP, perumusan 5 User Stories + Acceptance Criteria, pembuatan 5 berkas unit test, dan integrasi fitur lanjutan.
 * **Fitur Tambahan:**
   1. Live GPS Courier Tracking via Leaflet OpenStreetMap dengan marker animasi radar dan tombol direct Google Maps.
   2. Penugasan Kurir Cerdas (Auto-Assign Round-Robin) dari pool internal optik.
   3. Multi-Payment Gateway Simulator (QRIS dinamis, Virtual Account BCA/BNI/BRI/Mandiri, E-Wallet, dan COD).
   4. Skema Basis Data 3NF (6 tabel ternormalisasi) dengan auto-migration dan data demo seed.
-
-### Fase Penyempurnaan Lanjutan & Hardening Keamanan (RBAC 3 Role & Patch Node.js)
-* **Fokus:** Implementasi 3-Role RBAC penuh, standar QRIS Bank Indonesia, dan mitigasi celah keamanan CVE.
-* **Fitur & Peningkatan:**
-  1. **Multi-Role RBAC (3 Peran):** Penambahan peran `kurir` yang terisolasi dengan dashboard khusus (`/kurir/dashboard`), proteksi `staffAuth.js`, tombol cepat ubah status alur penjemputan/pengantaran, siaran GPS, dan kasir pelunasan di tempat (COD tunai & QRIS).
-  2. **Standar QRIS EMVCo Bank Indonesia:** Implementasi QRIS statis & dinamis dengan checksum CRC16 standar Bank Indonesia, auto deep-link (GoPay, ShopeePay, DANA, BCA).
-  3. **Keamanan Sistem & Patch Node.js v24.22.1 LTS:** Pembaruan runtime Node.js ke v24.22.1 (Security Patch Release) dan npm v11.19.1 untuk menambal kerentanan hacker kritis. Dockerfile dinaikkan ke `node:24-alpine`.
-* **Hasil Pengujian:** 61 unit tests dalam 11 suites lulus 100% (All Passed).
+* **Hasil Pengujian:** 48 unit tests dalam 9 suites lulus 100% (All Passed).
 
 ---
 
-## 2. Bukti Hasil Eksekusi Unit Test (61 Tests Passed - 100% Lulus)
+## 2. Bukti Hasil Eksekusi Unit Test (48 Tests Passed)
 
 Perintah eksekusi:
 ```bash
-node --test backend/tests/auth.test.js backend/tests/layanan.test.js backend/tests/detailLayanan.test.js backend/tests/middleware.test.js backend/tests/pembayaran.test.js backend/tests/qrisHelper.test.js
+node --test backend/tests/layanan.test.js backend/tests/auth.test.js backend/tests/middleware.test.js backend/tests/detailLayanan.test.js backend/tests/pembayaran.test.js
 ```
 
 Rangkuman Hasil:
 ```text
-> User Story #2: Registrasi & Login Autentikasi ................. [11 Tests PASS]
+> User Story #2: Registrasi & Login Autentikasi ................. [10 Tests PASS]
 > User Story #4: Detail Teknis Kacamata (CRUD) ................... [8 Tests PASS]
 > Pengujian Fitur 1: Manajemen & Validasi Layanan ................ [6 Tests PASS]
 > Pengujian Fitur 2: Notifikasi Otomatis (Email & WhatsApp) ...... [2 Tests PASS]
 > Pengujian Fitur 3: Unggah Foto Kacamata & Resep ................ [3 Tests PASS]
 > Pengujian Fitur 4: Integrasi Payment Gateway .................. [1 Tests PASS]
 > Pengujian Fitur 5: Penugasan Kurir Cerdas (Auto-Assign) ........ [2 Tests PASS]
-> Pengujian Fitur 6: Alokasi Kurir Terdekat Sesuai Alamat ........ [4 Tests PASS]
-> User Story #3: Middleware Otorisasi JWT & Proteksi Admin/Kurir . [12 Tests PASS]
+> User Story #3: Middleware Otorisasi JWT & Proteksi Admin ....... [8 Tests PASS]
 > User Story #5: Pembayaran Gateway & Live Tracking Kurir ....... [8 Tests PASS]
-> Pengujian Standar QRIS Bank Indonesia (EMVCo & CRC16) ......... [4 Tests PASS]
 
-Total Test Suites : 11 Suites
-Total Unit Tests  : 61 Tests
-Hasil Eksekusi    : 61 PASS / 0 FAIL (100% Lulus)
-Waktu Eksekusi    : ~1.1 detik pada Node.js v24.22.1
+Total Test Suites : 9 Suites
+Total Unit Tests  : 48 Tests
+Hasil Eksekusi    : 48 PASS / 0 FAIL (100% Lulus)
 ```
 
 ---
@@ -90,6 +80,4 @@ Repositori OptikExpress mencatat riwayat commit yang terstruktur dan informatif:
 * `test(unit): add comprehensive test suites for user stories 2, 3, 4, 5 achieving 100% pass rate`
 * `feat(tracking): integrate interactive leaflet openstreetmap with live courier radar and direct google maps routing`
 * `feat(database): expand normalized schema with kurir, pembayaran, and audit log tables with rich demo seeds`
-* `feat(rbac): implement 3-role RBAC with dedicated courier dashboard, staffAuth, and tests`
-* `feat(payment-qris-photo): generate Bank Indonesia EMVCo QRIS, courier on-the-spot cashier, deep-links, and optional photo upload in BuatLayanan`
-* `chore(deps): update Node.js to v24.22.1 security patch, npm v11.19.1, Docker images, and documentation`
+* `docs: complete documentation for meetings 1 to 6 including theme analysis, architecture spec, AI scaffolding, and task 6 report`
