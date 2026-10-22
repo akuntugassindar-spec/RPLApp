@@ -27,3 +27,4 @@ powershell.bat
 powershell.cmd
 backend/run_backend.bat
 jalankan_backend.bat
+update_nodejs.bat

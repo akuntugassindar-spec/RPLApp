@@ -7,7 +7,7 @@
 - **Backend:** Node.js (Express.js), MySQL 8.0 / MariaDB (`mysql2/promise`)
 - **Frontend:** React.js 18 (SPA), Leaflet (OpenStreetMap), Axios HTTP Client
 - **Arsitektur:** Decoupled Monorepo, RESTful API, State Machine 6 Tahapan, Anti-IDOR Security
-- **Pengujian Otomatis:** Node.js Native Test Runner (`node:test`, `node:assert/strict`) — 48 passing unit tests (100% lulus)
+- **Pengujian Otomatis:** Node.js Native Test Runner (`node:test`, `node:assert/strict`) — 61 passing unit tests (100% lulus)
 
 ---
 
@@ -19,7 +19,7 @@ Sebelum mulai, pastikan hal berikut sudah terpenuhi:
 | :--- | :--- |
 | **Docker Desktop** | Windows / macOS / Linux. Untuk Windows disarankan mengaktifkan backend **WSL 2**. |
 | **Docker Compose v2** | Sudah termasuk di Docker Desktop. Cek dengan `docker compose version`. |
-| **Node.js & npm** | Minimal Node.js 16.x (disarankan LTS 18.x / 20.x). Cek dengan `node -v` dan `npm -v`. |
+| **Node.js & npm** | Node.js v24.22.1 (Security Patch Release LTS) atau minimal 18.x. Cek dengan `node -v` dan `npm -v`. |
 | **MySQL / MariaDB** | Melalui XAMPP, Laragon, MySQL standalone, atau Docker di port `3306`. |
 | **Port bebas** | Port `3000`, `5000`, dan `3306` tidak dipakai aplikasi lain. |
 | **Koneksi internet** | Diperlukan saat build pertama (download image + dependency). |
@@ -266,14 +266,14 @@ Gunakan opsi ini jika ingin menjalankan backend dan frontend langsung pada lingk
 
 **Windows:**
 
-- **Node.js 18+ LTS**: [https://nodejs.org/](https://nodejs.org/)
+- **Node.js v24.22.1 LTS (Security Patch)**: [https://nodejs.org/](https://nodejs.org/)
 - **MySQL / MariaDB**: Melalui XAMPP ([https://www.apachefriends.org/](https://www.apachefriends.org/)) atau Laragon
 
 Verifikasi instalasi di terminal:
 
 ```bash
-node -v      # minimal v16.x (disarankan v18+)
-npm -v       # minimal v8.x
+node -v      # v24.22.1 (Security Release)
+npm -v       # v11.19.1
 mysql --version
 ```
 
@@ -410,7 +410,7 @@ Status ditandai jujur: **[Ada]** = sudah terimplementasi di kode dan lolos pengu
 6. **[Ada] Pembatalan & Penghapusan Pesanan** — pembatalan mandiri oleh pelanggan pada tahap awal serta penghapusan data pesanan oleh admin dengan *cascading delete*.
 7. **[Ada] Notifikasi Otomatis Status (Email SMTP & WhatsApp Mock)** — pengiriman email otomatis via `nodemailer` (dukungan SMTP Gmail & testing Ethereal) serta pencatatan log simulasi pesan WhatsApp ke nomor telepon pelanggan setiap kali status diperbarui.
 8. **[Ada] Arsitektur Frontend Modular (5 Modul Domain)** — pengelompokan komponen antarmuka ke dalam 5 folder terisolasi (`kurir/`, `layanan/`, `detail_layanan/`, `pembayaran/`, `riwayat_status_layanan/`) dengan *barrel export*.
-9. **[Ada] Otomasi Pengujian Unit Backend (Unit Testing Suite)** — 60 unit tests otomatis menggunakan test runner bawaan Node.js (`node:test`, `node:assert/strict`) dengan tingkat kelulusan 100%.
+9. **[Ada] Otomasi Pengujian Unit Backend (Unit Testing Suite)** — 61 unit tests otomatis menggunakan test runner bawaan Node.js (`node:test`, `node:assert/strict`) dengan tingkat kelulusan 100%.
 10. **[Ada] Integrasi Gerbang Pembayaran Digital (Payment Gateway Midtrans)** — simulasi checkout pembayaran digital multi-kanal (QRIS dinamis, Virtual Account BCA/BNI/BRI/Mandiri, E-Wallet GoPay/ShopeePay, COD), batas waktu transaksi, serta invoice digital struk lunas dengan fitur cetak.
 11. **[Ada] Pelacakan Kurir Langsung (Live GPS Tracking & Auto-Assign Kurir)** — pemantauan posisi kurir real-time di atas peta Leaflet OpenStreetMap, animasi radar bergerak, estimasi waktu kedatangan (ETA), rute arah Google Maps turn-by-turn, dan penugasan kurir otomatis Round-Robin Gojek-style dari pool internal optik.
 12. **[Ada] Unggah Berkas Foto Fisik Kacamata & Resep Optik** — penyimpanan file gambar Base64 ke disk server dengan pratinjau instan (*thumbnail preview*) dan modal pembesar (*lightbox zoom*).
