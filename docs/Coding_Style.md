@@ -15,9 +15,9 @@ OptikExpress mengadopsi pemisahan lapisan tanggung jawab (*Separation of Concern
    * Peta Interaktif: Leaflet (OpenStreetMap) dengan koordinat custom marker kurir dan rute jalan.
    * Komunikasi Jaringan: Axios dengan interceptor otomatis penyemat token JWT.
 2. **Application Layer (Backend RESTful API):**
-   * Runtime: Node.js (>= 18.x) dengan kerangka kerja Express.js 4.19.2.
-   * Middleware: `auth.js` (verifikasi JWT Bearer) dan `adminAuth.js` (proteksi Role Admin).
-   * Engine Bisnis: Auto-Assign Courier Engine (Round-Robin) dan Midtrans Simulator.
+   * Runtime: Node.js v24.22.1 LTS (Security Patch) dengan kerangka kerja Express.js 4.19.2.
+   * Middleware: `auth.js` (verifikasi JWT Bearer), `adminAuth.js` (proteksi Role Admin), dan `staffAuth.js` (proteksi Staf Operasional: Admin & Kurir).
+   * Engine Bisnis: Auto-Assign Courier Engine (Round-Robin), Midtrans Simulator, dan EMVCo QRIS Generator.
    * Notifikasi: Nodemailer SMTP dan WhatsApp Mock Logger.
 3. **Data Layer (Database RDBMS):**
    * Database: MySQL 8.0 / MariaDB 10.4+ (`db_kacamata`).
@@ -29,7 +29,7 @@ OptikExpress mengadopsi pemisahan lapisan tanggung jawab (*Separation of Concern
 ## 2. Konvensi Penamaan (Naming Conventions)
 
 * **Komponen React:** Wajib menggunakan **PascalCase**.
-  * Contoh: `Navbar.js`, `LiveMapKurir.js`, `BuatLayanan.js`, `AdminDashboard.js`.
+  * Contoh: `Navbar.js`, `LiveMapKurir.js`, `BuatLayanan.js`, `AdminDashboard.js`, `KurirDashboard.js`.
 * **Fungsi, Controller dan Variabel JavaScript:** Wajib menggunakan **camelCase**.
   * Contoh: `getAllLayanan`, `createLayanan`, `updateStatusLayanan`, `autoAssignCourier`.
 * **Tabel dan Kolom Basis Data:** Wajib menggunakan **snake_case**.
@@ -78,7 +78,7 @@ erDiagram
         string nama
         string email UK
         string password
-        enum role "admin, pelanggan"
+        enum role "admin, pelanggan, kurir"
         string no_telepon
         timestamp created_at
     }
@@ -132,19 +132,24 @@ erDiagram
         int id PK
         int layanan_id FK
         string id_transaksi UK
-        int gross_amount
+        int nominal
         string metode_pembayaran
-        enum status_transaksi "pending, settlement, expire, cancel"
-        timestamp waktu_transaksi
+        enum status_pembayaran "menunggu_pembayaran, lunas, kedaluwarsa, batal"
+        string qr_code_url
+        string va_number
+        timestamp waktu_pembayaran
+        timestamp created_at
     }
 
     riwayat_status_layanan {
         int id PK
         int layanan_id FK
-        string status_lama
+        string status_sebelumnya
         string status_baru
-        text keterangan
-        string diubah_oleh
+        text catatan
+        decimal kurir_lat
+        decimal kurir_lng
+        string diperbarui_oleh
         timestamp created_at
     }
 ```
@@ -154,7 +159,7 @@ erDiagram
 ## 5. Prinsip Keamanan dan Anti-IDOR (Insecure Direct Object References)
 
 1. **Password Hashing:** Dilarang menyimpan password dalam bentuk teks terbuka. Wajib di-hash menggunakan BCrypt dengan *salt rounds* minimal 10.
-2. **Pencegahan Akses Ilegal (Anti-IDOR):** Pada endpoint detail pesanan (`GET /api/layanan/:id`), sistem memvalidasi bahwa `user_id` pada pesanan harus sama dengan `req.user.id`, kecuali jika `req.user.role === 'admin'`. Pelanggan lain yang mencoba membuka pesanan milik orang lain akan ditolak HTTP 403 Forbidden.
+2. **Pencegahan Akses Ilegal (Anti-IDOR):** Pada endpoint detail pesanan (`GET /api/layanan/:id`), sistem memvalidasi bahwa `user_id` pada pesanan harus sama dengan `req.user.id`, kecuali jika `req.user.role === 'admin'` atau `'kurir'`. Pelanggan lain yang mencoba membuka pesanan milik orang lain akan ditolak HTTP 403 Forbidden.
 3. **Prepared Statements:** Semua query database MySQL wajib menggunakan parameter tanda tanya `?` untuk mencegah kerentanan SQL Injection.
 4. **Isolasi Token:** Token JWT disimpan pada klien dan diverifikasi pada setiap request privat via header `Authorization: Bearer <token>`.
 
@@ -168,13 +173,13 @@ RPLApp/
 │   ├── config/db.js              # Pool koneksi MySQL dan auto-migration
 │   ├── controllers/              # Business logic (auth, layanan, detailLayanan)
 │   ├── database/schema.sql       # DDL 6 tabel relasional 3NF dan demo seed
-│   ├── middleware/               # auth.js (JWT) dan adminAuth.js (RBAC)
+│   ├── middleware/               # auth.js (JWT), adminAuth.js (RBAC), staffAuth.js
 │   ├── routes/                   # Routing Express API
-│   ├── tests/                    # 5 berkas pengujian otomatis (node:test)
+│   ├── tests/                    # 6 berkas pengujian otomatis (node:test)
 │   └── server.js                 # Entrypoint server Express (Port 5000)
 ├── frontend/
 │   ├── src/components/           # Navbar.js, LiveMapKurir.js
-│   ├── src/pages/                # Home, Login, Register, Dashboard, Detail
+│   ├── src/pages/                # Home, Login, Register, Dashboard, KurirDashboard
 │   ├── src/utils/                # api.js (Axios), PrivateRoute.js
 │   ├── src/App.js dan App.css    # Routing utama dan styling modern
 │   └── package.json

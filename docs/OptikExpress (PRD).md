@@ -86,4 +86,4 @@ Siklus layanan kacamata diatur melalui alur terstruktur 6 status operasional (*S
 ## 5. Strategi Pengujian (Verification and Test Strategy)
 
 * Seluruh aturan bisnis pada kelima User Story diuji secara otomatis menggunakan test runner bawaan Node.js (`node:test` dan `node:assert/strict`).
-* Target kelulusan: 100% All Passed (48 tests dalam 9 suites pengujian).
+* Target kelulusan: 100% All Passed (61 tests dalam 11 suites pengujian pada Node.js v24.22.1 LTS).
