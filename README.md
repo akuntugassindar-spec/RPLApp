@@ -9,6 +9,11 @@
 - **Arsitektur:** Decoupled Monorepo, RESTful API, State Machine 6 Tahapan, Anti-IDOR Security
 - **Pengujian Otomatis:** Node.js Native Test Runner (`node:test`, `node:assert/strict`) — 61 passing unit tests (100% lulus)
 
+> 🚀 **Rilis Final MVP (Pertemuan 7 - Siap Demonstrasi):**
+> - 📖 **Panduan Menjalankan Sistem:** [HowToRun.md](HowToRun.md)
+> - ✅ **Checklist Fitur & Pengujian MVP (Unit Test: PASSED):** [checklist_mvp.md](checklist_mvp.md)
+> - 🎥 **Rencana Rekaman Video Demo Lengkap:** [demo.mp4](checklist_mvp.md#5-rencana-skenario-perekaman-video-demo-aplikasi-demomp4-untuk-hari-selasa) (dijadwalkan hari Selasa)
+
 ---
 
 ## Prerequisites
@@ -434,5 +439,5 @@ Target berikut adalah sasaran produk dan rekayasa perangkat lunak yang telah ter
 - Waktu pengajuan layanan oleh pelanggan: **< 2 menit** — **terpenuhi**
 - Integritas alur state machine 6 tahapan status operasional: **100% konsisten tanpa lompatan status ilegal** — **terpenuhi**
 - Proteksi Anti-IDOR pada endpoint servis & spesifikasi kacamata: **100% tervalidasi via unit tests** — **terpenuhi**
-- Tingkat kelulusan pengujian unit test backend: **100% (60 passing tests, 0 failing tests)** — **terpenuhi**
+- Tingkat kelulusan pengujian unit test backend: **100% (61 passing tests, 0 failing tests)** — **terpenuhi**
 - Ketersediaan multi-metode pembayaran digital & pelacakan kurir live GPS: **terpasang dan teruji** — **terpenuhi**

@@ -43,30 +43,42 @@
   4. Skema Basis Data 3NF (6 tabel ternormalisasi) dengan auto-migration dan data demo seed.
 * **Hasil Pengujian:** 48 unit tests dalam 9 suites lulus 100% (All Passed).
 
+### Pertemuan 7: Menuntaskan Seluruh MVP (Final MVP Release Siap Demonstrasi)
+* **Fokus:** Menuntaskan seluruh fitur inti sesuai cakupan proyek, integrasi UI-Logika-Database end-to-end, penanganan kegagalan/edge cases, dan penyiapan artefak rilis.
+* **Aktivitas & Hasil:**
+  1. **Integrasi End-to-End Tuntas:** Menjamin alur dari pengajuan layanan kacamata, penugasan kurir, pengerjaan lab optik, pelunasan multi-metode, hingga pengantaran tuntas 100%.
+  2. **Implementasi Komponen Modal Overlay (`SuccessOverlay.js`):** Menampilkan notifikasi pop-up di tengah layar pengguna dengan backdrop blur, animasi centang, dan auto-dismiss progress bar saat melakukan pengubahan data atau status pesanan.
+  3. **Penanganan Robust Error & Edge Cases:** Validasi ketat payload HTTP 400, sanitasi input, pemulihan koneksi database, proteksi double submit form via loading state, dan fallback otomatis akun demo.
+  4. **Ekspansi Test Suite Komprehensif:** 61 unit tests dalam 11 test suites lulus 100% (`PASS 61 / 0 FAIL`).
+  5. **Penyusunan Berkas Pengumpulan Rilis:** Pembuatan panduan menjalankan sistem lengkap ([`HowToRun.md`](../HowToRun.md)) dan matriks verifikasi fitur ([`checklist_mvp.md`](../checklist_mvp.md)).
+  6. **Kesiapan Demonstrasi:** Penyiapan skenario terstruktur alur perekaman video demo aplikasi (`demo.mp4`).
+
 ---
 
-## 2. Bukti Hasil Eksekusi Unit Test (48 Tests Passed)
+## 2. Bukti Hasil Eksekusi Unit Test (61 Tests Passed - 100%)
 
 Perintah eksekusi:
 ```bash
-node --test backend/tests/layanan.test.js backend/tests/auth.test.js backend/tests/middleware.test.js backend/tests/detailLayanan.test.js backend/tests/pembayaran.test.js
+npm --prefix backend test
 ```
 
 Rangkuman Hasil:
 ```text
-> User Story #2: Registrasi & Login Autentikasi ................. [10 Tests PASS]
+> User Story #2: Registrasi & Login Autentikasi ................. [11 Tests PASS]
 > User Story #4: Detail Teknis Kacamata (CRUD) ................... [8 Tests PASS]
 > Pengujian Fitur 1: Manajemen & Validasi Layanan ................ [6 Tests PASS]
 > Pengujian Fitur 2: Notifikasi Otomatis (Email & WhatsApp) ...... [2 Tests PASS]
 > Pengujian Fitur 3: Unggah Foto Kacamata & Resep ................ [3 Tests PASS]
 > Pengujian Fitur 4: Integrasi Payment Gateway .................. [1 Tests PASS]
 > Pengujian Fitur 5: Penugasan Kurir Cerdas (Auto-Assign) ........ [2 Tests PASS]
-> User Story #3: Middleware Otorisasi JWT & Proteksi Admin ....... [8 Tests PASS]
+> Pengujian Fitur 6: Alokasi Kurir Terdekat Surabaya ............. [4 Tests PASS]
+> User Story #3: Middleware Otorisasi JWT & Proteksi Admin ....... [12 Tests PASS]
 > User Story #5: Pembayaran Gateway & Live Tracking Kurir ....... [8 Tests PASS]
+> Pengujian Standar QRIS Bank Indonesia (EMVCo & CRC16) ......... [4 Tests PASS]
 
-Total Test Suites : 9 Suites
-Total Unit Tests  : 48 Tests
-Hasil Eksekusi    : 48 PASS / 0 FAIL (100% Lulus)
+Total Test Suites : 11 Suites
+Total Unit Tests  : 61 Tests
+Hasil Eksekusi    : 61 PASS / 0 FAIL (100% Lulus)
 ```
 
 ---
@@ -81,3 +93,6 @@ Repositori OptikExpress mencatat riwayat commit yang terstruktur dan informatif:
 * `feat(tracking): integrate interactive leaflet openstreetmap with live courier radar and direct google maps routing`
 * `feat(database): expand normalized schema with kurir, pembayaran, and audit log tables with rich demo seeds`
 * `docs: complete documentation for meetings 1 to 6 including theme analysis, architecture spec, AI scaffolding, and task 6 report`
+* `feat(ui): add modal overlay notification for order data updates`
+* `feat(pembayaran): integrate SuccessOverlay modal notification on payment confirmation`
+* `docs: complete Meeting 7 deliverables with final MVP release, HowToRun.md, and checklist_mvp.md`
