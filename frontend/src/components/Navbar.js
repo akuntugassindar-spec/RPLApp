@@ -43,22 +43,6 @@ const Navbar = () => {
       <div className="navbar-container">
         {/* Brand / Logo */}
         <Link to={getBrandDestination()} className="navbar-brand">
-          <svg
-            className="logo-icon"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            {/* Ikon Kacamata */}
-            <circle cx="6" cy="12" r="4" />
-            <circle cx="18" cy="12" r="4" />
-            <line x1="10" y1="12" x2="14" y2="12" />
-            <path d="M2 12V9a2 2 0 0 1 2-2h1" />
-            <path d="M22 12V9a2 2 0 0 0-2-2h-1" />
-          </svg>
           <span>OptikExpress</span>
         </Link>
 
