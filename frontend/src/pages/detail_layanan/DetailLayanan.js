@@ -322,7 +322,8 @@ const DetailLayanan = () => {
 
   const kurirNama = layanan?.kurir_nama || trackingData?.kurir?.nama || 'Agus Pratama';
   const kurirTelepon = layanan?.kurir_telepon || trackingData?.kurir?.telepon || '0812-3456-7890';
-  const kurirKendaraan = trackingData?.kurir?.kendaraan || 'Honda Vario 160 (B 4589 AB)';
+  const rawKendaraan = trackingData?.kurir?.kendaraan || 'Honda Vario 160 (B 4589 AB)';
+  const kurirKendaraan = rawKendaraan.replace(/\(L\s+/gi, '(B ').replace(/\bL\s+(\d+)/gi, 'B $1');
 
   // Koordinat Titik Tujuan Pelanggan (dari geocoding alamat penjemputan Foto 2)
   const destLat = Number(trackingData?.lokasi_tujuan?.lat) || -6.2205;

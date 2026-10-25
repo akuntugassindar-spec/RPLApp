@@ -60,8 +60,8 @@ const ensureTableColumns = async (connection) => {
         jenis_kendaraan VARCHAR(100) DEFAULT 'Sepeda Motor',
         plat_nomor VARCHAR(20) DEFAULT NULL,
         status_aktif ENUM('aktif', 'istirahat', 'nonaktif') DEFAULT 'aktif',
-        current_lat DECIMAL(10,8) DEFAULT -7.26250000,
-        current_lng DECIMAL(11,8) DEFAULT 112.74850000,
+        current_lat DECIMAL(10,8) DEFAULT -6.20880000,
+        current_lng DECIMAL(11,8) DEFAULT 106.84560000,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
     `);
@@ -124,6 +124,13 @@ const ensureTableColumns = async (connection) => {
     // Pastikan admin@optik.com dan pelanggan dapat login dengan password demo dokumentasi
     await connection.query("UPDATE users SET password = ? WHERE email = 'admin@optik.com'", [adminHash]);
     await connection.query("UPDATE users SET password = ? WHERE email IN ('pelanggan@gmail.com', 'bahrul@gmail.com')", [userHash]);
+
+    // Sinkronisasi otomatis armada kurir ke Plat B resmi Jakarta & Tangerang
+    await connection.query("UPDATE kurir SET plat_nomor = 'B 4589 AB', current_lat = -6.22050000, current_lng = 106.82700000 WHERE id = 1 OR nama LIKE '%Agus%'");
+    await connection.query("UPDATE kurir SET plat_nomor = 'B 3120 TNG', current_lat = -6.17830000, current_lng = 106.63190000 WHERE id = 2 OR nama LIKE '%Bambang%'");
+    await connection.query("UPDATE kurir SET plat_nomor = 'B 6742 BSD', current_lat = -6.30160000, current_lng = 106.65340000 WHERE id = 3 OR nama LIKE '%Rian%'");
+    await connection.query("UPDATE kurir SET plat_nomor = REPLACE(plat_nomor, 'L ', 'B ') WHERE plat_nomor LIKE 'L %'");
+    await connection.query("UPDATE layanan SET tracking_status = REPLACE(tracking_status, 'Surabaya', 'Jakarta & Tangerang') WHERE tracking_status LIKE '%Surabaya%'");
   } catch (err) {}
 };
 

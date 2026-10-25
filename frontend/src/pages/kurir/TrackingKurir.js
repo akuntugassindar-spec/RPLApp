@@ -204,10 +204,10 @@ const TrackingKurir = () => {
     );
   }
 
-  const kurirInfo = trackingData?.kurir || {
-    nama: layanan?.kurir_nama || 'Agus Pratama',
-    telepon: layanan?.kurir_telepon || '081234567890',
-    kendaraan: 'Honda Vario 160 (B 4589 AB)'
+  const kurirInfo = {
+    nama: trackingData?.kurir?.nama || layanan?.kurir_nama || 'Agus Pratama',
+    telepon: trackingData?.kurir?.telepon || layanan?.kurir_telepon || '081234567890',
+    kendaraan: (trackingData?.kurir?.kendaraan || 'Honda Vario 160 (B 4589 AB)').replace(/\(L\s+/gi, '(B ').replace(/\bL\s+(\d+)/gi, 'B $1')
   };
 
   const persentase = simulasiPersen !== null ? simulasiPersen : (trackingData?.persentase_perjalanan || 25);

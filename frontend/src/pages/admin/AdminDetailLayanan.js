@@ -323,7 +323,7 @@ const AdminDetailLayanan = () => {
                 </div>
                 <div>
                   <h4 style={{ fontWeight: 700, color: 'var(--dark)' }}>{kurirNama || effectiveTracking.kurir?.nama || 'Belum Ditugaskan'}</h4>
-                  <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{effectiveTracking.kurir?.kendaraan}</p>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{(effectiveTracking.kurir?.kendaraan || 'Honda Vario 160 (B 4589 AB)').replace(/\(L\s+/gi, '(B ').replace(/\bL\s+(\d+)/gi, 'B $1')}</p>
                   <p style={{ fontSize: '0.85rem', color: '#0369a1', fontWeight: 600 }}> {kurirTelepon || effectiveTracking.kurir?.telepon || '-'}</p>
                 </div>
               </div>

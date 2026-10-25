@@ -229,8 +229,8 @@ const AdminDetailLayanan = () => {
   };
 
   const pRatio = (effectiveTracking.persentase_perjalanan || 25) / 100;
-  const adminKurirLat = Number((-7.2625 + (-7.2890 - -7.2625) * pRatio).toFixed(4));
-  const adminKurirLng = Number((112.7485 + (112.7950 - 112.7485) * pRatio).toFixed(4));
+  const adminKurirLat = Number((-6.2088 + (-6.2205 - -6.2088) * pRatio).toFixed(4));
+  const adminKurirLng = Number((106.8456 + (106.8270 - 106.8456) * pRatio).toFixed(4));
 
   const handleApplyPreset = (statusVal, deskripsi) => {
     setStatusDipilih(statusVal);
@@ -320,7 +320,7 @@ const AdminDetailLayanan = () => {
                 </div>
                 <div>
                   <h4 style={{ fontWeight: 700, color: 'var(--dark)' }}>{kurirNama || effectiveTracking.kurir?.nama || 'Belum Ditugaskan'}</h4>
-                  <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{effectiveTracking.kurir?.kendaraan}</p>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{(effectiveTracking.kurir?.kendaraan || 'Honda Vario 160 (B 4589 AB)').replace(/\(L\s+/gi, '(B ').replace(/\bL\s+(\d+)/gi, 'B $1')}</p>
                   <p style={{ fontSize: '0.85rem', color: '#0369a1', fontWeight: 600 }}> {kurirTelepon || effectiveTracking.kurir?.telepon || '-'}</p>
                 </div>
               </div>

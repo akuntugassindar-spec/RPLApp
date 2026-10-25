@@ -49,6 +49,9 @@ const LiveMapKurir = ({
 
   const distKurirToDest = calcDistance(validKurirLat, validKurirLng, validDestLat, validDestLng);
   const distKurirMeter = Math.round(distKurirToDest * 1000);
+  const cleanKurirKendaraan = (kurirKendaraan || 'Honda Vario 160 (B 4589 AB)')
+    .replace(/\(L\s+/gi, '(B ')
+    .replace(/\bL\s+(\d+)/gi, 'B $1');
 
   // URL HTML Embed Google Maps Indonesia (hl=id) sesuai StackOverflow
   // https://stackoverflow.com/questions/54264689/how-do-i-embed-google-maps-url-to-website-using-html
@@ -317,7 +320,7 @@ const LiveMapKurir = ({
             <div style={{ fontSize: '0.85rem', color: '#0f172a', fontWeight: 700, marginBottom: '0.15rem' }}>
               🛵 Kurir Lapangan: <strong>{kurirNama}</strong>
               <span style={{ fontSize: '0.78rem', color: '#64748b', fontWeight: 500, marginLeft: '0.5rem' }}>
-                ({kurirKendaraan})
+                ({cleanKurirKendaraan})
               </span>
             </div>
             <div style={{ fontSize: '0.78rem', color: '#475569' }}>
