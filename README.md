@@ -9,11 +9,6 @@
 - **Arsitektur:** Decoupled Monorepo, RESTful API, State Machine 6 Tahapan, Anti-IDOR Security
 - **Pengujian Otomatis:** Node.js Native Test Runner (`node:test`, `node:assert/strict`) — 64 passing unit tests (100% lulus)
 
-> 🚀 **Rilis Final MVP (Pertemuan 7 - Siap Demonstrasi):**
-> - 📖 **Panduan Menjalankan Sistem:** [HowToRun.md](HowToRun.md)
-> - ✅ **Checklist Fitur & Pengujian MVP (Unit Test: PASSED):** [checklist_mvp.md](checklist_mvp.md)
-> - 🎥 **Rencana Rekaman Video Demo Lengkap:** [demo.mp4](checklist_mvp.md#5-rencana-skenario-perekaman-video-demo-aplikasi-demomp4-untuk-hari-selasa) (dijadwalkan hari Selasa)
-
 ---
 
 ## Prerequisites
