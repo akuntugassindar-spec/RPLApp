@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import api from '../../utils/api';
+import SuccessOverlay from '../../components/SuccessOverlay';
 
 /**
  * Halaman Pembayaran Digital Multi-Metode (Payment Gateway)
@@ -219,6 +220,12 @@ const PembayaranPage = () => {
 
       {error && <div className="alert alert-danger">{error}</div>}
       {success && <div className="alert alert-success">{success}</div>}
+      {/* Overlay Notifikasi Berhasil saat Mengubah Data Pesanan */}
+      <SuccessOverlay
+        message={success}
+        onClose={() => setSuccess('')}
+        title="Pembayaran Berhasil Dikonfirmasi!"
+      />
 
       {/* Ringkasan Tagihan */}
       <div className="card" style={{ marginBottom: '1.5rem', borderLeft: '4px solid #0f766e' }}>
