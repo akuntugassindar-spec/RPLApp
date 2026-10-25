@@ -16,7 +16,7 @@
 | **2** | **Integrasikan UI, logika aplikasi, dan penyimpanan data / API** | ✅ **TUNTAS** | Frontend React.js terhubung penuh dengan Backend REST API Express.js (`/api/auth`, `/api/layanan`, `/api/detail-layanan`) dan terhubung ke MySQL connection pool via `mysql2/promise` dengan skema ternormalisasi 3NF dan integritas relasional *foreign key CASCADE*. |
 | **3** | **Pastikan seluruh alur utama berjalan dari awal hingga akhir (End-to-End)** | ✅ **TUNTAS** | Alur lengkap tuntas tanpa terputus: Registrasi Akun -> Buat Pesanan & Upload Foto -> Admin Verifikasi & Assign Kurir -> Kurir Ambil Kacamata & Siar GPS -> Lab Proses Kacamata -> Pelanggan Bayar Tagihan (QRIS/VA) -> Kurir Antar Kacamata -> Selesai. |
 | **4** | **Tangani input tidak valid, data kosong, loading, dan kegagalan** | ✅ **TUNTAS** | *Frontend*: State loading spinner/disable button di setiap form submit, sanitasi form, validasi regex, modal pop-up error & overlay sukses.<br>*Backend*: HTTP 400 Bad Request untuk payload kosong/tidak valid, regex email, HTTP 401/403 untuk auth violation, penanganan database offline/pool closed secara graceful. |
-| **5** | **Uji seluruh fitur inti, perbaiki bug penghambat, lalu uji regresi** | ✅ **TUNTAS** | **61 Unit Tests dalam 11 Test Suites lulus 100% (0 Failed)**. Seluruh bug penghambat (seperti port conflict, database pool closed, responsive layout, hingga overlay notifikasi) telah ditangani dan diverifikasi dengan tes regresi otomatis. |
+| **5** | **Uji seluruh fitur inti, perbaiki bug penghambat, lalu uji regresi** | ✅ **TUNTAS** | **64 Unit Tests dalam 12 Test Suites lulus 100% (0 Failed)**. Seluruh bug penghambat (seperti port conflict, database pool closed, responsive layout, hingga overlay notifikasi) telah ditangani dan diverifikasi dengan tes regresi otomatis. |
 
 ---
 
@@ -83,7 +83,7 @@
 
 ---
 
-## 3. Hasil Eksekusi Unit Test Otomatis (61 Tests Passed - 100%)
+## 3. Hasil Eksekusi Unit Test Otomatis (64 Tests Passed - 100%)
 
 Perintah Eksekusi:
 ```bash
@@ -153,6 +153,12 @@ Rangkuman Hasil Pengujian:
   ✔ resetLayananAutoIncrement harus terdefinisi sebagai fungsi controller
 ✔ Pengujian Fitur 6: Alokasi Kurir Terdekat Secara Acak (PASS - 4 Tests)
 
+▶ Pengujian Fitur 7: Google Maps Indonesia & Geocoding Wilayah Jakarta & Tangerang
+  ✔ geocodeJakartaTangerangAddress harus memetakan kata kunci Jakarta & Tangerang ke koordinat GPS yang sesuai
+  ✔ COURIER_POOL armada kurir harus memiliki plat nomor B resmi wilayah Jakarta & Tangerang
+  ✔ findNearestRandomCourier harus mengalokasikan kurir terdekat (< 1.5 km) di wilayah Jakarta & Tangerang
+✔ Pengujian Fitur 7: Google Maps Indonesia & Geocoding Wilayah Jakarta & Tangerang (PASS - 3 Tests)
+
 ▶ User Story #3: Middleware Otorisasi JWT & Proteksi Admin
   ✔ AC-1: authMiddleware menolak request tanpa header Authorization (HTTP 401)
   ✔ AC-2: authMiddleware menolak jika format bukan "Bearer <token>" (HTTP 401)
@@ -187,9 +193,9 @@ Rangkuman Hasil Pengujian:
 ✔ Pengujian Standar QRIS Bank Indonesia (PASS - 4 Tests)
 
 --------------------------------------------------------------------------------
-TOTAL SUITES : 11 Test Suites
-TOTAL TESTS  : 61 Tests
-HASIL AKHIR  : 61 PASSED / 0 FAILED (100% LULUS)
+TOTAL SUITES : 12 Test Suites
+TOTAL TESTS  : 64 Tests
+HASIL AKHIR  : 64 PASSED / 0 FAILED (100% LULUS)
 --------------------------------------------------------------------------------
 ```
 
@@ -248,5 +254,5 @@ Sesuai instruksi, perekaman video demo (`demo.mp4`) disiapkan untuk hari Selasa 
    - Tunjukkan riwayat log status pengerjaan yang tercatat lengkap di basis data.
 7. **Menit 06:16 – 07:00 (Eksekusi Unit Test & Penutup):**
    - Buka terminal dan jalankan `npm --prefix backend test`.
-   - Tunjukkan hasil **61 tests PASSED 100%**.
+   - Tunjukkan hasil **64 tests PASSED 100%**.
    - Penutup dan ucapan terima kasih.

@@ -36,8 +36,8 @@ CREATE TABLE IF NOT EXISTS kurir (
     jenis_kendaraan VARCHAR(100) DEFAULT 'Sepeda Motor',
     plat_nomor VARCHAR(20) DEFAULT NULL,
     status_aktif ENUM('aktif', 'istirahat', 'nonaktif') DEFAULT 'aktif',
-    current_lat DECIMAL(10,8) DEFAULT -7.26250000,
-    current_lng DECIMAL(11,8) DEFAULT 112.74850000,
+    current_lat DECIMAL(10,8) DEFAULT -6.20880000,
+    current_lng DECIMAL(11,8) DEFAULT 106.84560000,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -136,11 +136,12 @@ ON DUPLICATE KEY UPDATE
     password = VALUES(password);
 
 -- 2. Master Armada Kurir Internal Optik
+-- 2. Master Armada Kurir Internal Optik (Wilayah Jakarta & Tangerang)
 INSERT INTO kurir (id, nama, no_telepon, jenis_kendaraan, plat_nomor, status_aktif, current_lat, current_lng)
 VALUES 
-    (1, 'Agus Pratama', '081234567890', 'Honda Vario 160', 'L 4589 AB', 'aktif', -7.26250000, 112.74850000),
-    (2, 'Bambang Wijaya', '081398765432', 'Yamaha NMAX', 'L 3120 XY', 'aktif', -7.26800000, 112.75500000),
-    (3, 'Rian Kurniawan', '085712348765', 'Honda Beat Street', 'L 6742 OP', 'aktif', -7.27500000, 112.77000000)
+    (1, 'Agus Pratama', '081234567890', 'Honda Vario 160', 'B 4589 AB', 'aktif', -6.22050000, 106.82700000),
+    (2, 'Bambang Wijaya', '081398765432', 'Yamaha NMAX', 'B 3120 TNG', 'aktif', -6.17830000, 106.63190000),
+    (3, 'Rian Kurniawan', '085712348765', 'Honda Beat Street', 'B 6742 BSD', 'aktif', -6.30160000, 106.65340000)
 ON DUPLICATE KEY UPDATE 
     nama = VALUES(nama),
     no_telepon = VALUES(no_telepon),
@@ -158,7 +159,7 @@ VALUES (
     2,
     'perbaikan',
     'Gagang kacamata sebelah kiri patah pada bagian engsel sambungan.',
-    'Jl. Sukolilo Indah No. 45, Kota Surabaya',
+    'Jl. Jend. Sudirman No. 25, Kebayoran Baru, Jakarta Selatan',
     CURDATE() + INTERVAL 1 DAY,
     '10:00:00',
     'dijadwalkan',
@@ -168,9 +169,9 @@ VALUES (
     'MIDTRANS-DEMO-001',
     'Agus Pratama',
     '081234567890',
-    -7.26600000,
-    112.75500000,
-    'Kurir telah ditugaskan dan bersiap meluncur ke alamat Anda.'
+    -6.22050000,
+    106.82700000,
+    'Kurir telah ditugaskan di area Jakarta dan bersiap meluncur ke alamat Anda.'
 ) ON DUPLICATE KEY UPDATE id = id;
 
 INSERT INTO detail_layanan (id, layanan_id, jenis_kacamata, detail_perbaikan, keterangan)
@@ -193,7 +194,7 @@ VALUES (
     2,
     'penggantian_lensa',
     'Lensa minus buram dan tergores parah, ingin ganti lensa anti radiasi blueray.',
-    'Jl. Sukolilo Indah No. 45, Kota Surabaya',
+    'Jl. Boulevard BSD Timur No. 18, BSD City, Tangerang Selatan',
     CURDATE() - INTERVAL 1 DAY,
     '14:30:00',
     'diproses',
@@ -203,9 +204,9 @@ VALUES (
     'MIDTRANS-DEMO-002',
     'Bambang Wijaya',
     '081398765432',
-    -7.26250000,
-    112.74850000,
-    'Kacamata telah sampai di lab optik dan sedang dipasang lensa baru oleh teknisi.'
+    -6.30160000,
+    106.65340000,
+    'Kacamata telah sampai di lab optik Jakarta dan sedang dipasang lensa baru oleh teknisi.'
 ) ON DUPLICATE KEY UPDATE id = id;
 
 INSERT INTO detail_layanan (id, layanan_id, jenis_kacamata, detail_perbaikan, keterangan)
@@ -228,7 +229,7 @@ VALUES (
     3,
     'perbaikan_dan_lensa',
     'Nosepad kacamata copot dan ingin ganti lensa Photocromic Grey.',
-    'Jl. Rungkut Madya No. 88, Kota Surabaya',
+    'Jl. Daan Mogot KM 12 No. 88, Kalideres, Jakarta Barat / Tangerang',
     CURDATE() - INTERVAL 2 DAY,
     '09:00:00',
     'diantar',
@@ -238,9 +239,9 @@ VALUES (
     'MIDTRANS-DEMO-003',
     'Rian Kurniawan',
     '085712348765',
-    -7.27500000,
-    112.77000000,
-    'Kacamata selesai diperbaiki dan kurir sedang menuju ke alamat Anda.'
+    -6.17830000,
+    106.63190000,
+    'Kacamata selesai diperbaiki dan kurir sedang menuju ke alamat Anda di perbatasan Jakarta-Tangerang.'
 ) ON DUPLICATE KEY UPDATE id = id;
 
 INSERT INTO detail_layanan (id, layanan_id, jenis_kacamata, detail_perbaikan, keterangan)

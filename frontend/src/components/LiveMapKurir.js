@@ -1,41 +1,41 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 /**
- * Komponen Peta Jalan Asli Interaktif (OpenStreetMap via Leaflet)
- * Menampilkan:
- * 1. Marker Alamat Pelanggan (hasil geocoding input alamat penjemputan Foto 2)
- * 2. Marker Kurir Terdekat Real-Time (posisi terdekat di sekitar alamat jemput pelanggan)
- * 3. Polyline rute jalan raya langsung dari Kurir Terdekat ke Lokasi Pelanggan
- * 4. Marker Toko Optik (jika dalam jangkauan area kota yang sama)
- * 5. Teks status GPS dan Tombol Direct Navigasi Google Maps (Foto 1)
+ * Komponen Google Maps Kurir Real-Time (Google Maps Indonesia - Daerah Jakarta & Tangerang)
+ * Berdasarkan standar embed HTML:
+ * https://stackoverflow.com/questions/54264689/how-do-i-embed-google-maps-url-to-website-using-html
+ *
+ * Menggunakan elemen HTML <iframe> embed Google Maps Indonesia (hl=id)
+ * untuk menampilkan posisi kurir lapangan di wilayah Jakarta dan Tangerang,
+ * rute navigasi perjalanan kurir ke alamat pelanggan, serta lokasi Toko Optik Pusat.
  */
 const LiveMapKurir = ({
-  kurirLat = -7.2890,
-  kurirLng = 112.7950,
+  kurirLat = -6.2180,
+  kurirLng = 106.8250,
   kurirNama = 'Agus Pratama',
-  destLat = -7.2890,
-  destLng = 112.7950,
-  optikLat = -7.2625,
-  optikLng = 112.7485,
-  alamatTujuan = 'Alamat Pelanggan',
-  height = '200px',
+  kurirKendaraan = 'Honda Vario 160 (B 4589 AB)',
+  destLat = -6.2205,
+  destLng = 106.8270,
+  optikLat = -6.2088,
+  optikLng = 106.8456,
+  alamatTujuan = 'Jakarta Selatan / Tangerang',
+  height = '300px',
   showGoogleMapsBtn = true
 }) => {
-  const containerRef = useRef(null);
-  const mapRef = useRef(null);
-  const markersRef = useRef({});
-  const polylineRef = useRef(null);
-  const [mapReady, setMapReady] = useState(false);
+  // Mode tampilan Google Maps: 'kurir' (posisi kurir), 'rute' (rute kurir ke pelanggan), 'optik' (gerai optik)
+  const [mapMode, setMapMode] = useState('rute');
+  const [enginePeta, setEnginePeta] = useState('google'); // 'google' (Google Maps HTML Embed) | 'osm' (Leaflet)
 
-  const validOptikLat = Number(optikLat) || -7.2625;
-  const validOptikLng = Number(optikLng) || 112.7485;
-  const validDestLat = Number(destLat) || -7.2890;
-  const validDestLng = Number(destLng) || 112.7950;
-  // Jika kurir belum terisi, letakkan di dekat tujuan (~350 meter)
-  const validKurirLat = Number(kurirLat) || (validDestLat + 0.003);
-  const validKurirLng = Number(kurirLng) || (validDestLng + 0.003);
+  // Nilai koordinat valid dengan default wilayah Jakarta & Tangerang
+  const validOptikLat = Number(optikLat) || -6.2088; // Jakarta Pusat (Jl. Sudirman)
+  const validOptikLng = Number(optikLng) || 106.8456;
+  const validDestLat = Number(destLat) || -6.2205;   // Jakarta Selatan / Alamat Pelanggan
+  const validDestLng = Number(destLng) || 106.8270;
+  // Kurir terdekat (~250 - 500 meter di sekitar tujuan pelanggan)
+  const validKurirLat = Number(kurirLat) || (validDestLat + 0.0025);
+  const validKurirLng = Number(kurirLng) || (validDestLng + 0.0025);
 
-  // Hitung jarak perkiraan kurir ke pelanggan (km)
+  // Kalkulasi jarak Haversine (km & meter)
   const calcDistance = (lat1, lon1, lat2, lon2) => {
     const R = 6371;
     const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -47,204 +47,310 @@ const LiveMapKurir = ({
     return R * c;
   };
 
-  const distToOptik = calcDistance(validOptikLat, validOptikLng, validDestLat, validDestLng);
   const distKurirToDest = calcDistance(validKurirLat, validKurirLng, validDestLat, validDestLng);
   const distKurirMeter = Math.round(distKurirToDest * 1000);
 
+  // URL HTML Embed Google Maps Indonesia (hl=id) sesuai StackOverflow
+  // https://stackoverflow.com/questions/54264689/how-do-i-embed-google-maps-url-to-website-using-html
+  const getGoogleMapsEmbedSrc = () => {
+    if (mapMode === 'rute') {
+      // Rute dari Kurir ke Alamat Pelanggan di Google Maps
+      return `https://maps.google.com/maps?saddr=${validKurirLat},${validKurirLng}&daddr=${validDestLat},${validDestLng}&hl=id&output=embed`;
+    } else if (mapMode === 'optik') {
+      // Pin Toko Optik Pusat Jakarta & Hub Tangerang
+      return `https://maps.google.com/maps?q=${validOptikLat},${validOptikLng}&hl=id&z=15&output=embed`;
+    }
+    // Default: Pin Posisi Kurir Terkini di Jakarta & Tangerang
+    return `https://maps.google.com/maps?q=${validKurirLat},${validKurirLng}&hl=id&z=16&output=embed`;
+  };
+
+  // URL Direct Navigasi Google Maps Asli (Turn-by-turn)
+  const googleMapsDirectUrl = `https://www.google.com/maps/dir/?api=1&origin=${validKurirLat},${validKurirLng}&destination=${validDestLat},${validDestLng}&travelmode=driving`;
+
+  // Ref dan state untuk Leaflet (OSM secondary fallback)
+  const containerRef = useRef(null);
+  const mapRef = useRef(null);
+
   useEffect(() => {
-    if (typeof window === 'undefined' || !window.L || !containerRef.current) {
+    if (enginePeta !== 'osm' || typeof window === 'undefined' || !window.L || !containerRef.current) {
       return;
     }
 
-    if (!mapRef.current) {
-      try {
-        if (containerRef.current._leaflet_id) {
-          containerRef.current._leaflet_id = null;
-        }
-
-        const map = window.L.map(containerRef.current, {
-          center: [validKurirLat, validKurirLng],
-          zoom: 15,
-          zoomControl: true,
-          attributionControl: false
-        });
-
-        window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          maxZoom: 19
-        }).addTo(map);
-
-        // Marker Alamat Penjemputan Pelanggan (Foto 2)
-        const destIcon = window.L.divIcon({
-          className: 'leaflet-dest-marker',
-          html: `
-            <div style="background:#10b981;color:#fff;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.35);border:2px solid #fff;margin:0 auto;font-size:14px;">🏠</div>
-            <div style="background:#065f46;color:#fff;font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px;white-space:nowrap;margin-top:2px;box-shadow:0 1px 3px rgba(0,0,0,0.25);text-align:center;">Alamat Jemput</div>
-          `,
-          iconSize: [60, 48],
-          iconAnchor: [30, 22]
-        });
-
-        // Marker Kurir Terdekat
-        const kurirIcon = window.L.divIcon({
-          className: 'leaflet-kurir-marker',
-          html: `
-            <div style="position:relative;display:flex;align-items:center;justify-content:center;margin:0 auto;width:30px;height:30px;">
-              <div class="pulse-ring" style="width:38px;height:38px;background:rgba(2,132,199,0.35);border-radius:50%;position:absolute;"></div>
-              <div style="background:#0284c7;border-radius:50%;width:28px;height:28px;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.35);display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;position:relative;z-index:2;">🛵</div>
-            </div>
-            <div style="background:#0284c7;color:#fff;font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px;white-space:nowrap;margin-top:2px;box-shadow:0 1px 3px rgba(0,0,0,0.25);text-align:center;">${kurirNama} (Terdekat)</div>
-          `,
-          iconSize: [70, 50],
-          iconAnchor: [35, 23]
-        });
-
-        const destMarker = window.L.marker([validDestLat, validDestLng], { icon: destIcon })
-          .addTo(map)
-          .bindPopup(`<b>Alamat Penjemputan</b><br>${alamatTujuan || 'Titik Jemput'}`);
-
-        const kurirMarker = window.L.marker([validKurirLat, validKurirLng], { icon: kurirIcon })
-          .addTo(map)
-          .bindPopup(`<b>Kurir Terdekat: ${kurirNama}</b><br>Jarak: ~${distKurirMeter} m<br>GPS: ${validKurirLat.toFixed(5)}, ${validKurirLng.toFixed(5)}`);
-
-        // Polyline Rute Langsung dari Kurir Terdekat ke Titik Jemput Pelanggan
-        const polyline = window.L.polyline([
-          [validKurirLat, validKurirLng],
-          [validDestLat, validDestLng]
-        ], {
-          color: '#0284c7',
-          weight: 4,
-          opacity: 0.9,
-          dashArray: '6, 6'
-        }).addTo(map);
-
-        let optikMarker = null;
-        // Jika Optik berada dalam satu kota (<15 km), tampilkan juga pin Toko Optik
-        if (distToOptik < 15) {
-          const optikIcon = window.L.divIcon({
-            className: 'leaflet-optik-marker',
-            html: `
-              <div style="background:#475569;color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 5px rgba(0,0,0,0.3);border:2px solid #fff;margin:0 auto;font-size:12px;">🏪</div>
-              <div style="background:#0f172a;color:#fff;font-size:8px;font-weight:700;padding:2px 4px;border-radius:3px;white-space:nowrap;margin-top:2px;text-align:center;">Optik Lab</div>
-            `,
-            iconSize: [45, 42],
-            iconAnchor: [22, 18]
-          });
-          optikMarker = window.L.marker([validOptikLat, validOptikLng], { icon: optikIcon })
-            .addTo(map)
-            .bindPopup('<b>OptikExpress Store & Lab</b><br>Jl. Pemuda No. 48, Surabaya');
-        }
-
-        mapRef.current = map;
-        markersRef.current = {
-          optik: optikMarker,
-          dest: destMarker,
-          kurir: kurirMarker
-        };
-        polylineRef.current = polyline;
-
-        // Pasang bingkai peta agar Kurir Terdekat dan Titik Jemput Pelanggan terlihat fokus & pas
-        map.fitBounds([
-          [validKurirLat, validKurirLng],
-          [validDestLat, validDestLng]
-        ], { padding: [40, 40], maxZoom: 16 });
-
-        setMapReady(true);
-      } catch (err) {
-        console.error('[LiveMapKurir] Gagal menginisialisasi peta Leaflet:', err);
+    try {
+      if (containerRef.current._leaflet_id) {
+        containerRef.current._leaflet_id = null;
       }
-    } else {
-      // Update posisi kurir marker & polyline yang sudah aktif
-      const kurirMarker = markersRef.current?.kurir;
-      if (kurirMarker) {
-        kurirMarker.setLatLng([validKurirLat, validKurirLng]);
-        kurirMarker.setPopupContent(`<b>Kurir Terdekat: ${kurirNama}</b><br>Jarak: ~${distKurirMeter} m<br>GPS: ${validKurirLat.toFixed(5)}, ${validKurirLng.toFixed(5)}`);
-      }
-      const destMarker = markersRef.current?.dest;
-      if (destMarker) {
-        destMarker.setLatLng([validDestLat, validDestLng]);
-        destMarker.setPopupContent(`<b>Alamat Penjemputan</b><br>${alamatTujuan || 'Titik Jemput'}`);
-      }
-      if (polylineRef.current) {
-        polylineRef.current.setLatLngs([
-          [validKurirLat, validKurirLng],
-          [validDestLat, validDestLng]
-        ]);
-      }
+
       if (mapRef.current) {
-        mapRef.current.fitBounds([
-          [validKurirLat, validKurirLng],
-          [validDestLat, validDestLng]
-        ], { padding: [40, 40], maxZoom: 16 });
+        mapRef.current.remove();
+        mapRef.current = null;
       }
-    }
-  }, [validKurirLat, validKurirLng, validDestLat, validDestLng, validOptikLat, validOptikLng, kurirNama, alamatTujuan, distKurirMeter, distToOptik]);
 
-  // Teardown map saat unmount
-  useEffect(() => {
+      const map = window.L.map(containerRef.current, {
+        center: [validKurirLat, validKurirLng],
+        zoom: 15,
+        zoomControl: true,
+        attributionControl: false
+      });
+
+      window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19
+      }).addTo(map);
+
+      // Marker Tujuan
+      const destIcon = window.L.divIcon({
+        className: 'leaflet-dest-marker',
+        html: `
+          <div style="background:#10b981;color:#fff;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.35);border:2px solid #fff;margin:0 auto;font-size:14px;">🏠</div>
+          <div style="background:#065f46;color:#fff;font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px;white-space:nowrap;margin-top:2px;text-align:center;">Tujuan</div>
+        `,
+        iconSize: [60, 48],
+        iconAnchor: [30, 22]
+      });
+
+      // Marker Kurir
+      const kurirIcon = window.L.divIcon({
+        className: 'leaflet-kurir-marker',
+        html: `
+          <div style="background:#0284c7;border-radius:50%;width:28px;height:28px;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.35);display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;margin:0 auto;">🛵</div>
+          <div style="background:#0284c7;color:#fff;font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px;white-space:nowrap;margin-top:2px;text-align:center;">${kurirNama}</div>
+        `,
+        iconSize: [70, 50],
+        iconAnchor: [35, 23]
+      });
+
+      window.L.marker([validDestLat, validDestLng], { icon: destIcon }).addTo(map);
+      window.L.marker([validKurirLat, validKurirLng], { icon: kurirIcon }).addTo(map);
+
+      window.L.polyline([
+        [validKurirLat, validKurirLng],
+        [validDestLat, validDestLng]
+      ], { color: '#0284c7', weight: 4, dashArray: '6, 6' }).addTo(map);
+
+      map.fitBounds([
+        [validKurirLat, validKurirLng],
+        [validDestLat, validDestLng]
+      ], { padding: [35, 35], maxZoom: 16 });
+
+      mapRef.current = map;
+    } catch (e) {
+      console.error('[LiveMapKurir] Gagal init leaflet:', e);
+    }
+
     return () => {
       if (mapRef.current) {
-        try {
-          mapRef.current.remove();
-        } catch (e) {}
+        try { mapRef.current.remove(); } catch (err) {}
         mapRef.current = null;
       }
     };
-  }, []);
-
-  const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${validKurirLat},${validKurirLng}&destination=${validDestLat},${validDestLng}&travelmode=driving`;
+  }, [enginePeta, validKurirLat, validKurirLng, validDestLat, validDestLng, kurirNama]);
 
   return (
-    <div style={{ width: '100%' }}>
-      {/* Container Leaflet OpenStreetMap */}
-      <div
-        ref={containerRef}
-        style={{
-          width: '100%',
-          height: height,
-          borderRadius: '8px',
-          border: '1px solid #cbd5e1',
-          overflow: 'hidden',
-          position: 'relative',
-          backgroundColor: '#f1f5f9',
-          zIndex: 1
-        }}
-      >
-        {!mapReady && (
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#64748b', fontSize: '0.85rem' }}>
-            Memuat peta jalan OpenStreetMap...
-          </div>
-        )}
-      </div>
-
-      {/* Info Bar & Tombol Buka Rute di Google Maps (Foto 1) */}
-      {showGoogleMapsBtn && (
-        <div style={{ marginTop: '0.65rem' }}>
-          <div style={{ fontSize: '0.8rem', color: '#334155', marginBottom: '0.5rem', fontWeight: 600, display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.3rem' }}>
-            <span>🛵 Kurir Terdekat: <strong>{kurirNama}</strong> (~{distKurirMeter < 1000 ? `${distKurirMeter} m` : `${(distKurirMeter/1000).toFixed(1)} km`})</span>
-            <span>📍 GPS: {validKurirLat.toFixed(4)}, {validKurirLng.toFixed(4)}</span>
-          </div>
-          <a
-            href={googleMapsUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn btn-sm"
+    <div style={{ width: '100%', fontFamily: 'inherit' }}>
+      {/* Header Kontrol Peta Google Maps */}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        gap: '0.5rem',
+        marginBottom: '0.5rem'
+      }}>
+        {/* Tombol Tab Mode Tampilan Google Maps */}
+        <div style={{ display: 'inline-flex', background: '#f1f5f9', padding: '3px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+          <button
+            type="button"
+            onClick={() => { setMapMode('rute'); setEnginePeta('google'); }}
             style={{
-              backgroundColor: '#0284c7',
-              color: '#ffffff',
+              padding: '0.35rem 0.75rem',
+              fontSize: '0.75rem',
               fontWeight: 700,
-              fontSize: '0.85rem',
-              padding: '0.5rem 1rem',
               borderRadius: '6px',
-              textDecoration: 'none',
-              display: 'inline-block',
-              textAlign: 'center',
-              boxShadow: '0 2px 4px rgba(2, 132, 199, 0.25)',
               border: 'none',
-              cursor: 'pointer'
+              background: enginePeta === 'google' && mapMode === 'rute' ? '#0284c7' : 'transparent',
+              color: enginePeta === 'google' && mapMode === 'rute' ? '#ffffff' : '#475569',
+              cursor: 'pointer',
+              transition: 'all 0.15s ease'
             }}
           >
-            Buka Rute di Google Maps
-          </a>
+            🗺️ Rute Kurir (Google Maps)
+          </button>
+          <button
+            type="button"
+            onClick={() => { setMapMode('kurir'); setEnginePeta('google'); }}
+            style={{
+              padding: '0.35rem 0.75rem',
+              fontSize: '0.75rem',
+              fontWeight: 700,
+              borderRadius: '6px',
+              border: 'none',
+              background: enginePeta === 'google' && mapMode === 'kurir' ? '#0284c7' : 'transparent',
+              color: enginePeta === 'google' && mapMode === 'kurir' ? '#ffffff' : '#475569',
+              cursor: 'pointer',
+              transition: 'all 0.15s ease'
+            }}
+          >
+            🛵 Posisi Kurir (Jakarta/Tangerang)
+          </button>
+          <button
+            type="button"
+            onClick={() => { setMapMode('optik'); setEnginePeta('google'); }}
+            style={{
+              padding: '0.35rem 0.75rem',
+              fontSize: '0.75rem',
+              fontWeight: 700,
+              borderRadius: '6px',
+              border: 'none',
+              background: enginePeta === 'google' && mapMode === 'optik' ? '#0284c7' : 'transparent',
+              color: enginePeta === 'google' && mapMode === 'optik' ? '#ffffff' : '#475569',
+              cursor: 'pointer',
+              transition: 'all 0.15s ease'
+            }}
+          >
+            🏪 Toko Optik Pusat
+          </button>
+        </div>
+
+        {/* Badge Area Operasional */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+          <span style={{
+            fontSize: '0.72rem',
+            background: '#e0f2fe',
+            color: '#0369a1',
+            padding: '0.2rem 0.55rem',
+            borderRadius: '999px',
+            fontWeight: 700,
+            border: '1px solid #bae6fd'
+          }}>
+            🇮🇩 Google Maps Indonesia (Jakarta & Tangerang)
+          </span>
+          <button
+            type="button"
+            onClick={() => setEnginePeta(enginePeta === 'google' ? 'osm' : 'google')}
+            title="Ganti ke Peta OSM atau Google Maps"
+            style={{
+              fontSize: '0.72rem',
+              padding: '0.2rem 0.5rem',
+              borderRadius: '6px',
+              border: '1px solid #cbd5e1',
+              background: '#ffffff',
+              color: '#64748b',
+              cursor: 'pointer',
+              fontWeight: 600
+            }}
+          >
+            {enginePeta === 'google' ? '🌐 Tampilan OSM' : '📍 Kembali ke Google Maps'}
+          </button>
+        </div>
+      </div>
+
+      {/* Frame Tampilan Peta Utama */}
+      <div style={{
+        position: 'relative',
+        width: '100%',
+        height: height || '300px',
+        borderRadius: '12px',
+        overflow: 'hidden',
+        border: '1.5px solid #cbd5e1',
+        boxShadow: '0 4px 12px rgba(15, 23, 42, 0.08)',
+        backgroundColor: '#f8fafc'
+      }}>
+        {enginePeta === 'google' ? (
+          /* ===================================================================
+             HTML EMBED GOOGLE MAPS (SESUAI LINK STACKOVERFLOW):
+             https://stackoverflow.com/questions/54264689/how-do-i-embed-google-maps-url-to-website-using-html
+             =================================================================== */
+          <iframe
+            key={`${mapMode}-${validKurirLat}-${validKurirLng}`}
+            title={`Google Maps Kurir ${kurirNama} - Jakarta & Tangerang`}
+            src={getGoogleMapsEmbedSrc()}
+            width="100%"
+            height="100%"
+            style={{ border: 0, display: 'block' }}
+            allowFullScreen=""
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+          />
+        ) : (
+          <div ref={containerRef} style={{ width: '100%', height: '100%' }} />
+        )}
+
+        {/* Overlay Badge Posisi Kurir di Pojok Peta */}
+        <div style={{
+          position: 'absolute',
+          top: '10px',
+          left: '10px',
+          background: 'rgba(15, 23, 42, 0.85)',
+          color: '#ffffff',
+          padding: '0.35rem 0.7rem',
+          borderRadius: '8px',
+          fontSize: '0.75rem',
+          fontWeight: 700,
+          backdropFilter: 'blur(4px)',
+          boxShadow: '0 2px 6px rgba(0,0,0,0.3)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.4rem',
+          zIndex: 2,
+          pointerEvents: 'none'
+        }}>
+          <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: '#22c55e', animation: 'pulse 1.5s infinite' }}></span>
+          <span>LIVE GPS: {validKurirLat.toFixed(4)}, {validKurirLng.toFixed(4)}</span>
+        </div>
+      </div>
+
+      {/* Info Bar & Tombol Akses Google Maps Langsung */}
+      {showGoogleMapsBtn && (
+        <div style={{
+          marginTop: '0.75rem',
+          padding: '0.75rem 1rem',
+          background: '#f8fafc',
+          borderRadius: '10px',
+          border: '1px solid #e2e8f0',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '0.75rem'
+        }}>
+          <div>
+            <div style={{ fontSize: '0.85rem', color: '#0f172a', fontWeight: 700, marginBottom: '0.15rem' }}>
+              🛵 Kurir Lapangan: <strong>{kurirNama}</strong>
+              <span style={{ fontSize: '0.78rem', color: '#64748b', fontWeight: 500, marginLeft: '0.5rem' }}>
+                ({kurirKendaraan})
+              </span>
+            </div>
+            <div style={{ fontSize: '0.78rem', color: '#475569' }}>
+              📍 Jarak ke Pelanggan: <strong style={{ color: '#0284c7' }}>~{distKurirMeter < 1000 ? `${distKurirMeter} meter` : `${(distKurirMeter/1000).toFixed(2)} km`}</strong>
+              {' '}&bull; Alamat: {alamatTujuan}
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+            <a
+              href={googleMapsDirectUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-sm"
+              style={{
+                backgroundColor: '#0284c7',
+                color: '#ffffff',
+                fontWeight: 700,
+                fontSize: '0.82rem',
+                padding: '0.5rem 0.9rem',
+                borderRadius: '8px',
+                textDecoration: 'none',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.4rem',
+                boxShadow: '0 2px 6px rgba(2, 132, 199, 0.3)',
+                border: 'none',
+                cursor: 'pointer'
+              }}
+            >
+              <span>🧭 Buka Rute di Google Maps Indonesia</span>
+            </a>
+          </div>
         </div>
       )}
     </div>

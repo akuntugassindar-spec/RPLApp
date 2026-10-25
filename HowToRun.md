@@ -128,7 +128,7 @@ Setelah berjalan:
 
 ## 6. Menjalankan Pengujian Otomatis (Unit Testing)
 
-OptikExpress dilengkapi **61 Unit Tests komprehensif** dalam 11 test suites berbasis Node.js native test runner (`node:test`).
+OptikExpress dilengkapi **64 Unit Tests komprehensif** dalam 11 test suites berbasis Node.js native test runner (`node:test`).
 
 Untuk menjalankan seluruh test suite:
 ```bash
@@ -142,9 +142,9 @@ npm test
 
 > **Target Eksekusi:**
 > ```text
-> ℹ tests 61
-> ℹ suites 11
-> ℹ pass 61
+> ℹ tests 64
+> ℹ suites 12
+> ℹ pass 64
 > ℹ fail 0
 > ℹ status: 100% PASSED (ALL PASS)
 > ```
@@ -175,7 +175,7 @@ Untuk mendemonstrasikan alur tuntas aplikasi secara berurutan:
 2. **Alur Pelanggan (Pemesanan Layanan)**:
    - Login menggunakan akun pelanggan (`bahrul@gmail.com` / `password123`).
    - Masuk ke menu **Pesan Layanan** (`/layanan/buat`).
-   - Pilih jenis layanan, isi keluhan kacamata, alamat penjemputan Surabaya, tanggal & jam jemput.
+   - Pilih jenis layanan, isi keluhan kacamata, alamat penjemputan Jakarta & Tangerang, tanggal & jam jemput.
    - Unggah foto kerusakan kacamata dan foto resep optik dokter.
    - Klik **Kirim Permintaan Layanan**. Modal Overlay Notifikasi Sukses akan tampil di tengah layar.
 3. **Alur Administrator (Manajemen & Verifikasi)**:

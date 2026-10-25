@@ -222,9 +222,9 @@ const AdminDetailLayanan = () => {
     kurir: {
       nama: kurirNama || layanan?.kurir_nama || 'Agus Pratama',
       telepon: kurirTelepon || layanan?.kurir_telepon || '0812-3456-7890',
-      kendaraan: 'Honda Vario 160 (L 4589 AB)'
+      kendaraan: 'Honda Vario 160 (B 4589 AB)'
     },
-    lokasi_optik: { nama: 'OptikExpress Store & Lab', alamat: 'Jl. Pemuda No. 48, Surabaya' },
+    lokasi_optik: { nama: 'OptikExpress Store & Lab (Jakarta & Tangerang)', alamat: 'Jl. Jend. Sudirman No. 45, Jakarta Pusat' },
     lokasi_tujuan: { nama: layanan?.nama_pelanggan || 'Pelanggan', alamat: layanan?.alamat || 'Alamat Pelanggan' }
   };
 
@@ -443,7 +443,7 @@ const AdminDetailLayanan = () => {
                   <div style={{ marginTop: '0.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
                     <span style={{ fontSize: '0.75rem', color: '#64748b' }}> {effectiveTracking.lokasi_optik?.nama}</span>
                     <a
-                      href={`https://www.google.com/maps/dir/?api=1&origin=-7.2625,112.7485&destination=${adminKurirLat},${adminKurirLng}&travelmode=driving`}
+                      href={`https://www.google.com/maps/dir/?api=1&origin=-6.2088,106.8456&destination=${adminKurirLat},${adminKurirLng}&travelmode=driving`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="btn btn-sm"

@@ -23,7 +23,7 @@ const db = require('../config/db');
 const {
   VALID_STATUSES, VALID_JENIS_LAYANAN, VALID_METODE_PEMBAYARAN,
   COURIER_POOL, autoAssignCourier,
-  geocodeSurabayaAddress, calculateDistanceKm, findNearestRandomCourier,
+  geocodeJakartaTangerangAddress, geocodeSurabayaAddress, calculateDistanceKm, findNearestRandomCourier,
   saveBase64Image, sendWANotification, createLayanan, updateStatusLayanan
 } = require('../controllers/layananController');
 
@@ -183,3 +183,45 @@ describe('Pengujian Fitur 6: Alokasi Kurir Terdekat Secara Acak Sesuai Alamat Pe
 
 
 
+
+describe('Pengujian Fitur 7: Google Maps Indonesia & Geocoding Wilayah Jakarta & Tangerang', () => {
+  it('geocodeJakartaTangerangAddress harus memetakan kata kunci Jakarta & Tangerang ke koordinat GPS yang sesuai', () => {
+    const geoJaksel = geocodeJakartaTangerangAddress('Jl. Jend. Sudirman No. 25, Kebayoran Baru, Jakarta Selatan');
+    assert.strictEqual(geoJaksel.lat, -6.2205);
+    assert.strictEqual(geoJaksel.lng, 106.8270);
+    assert.match(geoJaksel.wilayah, /Jakarta Selatan/i);
+
+    const geoJakpus = geocodeJakartaTangerangAddress('Jl. MH Thamrin No. 1, Menteng, Jakarta Pusat');
+    assert.strictEqual(geoJakpus.lat, -6.2088);
+    assert.strictEqual(geoJakpus.lng, 106.8456);
+    assert.match(geoJakpus.wilayah, /Jakarta Pusat/i);
+
+    const geoTangsel = geocodeJakartaTangerangAddress('Jl. Boulevard BSD Timur, Serpong, Tangerang Selatan');
+    assert.strictEqual(geoTangsel.lat, -6.3016);
+    assert.strictEqual(geoTangsel.lng, 106.6534);
+    assert.match(geoTangsel.wilayah, /Tangerang Selatan/i);
+
+    const geoTangerang = geocodeJakartaTangerangAddress('Karawaci, Kota Tangerang');
+    assert.strictEqual(geoTangerang.lat, -6.1783);
+    assert.strictEqual(geoTangerang.lng, 106.6319);
+    assert.match(geoTangerang.wilayah, /Kota Tangerang/i);
+  });
+
+  it('COURIER_POOL armada kurir harus memiliki plat nomor B resmi wilayah Jakarta & Tangerang', () => {
+    COURIER_POOL.forEach(k => {
+      assert.match(k.kendaraan, /\(B\s+\d+/i, `Kendaraan kurir ${k.nama} harus berplat nomor B (Jakarta & Tangerang)`);
+    });
+  });
+
+  it('findNearestRandomCourier harus mengalokasikan kurir terdekat (< 1.5 km) di wilayah Jakarta & Tangerang', () => {
+    const destLat = -6.2205; // Jakarta Selatan
+    const destLng = 106.8270;
+    const allocation = findNearestRandomCourier(destLat, destLng, 'Jakarta Selatan');
+
+    assert.ok(allocation.kurir && allocation.kurir.nama);
+    assert.ok(typeof allocation.kurirLat === 'number');
+    assert.ok(typeof allocation.kurirLng === 'number');
+    assert.ok(allocation.jarakKm < 1.5, `Jarak kurir ke titik jemput Jakarta (${allocation.jarakKm} km) harus kurang dari 1.5 km`);
+    assert.match(allocation.trackingStatus, /Kurir terdekat/i);
+  });
+});

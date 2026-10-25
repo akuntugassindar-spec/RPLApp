@@ -207,7 +207,7 @@ const TrackingKurir = () => {
   const kurirInfo = trackingData?.kurir || {
     nama: layanan?.kurir_nama || 'Agus Pratama',
     telepon: layanan?.kurir_telepon || '081234567890',
-    kendaraan: 'Honda Vario 160 (L 4589 AB)'
+    kendaraan: 'Honda Vario 160 (B 4589 AB)'
   };
 
   const persentase = simulasiPersen !== null ? simulasiPersen : (trackingData?.persentase_perjalanan || 25);
@@ -215,10 +215,10 @@ const TrackingKurir = () => {
   const deskripsi = simulasiKeterangan || trackingData?.status_deskripsi || 'Kurir bersiap menuju alamat pelanggan.';
 
   // Koordinat lokasi
-  const optikLat = -7.2625;
-  const optikLng = 112.7485;
-  const destLat = Number(trackingData?.lokasi_tujuan?.lat) || -7.2890;
-  const destLng = Number(trackingData?.lokasi_tujuan?.lng) || 112.7950;
+  const optikLat = -6.2088;
+  const optikLng = 106.8456;
+  const destLat = Number(trackingData?.lokasi_tujuan?.lat) || -6.2205;
+  const destLng = Number(trackingData?.lokasi_tujuan?.lng) || 106.8270;
   const defaultKurirLat = destLat + 0.003;
   const defaultKurirLng = destLng + 0.003;
   const actualKurirLat = Number(trackingData?.kurir?.posisi_saat_ini?.lat) || (layanan?.kurir_lat ? Number(layanan.kurir_lat) : defaultKurirLat);

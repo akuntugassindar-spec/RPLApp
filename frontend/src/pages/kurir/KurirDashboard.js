@@ -101,9 +101,9 @@ const KurirDashboard = () => {
       (geoErr) => {
         // Fallback jika GPS browser ditolak: kirim koordinat Surabaya tengah
         api.put(`/layanan/${itemId}/tracking`, {
-          kurir_lat: -7.2625,
-          kurir_lng: 112.7485,
-          tracking_status: 'Kurir aktif di area Surabaya Pusat (Jl. Pemuda)'
+          kurir_lat: -6.2088,
+          kurir_lng: 106.8456,
+          tracking_status: 'Kurir aktif di area Jakarta Pusat (Jl. Sudirman) & Tangerang'
         }).then(() => {
           setSuccess(`Simulasi GPS aktif untuk pesanan #${itemId}.`);
           fetchTugasKurir();

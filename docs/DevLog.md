@@ -49,13 +49,13 @@
   1. **Integrasi End-to-End Tuntas:** Menjamin alur dari pengajuan layanan kacamata, penugasan kurir, pengerjaan lab optik, pelunasan multi-metode, hingga pengantaran tuntas 100%.
   2. **Implementasi Komponen Modal Overlay (`SuccessOverlay.js`):** Menampilkan notifikasi pop-up di tengah layar pengguna dengan backdrop blur, animasi centang, dan auto-dismiss progress bar saat melakukan pengubahan data atau status pesanan.
   3. **Penanganan Robust Error & Edge Cases:** Validasi ketat payload HTTP 400, sanitasi input, pemulihan koneksi database, proteksi double submit form via loading state, dan fallback otomatis akun demo.
-  4. **Ekspansi Test Suite Komprehensif:** 61 unit tests dalam 11 test suites lulus 100% (`PASS 61 / 0 FAIL`).
+  4. **Ekspansi Test Suite Komprehensif:** 64 unit tests dalam 12 test suites lulus 100% (`PASS 64 / 0 FAIL`).
   5. **Penyusunan Berkas Pengumpulan Rilis:** Pembuatan panduan menjalankan sistem lengkap ([`HowToRun.md`](../HowToRun.md)) dan matriks verifikasi fitur ([`checklist_mvp.md`](../checklist_mvp.md)).
   6. **Kesiapan Demonstrasi:** Penyiapan skenario terstruktur alur perekaman video demo aplikasi (`demo.mp4`).
 
 ---
 
-## 2. Bukti Hasil Eksekusi Unit Test (61 Tests Passed - 100%)
+## 2. Bukti Hasil Eksekusi Unit Test (64 Tests Passed - 100%)
 
 Perintah eksekusi:
 ```bash
@@ -72,13 +72,14 @@ Rangkuman Hasil:
 > Pengujian Fitur 4: Integrasi Payment Gateway .................. [1 Tests PASS]
 > Pengujian Fitur 5: Penugasan Kurir Cerdas (Auto-Assign) ........ [2 Tests PASS]
 > Pengujian Fitur 6: Alokasi Kurir Terdekat Surabaya ............. [4 Tests PASS]
+> Pengujian Fitur 7: Google Maps Indonesia (Jakarta & Tangerang) . [3 Tests PASS]
 > User Story #3: Middleware Otorisasi JWT & Proteksi Admin ....... [12 Tests PASS]
 > User Story #5: Pembayaran Gateway & Live Tracking Kurir ....... [8 Tests PASS]
 > Pengujian Standar QRIS Bank Indonesia (EMVCo & CRC16) ......... [4 Tests PASS]
 
-Total Test Suites : 11 Suites
-Total Unit Tests  : 61 Tests
-Hasil Eksekusi    : 61 PASS / 0 FAIL (100% Lulus)
+Total Test Suites : 12 Suites
+Total Unit Tests  : 64 Tests
+Hasil Eksekusi    : 64 PASS / 0 FAIL (100% Lulus)
 ```
 
 ---

@@ -48,11 +48,99 @@ const VALID_METODE_PEMBAYARAN = [
 ];
 
 // Pool armada kurir optik internal (untuk penugasan otomatis ala Gojek/Grab)
+// Pool armada kurir optik internal (wilayah operasional Jakarta & Tangerang)
 const COURIER_POOL = [
-  { nama: 'Agus Pratama', telepon: '081234567890', kendaraan: 'Honda Vario 160 (L 4589 AB)' },
-  { nama: 'Bambang Wijaya', telepon: '081398765432', kendaraan: 'Yamaha NMAX (L 3120 XY)' },
-  { nama: 'Rian Kurniawan', telepon: '085712348765', kendaraan: 'Honda Beat Street (L 6742 OP)' }
+  { nama: 'Agus Pratama', telepon: '081234567890', kendaraan: 'Honda Vario 160 (B 4589 AB)', area: 'Jakarta Selatan & Jakarta Pusat' },
+  { nama: 'Bambang Wijaya', telepon: '081398765432', kendaraan: 'Yamaha NMAX (B 3120 TNG)', area: 'Kota Tangerang & Karawaci' },
+  { nama: 'Rian Kurniawan', telepon: '085712348765', kendaraan: 'Honda Beat Street (B 6742 BSD)', area: 'Tangerang Selatan & BSD City' }
 ];
+
+/**
+ * Pemetaan Wilayah Jakarta & Tangerang untuk Lokasi Kurir & Geocoding Cerdas
+ */
+const JAKARTA_TANGERANG_DISTRICTS = [
+  {
+    wilayah: 'Jakarta Pusat (Thamrin / Sudirman / Menteng)',
+    lat: -6.2088,
+    lng: 106.8456,
+    keywords: ['jakarta pusat', 'thamrin', 'sudirman', 'menteng', 'gambir', 'tanah abang', 'senen', 'cempaka putih', 'kemayoran', 'monas']
+  },
+  {
+    wilayah: 'Jakarta Selatan (Kebayoran / Blok M / Senayan / Kuningan)',
+    lat: -6.2205,
+    lng: 106.8270,
+    keywords: ['jakarta selatan', 'kebayoran', 'blok m', 'senayan', 'tebet', 'kemang', 'kuningan', 'cilandak', 'pasar minggu', 'mampang', 'fatmawati', 'pondok indah']
+  },
+  {
+    wilayah: 'Jakarta Barat (Grogol / Slipi / Puri / Kembangan)',
+    lat: -6.1683,
+    lng: 106.7588,
+    keywords: ['jakarta barat', 'grogol', 'slipi', 'tomang', 'palmerah', 'kebon jeruk', 'puri indah', 'kembangan', 'kalideres', 'cengkareng']
+  },
+  {
+    wilayah: 'Jakarta Timur (Jatinegara / Rawamangun / Cawang)',
+    lat: -6.2250,
+    lng: 106.9004,
+    keywords: ['jakarta timur', 'jatinegara', 'rawamangun', 'matraman', 'duren sawit', 'cakung', 'cawang', 'ciracas', 'pulogadung']
+  },
+  {
+    wilayah: 'Jakarta Utara (Kelapa Gading / PIK / Pluit)',
+    lat: -6.1384,
+    lng: 106.8640,
+    keywords: ['jakarta utara', 'kelapa gading', 'pluit', 'sunter', 'pik', 'pantai indah kapuk', 'ancol', 'pademangan', 'tanjung priok']
+  },
+  {
+    wilayah: 'Kota Tangerang (Karawaci / Cipondoh / Ciledug)',
+    lat: -6.1783,
+    lng: 106.6319,
+    keywords: ['kota tangerang', 'tangerang kota', 'tangerang', 'karawaci', 'cipondoh', 'ciledug', 'batuceper', 'tanah tinggi', 'neglasari', 'jatiuwung', 'poris']
+  },
+  {
+    wilayah: 'Tangerang Selatan (BSD City / Serpong / Bintaro)',
+    lat: -6.3016,
+    lng: 106.6534,
+    keywords: ['tangerang selatan', 'tangsel', 'bsd', 'bsd city', 'serpong', 'bintaro', 'alam sutera', 'gading serpong', 'pamulang', 'ciputat', 'pondok aren']
+  }
+];
+
+/**
+ * Helper geocoding alamat Jakarta dan Tangerang (Google Maps Indonesia)
+ */
+const geocodeJakartaTangerangAddress = (alamatText = '') => {
+  if (!alamatText || typeof alamatText !== 'string') {
+    return { wilayah: 'Jakarta Pusat (Dekat Toko Optik)', lat: -6.2088, lng: 106.8456 };
+  }
+  const lower = alamatText.toLowerCase();
+
+  let bestMatch = null;
+  let bestKeywordLength = 0;
+
+  for (const dist of JAKARTA_TANGERANG_DISTRICTS) {
+    for (const kw of dist.keywords) {
+      if (lower.includes(kw) && kw.length > bestKeywordLength) {
+        bestMatch = dist;
+        bestKeywordLength = kw.length;
+      }
+    }
+  }
+
+  if (bestMatch) {
+    return { wilayah: bestMatch.wilayah, lat: bestMatch.lat, lng: bestMatch.lng };
+  }
+
+  let hash = 0;
+  for (let i = 0; i < alamatText.length; i++) {
+    hash = (hash << 5) - hash + alamatText.charCodeAt(i);
+    hash |= 0;
+  }
+  const latOffset = ((Math.abs(hash) % 40) - 20) * 0.001;
+  const lngOffset = ((Math.abs(hash >> 3) % 40) - 20) * 0.001;
+  return {
+    wilayah: 'Jakarta / Tangerang',
+    lat: Number((-6.2088 + latOffset).toFixed(6)),
+    lng: Number((106.8456 + lngOffset).toFixed(6))
+  };
+};
 
 /**
  * Pemetaan Wilayah Surabaya & Geocoding Cerdas berdasarkan Alamat Penjemputan (Foto 2)
@@ -218,7 +306,14 @@ const geocodeAddress = async (alamatText = '') => {
     // Offline atau timeout: lanjut ke kamus lokal
   }
 
-  return geocodeSurabayaAddress(alamatText);
+  const lowerText = (alamatText || '').toLowerCase();
+  if (JAKARTA_TANGERANG_DISTRICTS.some(d => d.keywords.some(kw => lowerText.includes(kw)))) {
+    return geocodeJakartaTangerangAddress(alamatText);
+  }
+  if (SURABAYA_DISTRICTS.some(d => d.keywords.some(kw => lowerText.includes(kw)))) {
+    return geocodeSurabayaAddress(alamatText);
+  }
+  return geocodeJakartaTangerangAddress(alamatText);
 };
 
 /**
@@ -239,7 +334,7 @@ const calculateDistanceKm = (lat1, lon1, lat2, lon2) => {
  * Cari kurir secara random tetapi lokasinya dicari yang TERDEKAT secara acak dengan alamat penjemputan (Foto 2)
  * Kurir ditempatkan di radius sangat dekat (~250 meter - 600 meter) dari alamat penjemputan pelanggan yang dimasukkan.
  */
-const findNearestRandomCourier = (tujuanLat, tujuanLng, wilayah = 'Surabaya', preferredCourier = null) => {
+const findNearestRandomCourier = (tujuanLat = -6.2088, tujuanLng = 106.8456, wilayah = 'Jakarta & Tangerang', preferredCourier = null) => {
   // 1. Pilih kurir secara acak dari pool kurir
   const courier = preferredCourier || COURIER_POOL[Math.floor(Math.random() * COURIER_POOL.length)];
 
@@ -639,10 +734,10 @@ const getTrackingKurir = async (req, res) => {
     if (role !== 'admin' && role !== 'kurir' && item.user_id !== userId) return res.status(403).json({ success: false, message: 'Akses ditolak.' });
 
     const optikLocation = {
-      nama: 'OptikExpress Store & Lab',
-      alamat: 'Jl. Pemuda No. 48, Surabaya',
-      lat: -7.2625,
-      lng: 112.7485
+      nama: 'OptikExpress Store & Lab (Jakarta & Tangerang)',
+      alamat: 'Jl. Jend. Sudirman No. 45, Jakarta Pusat (Hub BSD Tangerang)',
+      lat: -6.2088,
+      lng: 106.8456
     };
 
     // Geocoding alamat penjemputan pelanggan dari input form Foto 2
@@ -844,7 +939,7 @@ const resetLayananAutoIncrement = async (req, res) => {
 
 module.exports = {
   VALID_STATUSES, VALID_JENIS_LAYANAN, VALID_METODE_PEMBAYARAN, COURIER_POOL, autoAssignCourier,
-  SURABAYA_DISTRICTS, geocodeSurabayaAddress, geocodeAddress, calculateDistanceKm, findNearestRandomCourier,
+  JAKARTA_TANGERANG_DISTRICTS, geocodeJakartaTangerangAddress, SURABAYA_DISTRICTS, geocodeSurabayaAddress, geocodeAddress, calculateDistanceKm, findNearestRandomCourier,
   saveBase64Image, sendEmailNotification, sendWANotification,
   getAllLayanan, getLayananById, createLayanan, updateStatusLayanan,
   prosesPembayaran, konfirmasiPembayaran, getTrackingKurir, updateTrackingKurir, deleteLayanan,
