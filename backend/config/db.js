@@ -131,6 +131,8 @@ const ensureTableColumns = async (connection) => {
     await connection.query("UPDATE kurir SET plat_nomor = 'B 6742 BSD', current_lat = -6.30160000, current_lng = 106.65340000 WHERE id = 3 OR nama LIKE '%Rian%'");
     await connection.query("UPDATE kurir SET plat_nomor = REPLACE(plat_nomor, 'L ', 'B ') WHERE plat_nomor LIKE 'L %'");
     await connection.query("UPDATE layanan SET tracking_status = REPLACE(tracking_status, 'Surabaya', 'Jakarta & Tangerang') WHERE tracking_status LIKE '%Surabaya%'");
+    await connection.query("UPDATE kurir SET plat_nomor = REPLACE(plat_nomor, 'XY', 'TNG') WHERE plat_nomor LIKE '%XY%'");
+    await connection.query("UPDATE layanan SET kurir_lat = -6.22050000, kurir_lng = 106.82700000 WHERE kurir_lat < -7.0");
   } catch (err) {}
 };
 

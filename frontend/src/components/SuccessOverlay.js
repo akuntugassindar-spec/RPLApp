@@ -113,9 +113,7 @@ const SuccessOverlay = ({
             fontWeight: 800,
             boxShadow: '0 0 0 10px #f0fdf4'
           }}
-        >
-          ✓
-        </div>
+        ><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
 
         {/* Judul Notifikasi */}
         <h3

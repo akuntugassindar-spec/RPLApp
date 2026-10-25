@@ -166,12 +166,12 @@ const KurirDashboard = () => {
 
   const renderBadgeStatus = (status) => {
     const s = (status || '').toLowerCase();
-    if (s === 'selesai') return <span className="badge badge-selesai">✓ Selesai</span>;
-    if (s === 'diantar') return <span className="badge badge-antar">🚚 Sedang Diantar</span>;
-    if (s === 'diambil') return <span className="badge badge-jemput">🛵 Sedang Dijemput</span>;
-    if (s === 'diproses') return <span className="badge badge-proses">⚙️ Di Lab Optik</span>;
-    if (s === 'dijadwalkan') return <span className="badge" style={{ background: '#fef3c7', color: '#b45309', fontWeight: 700 }}>📅 Siap Dijemput</span>;
-    return <span className="badge badge-pending">⏳ Pengajuan</span>;
+    if (s === 'selesai') return <span className="badge badge-selesai">Selesai</span>;
+    if (s === 'diantar') return <span className="badge badge-antar">Sedang Diantar</span>;
+    if (s === 'diambil') return <span className="badge badge-jemput">Sedang Dijemput</span>;
+    if (s === 'diproses') return <span className="badge badge-proses">Di Lab Optik</span>;
+    if (s === 'dijadwalkan') return <span className="badge" style={{ background: '#fef3c7', color: '#b45309', fontWeight: 700 }}>Siap Dijemput</span>;
+    return <span className="badge badge-pending">Pengajuan</span>;
   };
 
   return (
@@ -190,21 +190,11 @@ const KurirDashboard = () => {
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
-            <div
-              style={{
-                width: '64px',
-                height: '64px',
-                borderRadius: '50%',
-                background: '#fff',
-                color: '#0284c7',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '2rem',
-                boxShadow: '0 4px 10px rgba(0,0,0,0.15)'
-              }}
-            >
-              🛵
+            <div style={{ width: '64px', height: '64px', minWidth: '64px', borderRadius: '50%', background: '#fff', color: '#0284c7', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 10px rgba(0,0,0,0.15)' }}>
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
             </div>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
@@ -226,25 +216,13 @@ const KurirDashboard = () => {
                 </span>
               </div>
               <p style={{ margin: '0.25rem 0 0 0', opacity: 0.9, fontSize: '0.92rem' }}>
-                🏍️ Armada: <strong>Honda Vario 160 (B 4589 AB)</strong> &bull; Status: <span style={{ color: '#86efac', fontWeight: 700 }}>● Aktif Siap Bertugas</span>
+                Armada: <strong>Honda Vario 160 (B 4589 AB)</strong> &bull; Status: <span style={{ color: '#86efac', fontWeight: 700 }}>● Aktif Siap Bertugas</span>
               </p>
             </div>
           </div>
           <div style={{ display: 'flex', gap: '0.65rem' }}>
-            <button
-              onClick={fetchTugasKurir}
-              className="btn btn-sm"
-              style={{ background: 'rgba(255,255,255,0.2)', color: '#fff', border: '1px solid rgba(255,255,255,0.4)', borderRadius: '6px', fontWeight: 600 }}
-            >
-              🔄 Refresh Tugas
-            </button>
-            <Link
-              to="/kurir"
-              className="btn btn-sm"
-              style={{ background: '#fff', color: '#0369a1', borderRadius: '6px', fontWeight: 700 }}
-            >
-              👥 Master Armada Kurir
-            </Link>
+            <button onClick={fetchTugasKurir} className="btn btn-sm" style={{ background: 'rgba(255,255,255,0.2)', color: '#fff', border: '1px solid rgba(255,255,255,0.4)', borderRadius: '6px', fontWeight: 600, height: '34px', minHeight: '34px' }}>Refresh Tugas</button>
+            <Link to="/kurir" className="btn btn-sm" style={{ background: '#fff', color: '#0369a1', borderRadius: '6px', fontWeight: 700, height: '34px', minHeight: '34px', border: 'none' }}>Master Armada Kurir</Link>
           </div>
         </div>
       </div>
@@ -315,7 +293,7 @@ const KurirDashboard = () => {
         </div>
       ) : filteredList.length === 0 ? (
         <div className="card" style={{ textAlign: 'center', padding: '3rem' }}>
-          <span style={{ fontSize: '2.5rem' }}>📭</span>
+          <span style={{ fontSize: '2.5rem' }}></span>
           <h3 style={{ marginTop: '0.75rem', color: 'var(--dark)' }}>Tidak Ada Tugas pada Kategori Ini</h3>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
             Seluruh tugas penjemputan dan pengantaran kacamata telah terlayani dengan baik.
@@ -354,7 +332,7 @@ const KurirDashboard = () => {
                           fontWeight: 700
                         }}
                       >
-                        {isLunas ? '✓ LUNAS' : '⏳ TAGIHAN BELUM LUNAS'}
+                        {isLunas ? 'LUNAS' : 'TAGIHAN BELUM LUNAS'}
                       </span>
                     </div>
                     <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
@@ -387,12 +365,12 @@ const KurirDashboard = () => {
                   <div>
                     <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--text-muted)' }}>Nama Pelanggan:</p>
                     <p style={{ margin: '0.15rem 0 0.5rem', fontWeight: 700, fontSize: '0.95rem' }}>
-                      👤 {item.nama_pelanggan || 'Pelanggan Optik'}
+                      {item.nama_pelanggan || 'Pelanggan Optik'}
                     </p>
 
                     <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--text-muted)' }}>Nomor Telepon:</p>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.15rem' }}>
-                      <strong style={{ fontSize: '0.92rem' }}>📞 {item.no_telepon_pelanggan || '-'}</strong>
+                      <strong style={{ fontSize: '0.92rem' }}>Telp: {item.no_telepon_pelanggan || '-'}</strong>
                       {item.no_telepon_pelanggan && (
                         <a
                           href={`https://wa.me/${waNumber}?text=Halo%20${encodeURIComponent(item.nama_pelanggan || '')},%20saya%20Agus%20kurir%20OptikExpress%20ingin%20mengonfirmasi%20pengantaran%20kacamata%20pesanan%20%23${item.id}.`}
@@ -409,7 +387,7 @@ const KurirDashboard = () => {
                             textDecoration: 'none'
                           }}
                         >
-                          💬 Chat WA
+                          Chat WhatsApp
                         </a>
                       )}
                     </div>
@@ -418,7 +396,7 @@ const KurirDashboard = () => {
                   <div>
                     <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--text-muted)' }}>Alamat Jemput / Antar:</p>
                     <p style={{ margin: '0.15rem 0 0.4rem', fontWeight: 600, fontSize: '0.9rem', color: '#1e293b' }}>
-                      📍 {item.alamat || 'Alamat tidak diisi'}
+                      Alamat: {item.alamat || 'Alamat tidak diisi'}
                     </p>
                     <a
                       href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.alamat || 'Jakarta')}`}
@@ -427,14 +405,14 @@ const KurirDashboard = () => {
                       className="btn btn-outline btn-sm"
                       style={{ fontSize: '0.75rem', padding: '0.2rem 0.5rem' }}
                     >
-                      🧭 Buka di Google Maps
+                      Buka di Google Maps
                     </a>
                   </div>
 
                   <div>
                     <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--text-muted)' }}>Jadwal Penjemputan:</p>
                     <p style={{ margin: '0.15rem 0 0.5rem', fontWeight: 600, fontSize: '0.9rem' }}>
-                      📅 {item.tanggal_jemput || '-'} ({item.jam_jemput || '-'})
+                      Jadwal: {item.tanggal_jemput || '-'} ({item.jam_jemput || '-'})
                     </p>
                     <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--text-muted)' }}>Keluhan Kerusakan:</p>
                     <p style={{ margin: '0.15rem 0', fontSize: '0.85rem', fontStyle: 'italic', color: '#475569' }}>
@@ -454,7 +432,7 @@ const KurirDashboard = () => {
                         className="btn btn-sm"
                         style={{ backgroundColor: '#0284c7', color: '#fff', fontWeight: 700, borderRadius: '6px' }}
                       >
-                        🛵 Mulai Jemput Kacamata
+                        Mulai Jemput Kacamata
                       </button>
                     )}
 
@@ -465,7 +443,7 @@ const KurirDashboard = () => {
                         className="btn btn-sm"
                         style={{ backgroundColor: '#6366f1', color: '#fff', fontWeight: 700, borderRadius: '6px' }}
                       >
-                        🏢 Tiba di Lab & Serahkan Kacamata
+                        Tiba di Lab & Serahkan Kacamata
                       </button>
                     )}
 
@@ -476,7 +454,7 @@ const KurirDashboard = () => {
                         className="btn btn-sm"
                         style={{ backgroundColor: '#06b6d4', color: '#fff', fontWeight: 700, borderRadius: '6px' }}
                       >
-                        📦 Ambil dari Lab & Mulai Antar
+                        Ambil dari Lab & Mulai Antar
                       </button>
                     )}
 
@@ -487,7 +465,7 @@ const KurirDashboard = () => {
                         className="btn btn-sm"
                         style={{ backgroundColor: '#10b981', color: '#fff', fontWeight: 700, borderRadius: '6px' }}
                       >
-                        ✓ Kacamata Selesai Diterima Pelanggan
+                        Kacamata Selesai Diterima Pelanggan
                       </button>
                     )}
 
@@ -498,7 +476,7 @@ const KurirDashboard = () => {
                       className="btn btn-outline btn-sm"
                       title="Kirim koordinat GPS perangkat kurir saat ini ke peta pelanggan"
                     >
-                      📍 Siarkan GPS Saya
+                      Siarkan GPS Saya
                     </button>
                   </div>
 
@@ -509,7 +487,7 @@ const KurirDashboard = () => {
                       className="btn btn-outline btn-sm"
                       style={{ borderColor: '#0284c7', color: '#0284c7', fontWeight: 600 }}
                     >
-                      🗺️ Peta Live GPS
+                      Peta Live GPS
                     </Link>
 
                     {!isLunas ? (
@@ -518,7 +496,7 @@ const KurirDashboard = () => {
                         className="btn btn-sm"
                         style={{ backgroundColor: '#059669', color: '#fff', fontWeight: 700, borderRadius: '6px' }}
                       >
-                        💵 Kasir di Tempat
+                        Kasir di Tempat
                       </button>
                     ) : (
                       <span
@@ -531,7 +509,7 @@ const KurirDashboard = () => {
                           fontWeight: 700
                         }}
                       >
-                        ✓ Lunas
+                        Lunas
                       </span>
                     )}
                   </div>
@@ -574,13 +552,13 @@ const KurirDashboard = () => {
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
               <h3 style={{ margin: 0, fontSize: '1.25rem', color: '#0369a1', fontWeight: 800 }}>
-                💵 Kasir Kurir di Tempat
+                Kasir Kurir di Tempat
               </h3>
               <button
                 onClick={() => setKasirModalItem(null)}
                 style={{ background: 'none', border: 'none', fontSize: '1.25rem', cursor: 'pointer', color: '#64748b' }}
               >
-                ✕
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
               </button>
             </div>
 
@@ -608,7 +586,7 @@ const KurirDashboard = () => {
             {/* QRIS Code untuk di-scan oleh pelanggan di layar HP kurir */}
             <div style={{ textAlign: 'center', marginBottom: '1.25rem' }}>
               <p style={{ fontSize: '0.85rem', fontWeight: 700, color: '#0369a1', marginBottom: '0.5rem' }}>
-                📱 Tunjukkan QRIS ini kepada Pelanggan:
+                Tunjukkan QRIS ini kepada Pelanggan:
               </p>
               {modalLoading ? (
                 <div style={{ padding: '2rem', color: 'var(--text-muted)' }}>Menyiapkan QRIS...</div>
@@ -642,7 +620,7 @@ const KurirDashboard = () => {
                   cursor: 'pointer'
                 }}
               >
-                {modalLoading ? 'Memproses...' : '✓ Terima Tunai (COD) / QRIS Sukses'}
+                {modalLoading ? 'Memproses...' : 'Terima Tunai (COD) / QRIS Sukses'}
               </button>
               <button
                 type="button"

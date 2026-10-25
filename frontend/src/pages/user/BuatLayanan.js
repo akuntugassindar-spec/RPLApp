@@ -191,7 +191,7 @@ const BuatLayanan = () => {
           {/* Baris 4: Unggah Foto Kacamata & Resep Optik (Fitur Inti #12 README.md - Opsional) */}
           <div style={{ background: '#f8fafc', padding: '1.25rem', borderRadius: 'var(--radius-md)', border: '1px solid #e2e8f0', marginBottom: '1.25rem' }}>
             <h3 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#0369a1', margin: '0 0 0.5rem 0' }}>
-              📷 Foto Kacamata & Resep Dokter (Opsional)
+              Foto Kacamata & Resep Dokter (Opsional)
             </h3>
             <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: '0 0 1rem 0' }}>
               Lampirkan foto kacamata yang rusak atau foto resep dokter mata untuk membantu teknisi optik kami bekerja lebih presisi.
@@ -201,7 +201,7 @@ const BuatLayanan = () => {
               {/* Foto Kacamata */}
               <div className="form-group" style={{ margin: 0 }}>
                 <label className="form-label" style={{ fontSize: '0.85rem' }}>
-                  👓 Foto Fisik Kacamata / Kerusakan
+                  Foto Fisik Kacamata / Kerusakan
                 </label>
                 <input
                   type="file"
@@ -231,7 +231,7 @@ const BuatLayanan = () => {
               {/* Foto Resep */}
               <div className="form-group" style={{ margin: 0 }}>
                 <label className="form-label" style={{ fontSize: '0.85rem' }}>
-                  📋 Foto Resep Dokter / Ukuran Optik
+                  Foto Resep Dokter / Ukuran Optik
                 </label>
                 <input
                   type="file"

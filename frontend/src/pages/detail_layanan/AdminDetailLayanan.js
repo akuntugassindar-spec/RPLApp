@@ -228,9 +228,12 @@ const AdminDetailLayanan = () => {
     lokasi_tujuan: { nama: layanan?.nama_pelanggan || 'Pelanggan', alamat: layanan?.alamat || 'Alamat Pelanggan' }
   };
 
-  const pRatio = (effectiveTracking.persentase_perjalanan || 25) / 100;
-  const adminKurirLat = Number((-6.2088 + (-6.2205 - -6.2088) * pRatio).toFixed(4));
-  const adminKurirLng = Number((106.8456 + (106.8270 - 106.8456) * pRatio).toFixed(4));
+  const adminDestLat = Number(effectiveTracking.lokasi_tujuan?.lat) || -6.2205;
+  const adminDestLng = Number(effectiveTracking.lokasi_tujuan?.lng) || 106.8270;
+  const defaultKurirLat = adminDestLat + 0.003;
+  const defaultKurirLng = adminDestLng + 0.003;
+  const adminKurirLat = Number(effectiveTracking.kurir?.posisi_saat_ini?.lat) || (layanan?.kurir_lat ? Number(layanan.kurir_lat) : defaultKurirLat);
+  const adminKurirLng = Number(effectiveTracking.kurir?.posisi_saat_ini?.lng) || (layanan?.kurir_lng ? Number(layanan.kurir_lng) : defaultKurirLng);
 
   const handleApplyPreset = (statusVal, deskripsi) => {
     setStatusDipilih(statusVal);
@@ -315,12 +318,15 @@ const AdminDetailLayanan = () => {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.25rem', marginTop: '0.5rem' }}>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem', background: '#fff', padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px solid #e0f2fe' }}>
-                <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#0284c7', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.3rem', fontWeight: 800 }}>
-                  ️
-                </div>
+                <div style={{ width: '48px', height: '48px', minWidth: '48px', borderRadius: '50%', background: '#0284c7', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+        <circle cx="12" cy="7" r="4" />
+      </svg>
+    </div>
                 <div>
                   <h4 style={{ fontWeight: 700, color: 'var(--dark)' }}>{kurirNama || effectiveTracking.kurir?.nama || 'Belum Ditugaskan'}</h4>
-                  <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{(effectiveTracking.kurir?.kendaraan || 'Honda Vario 160 (B 4589 AB)').replace(/\(L\s+/gi, '(B ').replace(/\bL\s+(\d+)/gi, 'B $1')}</p>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{effectiveTracking.kurir?.kendaraan}</p>
                   <p style={{ fontSize: '0.85rem', color: '#0369a1', fontWeight: 600 }}> {kurirTelepon || effectiveTracking.kurir?.telepon || '-'}</p>
                 </div>
               </div>
@@ -407,6 +413,8 @@ const AdminDetailLayanan = () => {
                 <LiveMapKurir
                   kurirLat={adminKurirLat}
                   kurirLng={adminKurirLng}
+                  destLat={adminDestLat}
+                  destLng={adminDestLng}
                   kurirNama={kurirNama || effectiveTracking.kurir?.nama}
                   alamatTujuan={layanan?.alamat}
                   height="200px"
@@ -464,7 +472,7 @@ const AdminDetailLayanan = () => {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem', marginBottom: '1.5rem' }}>
         <div className="card" style={{ borderLeft: '4px solid var(--primary)' }}>
           <div className="card-header">
-            <h3 className="card-title" style={{ fontSize: '1.1rem' }}>️ Pengaturan Status, Biaya & Kurir</h3>
+            <h3 className="card-title" style={{ fontSize: '1.1rem' }}> Pengaturan Status, Biaya & Kurir</h3>
           </div>
           <form onSubmit={handleUpdateStatus}>
             <div className="form-group">
@@ -559,7 +567,7 @@ const AdminDetailLayanan = () => {
                   className="btn btn-sm btn-outline"
                   style={{ fontSize: '0.75rem', padding: '0.2rem 0.5rem' }}
                 >
-                  ️ 3. Di Lab (75%)
+                   3. Di Lab (75%)
                 </button>
                 <button
                   type="button"

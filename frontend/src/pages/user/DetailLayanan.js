@@ -323,8 +323,7 @@ const DetailLayanan = () => {
 
   const kurirNama = layanan?.kurir_nama || trackingData?.kurir?.nama || 'Agus Pratama';
   const kurirTelepon = layanan?.kurir_telepon || trackingData?.kurir?.telepon || '0812-3456-7890';
-  const rawKendaraan = trackingData?.kurir?.kendaraan || 'Honda Vario 160 (B 4589 AB)';
-  const kurirKendaraan = rawKendaraan.replace(/\(L\s+/gi, '(B ').replace(/\bL\s+(\d+)/gi, 'B $1');
+  const kurirKendaraan = trackingData?.kurir?.kendaraan || 'Honda Vario 160 (B 4589 AB)';
 
   // Koordinat Titik Tujuan Pelanggan (dari geocoding alamat penjemputan Foto 2)
   const destLat = Number(trackingData?.lokasi_tujuan?.lat) || -6.2205;
@@ -470,8 +469,8 @@ const DetailLayanan = () => {
           {/* Info Driver Kurir */}
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem', background: '#fff', padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px solid #e0f2fe', boxShadow: '0 2px 4px rgba(0,0,0,0.03)' }}>
-              <div style={{ width: '52px', height: '52px', borderRadius: '50%', background: 'linear-gradient(135deg, #0284c7, #0d9488)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', boxShadow: '0 2px 6px rgba(2, 132, 199, 0.3)' }}>
-                ️
+              <div style={{ width: '52px', height: '52px', borderRadius: '50%', background: 'linear-gradient(135deg, #0284c7, #0d9488)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
               </div>
               <div style={{ flex: 1 }}>
                 <h4 style={{ fontWeight: 800, margin: 0, color: 'var(--dark)' }}>{kurirNama}</h4>
@@ -571,7 +570,7 @@ const DetailLayanan = () => {
 
                   {/* Titik Awal: Posisi Kurir Terdekat */}
                   <circle cx="30" cy="70" r="14" fill="#0284c7" />
-                  <text x="30" y="74" textAnchor="middle" fill="#fff" fontSize="11" fontWeight="bold">🛵</text>
+                  <text x="30" y="74" textAnchor="middle" fill="#fff" fontSize="11" fontWeight="bold">K</text>
                   <text x="30" y="98" textAnchor="middle" fill="#0f172a" fontSize="9" fontWeight="bold">{kurirNama}</text>
 
                   {/* Ikon Kurir Bergerak Dinamis dengan Efek Radar Pulsing */}
@@ -580,18 +579,18 @@ const DetailLayanan = () => {
                       <animate attributeName="r" values="14;24;14" dur="1.8s" repeatCount="indefinite" />
                     </circle>
                     <circle cx="0" cy="0" r="12" fill="#0d9488" stroke="#ffffff" strokeWidth="2.5" />
-                    <text x="0" y="4" textAnchor="middle" fill="#fff" fontSize="10">🛵</text>
+                    <text x="0" y="4" textAnchor="middle" fill="#fff" fontSize="10" fontWeight="bold">K</text>
                   </g>
 
                   {/* Titik Akhir: Alamat Pelanggan */}
                   <circle cx="290" cy="70" r="14" fill="#10b981" />
-                  <text x="290" y="74" textAnchor="middle" fill="#fff" fontSize="11" fontWeight="bold">🏠</text>
+                  <text x="290" y="74" textAnchor="middle" fill="#fff" fontSize="11" fontWeight="bold">P</text>
                   <text x="290" y="98" textAnchor="middle" fill="#0f172a" fontSize="9" fontWeight="bold">Alamat Jemput</text>
                 </svg>
 
                 <div style={{ marginTop: '0.6rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
                   <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
-                    <span>🛵 Kurir Terdekat: {kurirNama}</span> &bull; <span>🏠 {layanan?.alamat ? layanan.alamat.slice(0, 20) + '...' : 'Tujuan Jemput'}</span>
+                    <span>Kurir Terdekat: {kurirNama}</span> &bull; <span> {layanan?.alamat ? layanan.alamat.slice(0, 20) + '...' : 'Tujuan Jemput'}</span>
                   </div>
                   <a
                     href={`https://www.google.com/maps/dir/?api=1&origin=${currentLat},${currentLng}&destination=${destLat},${destLng}&travelmode=driving`}
@@ -792,7 +791,7 @@ const DetailLayanan = () => {
                           className="btn btn-outline btn-sm"
                           style={{ fontSize: '0.75rem', padding: '0.2rem 0.5rem' }}
                         >
-                          {copiedText === 'qris_string' ? '✓ String QRIS Tersalin!' : '📋 Salin Kode EMVCo QRIS'}
+                          {copiedText === 'qris_string' ? 'String QRIS Tersalin!' : 'Salin Kode QRIS'}
                         </button>
                       </div>
                     )}
@@ -816,28 +815,28 @@ const DetailLayanan = () => {
                         className="btn btn-outline btn-sm"
                         style={{ borderColor: '#00aa13', color: '#00aa13', fontWeight: 700, fontSize: '0.75rem' }}
                       >
-                        📱 Buka GoPay
+                        Buka GoPay
                       </a>
                       <a
                         href="shopeeid://shopeepay"
                         className="btn btn-outline btn-sm"
                         style={{ borderColor: '#ee4d2d', color: '#ee4d2d', fontWeight: 700, fontSize: '0.75rem' }}
                       >
-                        📱 Buka ShopeePay
+                        Buka ShopeePay
                       </a>
                     </div>
 
                     {/* Informasi Deteksi GoPay & Opsi Custom QRIS */}
                     <div style={{ background: '#e0f2fe', padding: '0.75rem', borderRadius: '8px', marginBottom: '0.75rem', borderLeft: '4px solid #0284c7', fontSize: '0.8rem', color: '#0369a1' }}>
                       <p style={{ margin: '0 0 0.35rem 0' }}>
-                        💡 <strong>Info Scan GoPay di HP:</strong> Jika ingin mencoba transfer dengan <em>saldo uang nyata</em> di GoPay asli, pasang gambar QRIS toko Anda sendiri di bawah ini, atau gunakan tombol simulasi instan.
+                        <strong>Info Scan GoPay di HP:</strong> Jika ingin mencoba transfer dengan <em>saldo uang nyata</em> di GoPay asli, pasang gambar QRIS toko Anda sendiri di bawah ini, atau gunakan tombol simulasi instan.
                       </p>
                       <button
                         type="button"
                         onClick={() => setShowCustomQris(!showCustomQris)}
                         style={{ background: 'none', border: 'none', color: '#0369a1', textDecoration: 'underline', fontWeight: 700, cursor: 'pointer', padding: 0, fontSize: '0.8rem' }}
                       >
-                        {showCustomQris ? 'Sembunyikan Form QRIS Toko' : '🖼️ Pasang Gambar QRIS Toko Anda (Opsional)'}
+                        {showCustomQris ? 'Sembunyikan Form QRIS Toko' : 'Pasang Gambar QRIS Toko Anda (Opsional)'}
                       </button>
 
                       {showCustomQris && (
@@ -882,7 +881,7 @@ const DetailLayanan = () => {
                       className="btn btn-primary"
                       style={{ width: '100%', padding: '0.75rem', fontSize: '0.95rem', background: 'linear-gradient(135deg, #16a34a, #15803d)', borderColor: '#16a34a', fontWeight: 700 }}
                     >
-                      {processingPay ? 'Memverifikasi...' : '✓ Simulasi: Saya Sudah Bayar via QRIS (Tandai Lunas)'}
+                      {processingPay ? 'Memverifikasi...' : 'Simulasi: Saya Sudah Bayar via QRIS (Tandai Lunas)'}
                     </button>
                   </div>
                 </div>

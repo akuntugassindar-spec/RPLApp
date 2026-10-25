@@ -204,10 +204,10 @@ const TrackingKurir = () => {
     );
   }
 
-  const kurirInfo = {
-    nama: trackingData?.kurir?.nama || layanan?.kurir_nama || 'Agus Pratama',
-    telepon: trackingData?.kurir?.telepon || layanan?.kurir_telepon || '081234567890',
-    kendaraan: (trackingData?.kurir?.kendaraan || 'Honda Vario 160 (B 4589 AB)').replace(/\(L\s+/gi, '(B ').replace(/\bL\s+(\d+)/gi, 'B $1')
+  const kurirInfo = trackingData?.kurir || {
+    nama: layanan?.kurir_nama || 'Agus Pratama',
+    telepon: layanan?.kurir_telepon || '081234567890',
+    kendaraan: 'Honda Vario 160 (B 4589 AB)'
   };
 
   const persentase = simulasiPersen !== null ? simulasiPersen : (trackingData?.persentase_perjalanan || 25);
@@ -254,7 +254,7 @@ const TrackingKurir = () => {
             onClick={() => { fetchTracking(); fetchLayanan(); }}
             className="btn btn-outline btn-sm"
           >
-            🔄 Refresh Status
+            Refresh Status
           </button>
         </div>
       </div>
@@ -275,8 +275,8 @@ const TrackingKurir = () => {
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', borderBottom: '1px solid #e2e8f0', paddingBottom: '1rem', marginBottom: '1rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: isLunas ? '#16a34a' : '#0284c7', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem' }}>
-              💳
+            <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: isLunas ? '#16a34a' : '#0284c7', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
             </div>
             <div>
               <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800, color: isLunas ? '#166534' : '#0369a1' }}>
@@ -300,7 +300,7 @@ const TrackingKurir = () => {
                 padding: '0.35rem 0.8rem'
               }}
             >
-              {isLunas ? '✓ LUNAS' : '⏳ BELUM BAYAR / MENUNGGU'}
+              {isLunas ? 'LUNAS' : 'BELUM BAYAR / MENUNGGU'}
             </span>
           </div>
         </div>
@@ -308,11 +308,11 @@ const TrackingKurir = () => {
         {isLunas ? (
           <div style={{ textAlign: 'center', padding: '1rem 0' }}>
             <p style={{ color: '#15803d', fontWeight: 700, margin: '0 0 0.5rem 0' }}>
-              ✓ Tagihan servis & jasa kurir sebesar Rp {totalBiaya.toLocaleString('id-ID')} telah dibayar LUNAS.
+              Tagihan servis & jasa kurir sebesar Rp {totalBiaya.toLocaleString('id-ID')} telah dibayar LUNAS.
             </p>
             <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
               <Link to={`/pembayaran/${id}/konfirmasi`} className="btn btn-outline btn-sm">
-                📄 Lihat Bukti Pembayaran
+                Lihat Bukti Pembayaran
               </Link>
             </div>
           </div>
@@ -330,7 +330,7 @@ const TrackingKurir = () => {
                 className="btn btn-primary"
                 style={{ background: '#10b981', borderColor: '#10b981', fontWeight: 700 }}
               >
-                {processingBayar ? 'Memproses...' : '💵 Kurir: Terima Pembayaran Tunai COD (Tandai Lunas)'}
+                {processingBayar ? 'Memproses...' : 'Terima Pembayaran Tunai COD'}
               </button>
 
               {/* Tombol Tampilkan QRIS Kurir */}
@@ -341,12 +341,12 @@ const TrackingKurir = () => {
                 className="btn btn-outline"
                 style={{ borderColor: '#0284c7', color: '#0284c7', fontWeight: 700 }}
               >
-                📱 Kurir: Tampilkan Kode QRIS ke Pelanggan
+                Tampilkan Kode QRIS
               </button>
 
               {/* Tautan Pembayaran Lengkap */}
               <Link to={`/pembayaran/${id}`} className="btn btn-outline" style={{ fontSize: '0.85rem' }}>
-                💳 Buka Layar Kasir Lengkap
+                Buka Layar Kasir
               </Link>
             </div>
           </div>
@@ -388,7 +388,7 @@ const TrackingKurir = () => {
                 className="btn btn-primary"
                 style={{ background: '#16a34a', borderColor: '#16a34a', fontWeight: 700 }}
               >
-                ✓ Pelanggan Sudah Scan & Bayar (Lunas)
+                Pelanggan Sudah Scan & Bayar (Lunas)
               </button>
               <button
                 type="button"
@@ -407,7 +407,7 @@ const TrackingKurir = () => {
       <div className="card" style={{ border: '2px solid #bae6fd', backgroundColor: '#f0f9ff', marginBottom: '1.5rem' }}>
         <div className="card-header" style={{ borderColor: '#bae6fd' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-            <span style={{ fontSize: '1.4rem' }}>🛵</span>
+            
             <div>
               <h3 className="card-title" style={{ fontSize: '1.15rem', color: '#0369a1' }}>
                 Posisi Kurir Antar-Jemput (Live GPS)
@@ -418,7 +418,7 @@ const TrackingKurir = () => {
             </div>
           </div>
           <span style={{ backgroundColor: '#e0f2fe', color: '#0369a1', padding: '0.25rem 0.65rem', borderRadius: '999px', fontSize: '0.8rem', fontWeight: 700 }}>
-            ⏱️ ETA: {estimasi}
+            ETA: {estimasi}
           </span>
         </div>
 
@@ -426,8 +426,8 @@ const TrackingKurir = () => {
           {/* Identitas Driver */}
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem', background: '#fff', padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px solid #e0f2fe' }}>
-              <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#0284c7', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.4rem' }}>
-                🏍️
+              <div style={{ width: '48px', height: '48px', minWidth: '48px', borderRadius: '50%', background: '#0284c7', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
               </div>
               <div style={{ flex: 1 }}>
                 <h4 style={{ fontWeight: 800, margin: 0, color: 'var(--dark)' }}>{kurirInfo.nama}</h4>
@@ -469,7 +469,7 @@ const TrackingKurir = () => {
                 />
               </div>
               <p style={{ fontSize: '0.85rem', color: '#334155', marginTop: '0.65rem', marginBottom: '0.25rem', fontStyle: 'italic' }}>
-                📍 {deskripsi}
+                {deskripsi}
               </p>
               <small style={{ color: '#64748b', fontSize: '0.75rem', display: 'block' }}>
                 Koordinat Kurir: Lat {kurirLat.toFixed(4)}, Lng {kurirLng.toFixed(4)}
@@ -484,7 +484,7 @@ const TrackingKurir = () => {
                 className="btn btn-outline btn-sm"
                 style={{ width: '100%', fontSize: '0.85rem' }}
               >
-                {simulasiBerjalan ? '⏸️ Hentikan Simulasi Gerak' : '▶️ Mulai Simulasi Gerak Kurir'}
+                {simulasiBerjalan ? 'Hentikan Simulasi Gerak' : 'Mulai Simulasi Gerak Kurir'}
               </button>
             </div>
           </div>
@@ -547,7 +547,7 @@ const TrackingKurir = () => {
                   <path d="M 30 70 Q 110 20, 160 70 T 290 70" fill="none" stroke="#cbd5e1" strokeWidth="8" strokeLinecap="round" />
                   <path d="M 30 70 Q 110 20, 160 70 T 290 70" fill="none" stroke="#0284c7" strokeWidth="4" strokeDasharray="6,4" strokeLinecap="round" />
                   <circle cx="30" cy="70" r="14" fill="#0284c7" />
-                  <text x="30" y="74" textAnchor="middle" fill="#fff" fontSize="10" fontWeight="bold">🏪</text>
+                  <text x="30" y="74" textAnchor="middle" fill="#fff" fontSize="10" fontWeight="bold">O</text>
                   <text x="30" y="98" textAnchor="middle" fill="#0f172a" fontSize="9" fontWeight="bold">{kurirInfo.nama}</text>
 
                   {(() => {
@@ -559,13 +559,13 @@ const TrackingKurir = () => {
                           <animate attributeName="r" values="14;24;14" dur="2s" repeatCount="indefinite" />
                         </circle>
                         <circle cx="0" cy="0" r="12" fill="#0d9488" stroke="#fff" strokeWidth="2" />
-                        <text x="0" y="4" textAnchor="middle" fill="#fff" fontSize="8" fontWeight="bold">🛵</text>
+                        <text x="0" y="4" textAnchor="middle" fill="#fff" fontSize="8" fontWeight="bold">K</text>
                       </g>
                     );
                   })()}
 
                   <circle cx="290" cy="70" r="14" fill="#10b981" />
-                  <text x="290" y="74" textAnchor="middle" fill="#fff" fontSize="10" fontWeight="bold">🏠</text>
+                  <text x="290" y="74" textAnchor="middle" fill="#fff" fontSize="10" fontWeight="bold">P</text>
                   <text x="290" y="98" textAnchor="middle" fill="#0f172a" fontSize="9" fontWeight="bold">Alamat Jemput</text>
                 </svg>
               </div>
@@ -580,7 +580,7 @@ const TrackingKurir = () => {
                 className="btn btn-outline btn-sm"
                 style={{ width: '100%', display: 'inline-block' }}
               >
-                🗺️ Buka Navigasi Rute di Google Maps
+                Buka Navigasi Google Maps
               </a>
             </div>
           </div>

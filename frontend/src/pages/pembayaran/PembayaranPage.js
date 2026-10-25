@@ -214,7 +214,7 @@ const PembayaranPage = () => {
             fontWeight: 800
           }}
         >
-          {isLunas ? '✓ STATUS: SUDAH LUNAS' : '⏳ STATUS: MENUNGGU PEMBAYARAN'}
+          {isLunas ? 'STATUS: SUDAH LUNAS' : 'STATUS: MENUNGGU PEMBAYARAN'}
         </span>
       </div>
 
@@ -250,7 +250,13 @@ const PembayaranPage = () => {
 
       {isLunas ? (
         <div className="card" style={{ textAlign: 'center', padding: '3rem 2rem', backgroundColor: '#f0fdf4', border: '2px solid #bbf7d0' }}>
-          <div style={{ fontSize: '3rem', marginBottom: '0.5rem' }}>✅</div>
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.75rem' }}>
+            <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: '#22c55e', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </div>
+          </div>
           <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#166534', marginBottom: '0.5rem' }}>
             Pembayaran Telah Dikonfirmasi LUNAS
           </h2>
@@ -259,10 +265,10 @@ const PembayaranPage = () => {
           </p>
           <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
             <Link to={`/pembayaran/${id}/konfirmasi`} className="btn btn-primary">
-              📄 Cetak Struk / Bukti Lunas
+              Cetak Struk / Bukti Lunas
             </Link>
             <Link to={`/kurir/tracking/${id}`} className="btn btn-outline">
-              🛵 Pantau Posisi Kurir
+              Pantau Posisi Kurir
             </Link>
           </div>
         </div>
@@ -346,7 +352,7 @@ const PembayaranPage = () => {
                       onClick={() => copyToClipboard(paymentDetail.qris_payload, 'payload')}
                       className="btn btn-outline btn-sm"
                     >
-                      {copied === 'payload' ? '✓ String QRIS Tersalin!' : '📋 Salin Kode EMVCo QRIS'}
+                      {copied === 'payload' ? 'String QRIS Tersalin!' : 'Salin Kode QRIS'}
                     </button>
                   )}
                   <a
@@ -354,21 +360,21 @@ const PembayaranPage = () => {
                     className="btn btn-outline btn-sm"
                     style={{ borderColor: '#00aa13', color: '#00aa13', fontWeight: 700 }}
                   >
-                    📱 Buka Aplikasi GoPay
+                    Buka Aplikasi GoPay
                   </a>
                   <a
                     href="shopeeid://shopeepay"
                     className="btn btn-outline btn-sm"
                     style={{ borderColor: '#ee4d2d', color: '#ee4d2d', fontWeight: 700 }}
                   >
-                    📱 Buka ShopeePay
+                    Buka ShopeePay
                   </a>
                 </div>
 
                 {/* Kotak Petunjuk Deteksi GoPay & Opsi Custom QRIS */}
                 <div style={{ background: '#f0f9ff', padding: '1rem', borderRadius: '8px', border: '1px solid #bae6fd', fontSize: '0.85rem', color: '#0369a1', lineHeight: '1.5' }}>
                   <p style={{ fontWeight: 700, margin: '0 0 0.35rem 0' }}>
-                    💡 Catatan Penting Mengenai Scan Aplikasi GoPay Asli di HP:
+                    Catatan Penting Mengenai Scan Aplikasi GoPay Asli di HP:
                   </p>
                   <p style={{ margin: '0 0 0.5rem 0' }}>
                     Aplikasi GoPay riil pada smartphone mewajibkan toko terdaftar resmi di switch ASPI (Bank Indonesia). Jika Anda ingin menguji menggunakan <strong>saldo uang sungguhan</strong>, Anda dapat memasang gambar QRIS toko/rekening Anda sendiri di bawah ini. Atau Anda dapat langsung menekan tombol <strong>"Simulasi Pembayaran Berhasil"</strong> untuk menyelesaikan alur pesanan secara instan.
@@ -380,7 +386,7 @@ const PembayaranPage = () => {
                       className="btn btn-sm"
                       style={{ background: '#0284c7', color: '#fff', border: 'none', fontWeight: 700 }}
                     >
-                      {showCustomQris ? 'Sembunyikan Form QRIS Toko' : '🖼️ Pasang Gambar QRIS Toko Sendiri (Opsional)'}
+                      {showCustomQris ? 'Sembunyikan Form QRIS Toko' : 'Pasang Gambar QRIS Toko Sendiri (Opsional)'}
                     </button>
                     {isCustomQrisActive && (
                       <button
@@ -460,7 +466,7 @@ const PembayaranPage = () => {
                     onClick={() => copyToClipboard(vaNumber, 'va')}
                     className="btn btn-outline btn-sm"
                   >
-                    {copied === 'va' ? '✓ Nomor Tersalin!' : '📋 Salin Nomor VA'}
+                    {copied === 'va' ? 'Nomor Tersalin!' : 'Salin Nomor VA'}
                   </button>
                 </div>
               </div>
@@ -469,7 +475,7 @@ const PembayaranPage = () => {
             {(metode === 'gopay' || metode === 'shopeepay') && (
               <div style={{ textAlign: 'center', padding: '1rem' }}>
                 <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>
-                  {metode === 'gopay' ? '🟢' : '🟠'}
+                  {metode === 'gopay' ? '' : ''}
                 </div>
                 <h4 style={{ fontWeight: 800, color: 'var(--dark)', marginBottom: '0.5rem' }}>
                   Pembayaran Instan via {metode === 'gopay' ? 'GoPay' : 'ShopeePay'}
@@ -483,7 +489,7 @@ const PembayaranPage = () => {
                     className="btn btn-primary"
                     style={{ background: metode === 'gopay' ? '#00aa13' : '#ee4d2d', borderColor: metode === 'gopay' ? '#00aa13' : '#ee4d2d' }}
                   >
-                    📱 Buka Aplikasi {metode === 'gopay' ? 'GoPay' : 'ShopeePay'}
+                    Buka Aplikasi {metode === 'gopay' ? 'GoPay' : 'ShopeePay'}
                   </a>
                   <button
                     type="button"
@@ -491,7 +497,7 @@ const PembayaranPage = () => {
                     className="btn btn-outline"
                     disabled={processing}
                   >
-                    {processing ? 'Memverifikasi...' : '✓ Konfirmasi Pembayaran Berhasil'}
+                    {processing ? 'Memverifikasi...' : 'Konfirmasi Pembayaran Berhasil'}
                   </button>
                 </div>
               </div>
@@ -500,7 +506,7 @@ const PembayaranPage = () => {
             {metode === 'cod' && (
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
-                  <span style={{ fontSize: '2rem' }}>💵</span>
+                  <span style={{ fontSize: '2rem' }}></span>
                   <div>
                     <h4 style={{ fontWeight: 800, color: 'var(--dark)', margin: 0 }}>
                       Cash On Delivery (Bayar Tunai ke Kurir)
@@ -530,7 +536,7 @@ const PembayaranPage = () => {
               disabled={processing}
               style={{ backgroundColor: '#10b981', borderColor: '#10b981', fontWeight: 800, padding: '0.65rem 1.25rem' }}
             >
-              {processing ? 'Memproses Pelunasan...' : '✓ Simulasi: Konfirmasi Tagihan LUNAS'}
+              {processing ? 'Memproses Pelunasan...' : 'Simulasi: Konfirmasi Tagihan LUNAS'}
             </button>
           </div>
         </div>

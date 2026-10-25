@@ -49,9 +49,6 @@ const LiveMapKurir = ({
 
   const distKurirToDest = calcDistance(validKurirLat, validKurirLng, validDestLat, validDestLng);
   const distKurirMeter = Math.round(distKurirToDest * 1000);
-  const cleanKurirKendaraan = (kurirKendaraan || 'Honda Vario 160 (B 4589 AB)')
-    .replace(/\(L\s+/gi, '(B ')
-    .replace(/\bL\s+(\d+)/gi, 'B $1');
 
   // URL HTML Embed Google Maps Indonesia (hl=id) sesuai StackOverflow
   // https://stackoverflow.com/questions/54264689/how-do-i-embed-google-maps-url-to-website-using-html
@@ -104,7 +101,7 @@ const LiveMapKurir = ({
       const destIcon = window.L.divIcon({
         className: 'leaflet-dest-marker',
         html: `
-          <div style="background:#10b981;color:#fff;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.35);border:2px solid #fff;margin:0 auto;font-size:14px;">🏠</div>
+          <div style="background:#10b981;color:#fff;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.35);border:2px solid #fff;margin:0 auto;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg></div>
           <div style="background:#065f46;color:#fff;font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px;white-space:nowrap;margin-top:2px;text-align:center;">Tujuan</div>
         `,
         iconSize: [60, 48],
@@ -115,7 +112,7 @@ const LiveMapKurir = ({
       const kurirIcon = window.L.divIcon({
         className: 'leaflet-kurir-marker',
         html: `
-          <div style="background:#0284c7;border-radius:50%;width:28px;height:28px;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.35);display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;margin:0 auto;">🛵</div>
+          <div style="background:#0284c7;border-radius:50%;width:28px;height:28px;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.35);display:flex;align-items:center;justify-content:center;color:#fff;margin:0 auto;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="7" r="4"></circle><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path></svg></div>
           <div style="background:#0284c7;color:#fff;font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px;white-space:nowrap;margin-top:2px;text-align:center;">${kurirNama}</div>
         `,
         iconSize: [70, 50],
@@ -176,7 +173,7 @@ const LiveMapKurir = ({
               transition: 'all 0.15s ease'
             }}
           >
-            🗺️ Rute Kurir (Google Maps)
+            Rute Kurir (Google Maps)
           </button>
           <button
             type="button"
@@ -193,7 +190,7 @@ const LiveMapKurir = ({
               transition: 'all 0.15s ease'
             }}
           >
-            🛵 Posisi Kurir (Jakarta/Tangerang)
+            Posisi Kurir (Jakarta/Tangerang)
           </button>
           <button
             type="button"
@@ -210,7 +207,7 @@ const LiveMapKurir = ({
               transition: 'all 0.15s ease'
             }}
           >
-            🏪 Toko Optik Pusat
+            Toko Optik Pusat
           </button>
         </div>
 
@@ -225,7 +222,7 @@ const LiveMapKurir = ({
             fontWeight: 700,
             border: '1px solid #bae6fd'
           }}>
-            🇮🇩 Google Maps Indonesia (Jakarta & Tangerang)
+            Google Maps Indonesia (Jakarta & Tangerang)
           </span>
           <button
             type="button"
@@ -242,7 +239,7 @@ const LiveMapKurir = ({
               fontWeight: 600
             }}
           >
-            {enginePeta === 'google' ? '🌐 Tampilan OSM' : '📍 Kembali ke Google Maps'}
+            {enginePeta === 'google' ? 'Tampilan OSM' : 'Kembali ke Google Maps'}
           </button>
         </div>
       </div>
@@ -318,13 +315,13 @@ const LiveMapKurir = ({
         }}>
           <div>
             <div style={{ fontSize: '0.85rem', color: '#0f172a', fontWeight: 700, marginBottom: '0.15rem' }}>
-              🛵 Kurir Lapangan: <strong>{kurirNama}</strong>
+              Kurir Lapangan: <strong>{kurirNama}</strong>
               <span style={{ fontSize: '0.78rem', color: '#64748b', fontWeight: 500, marginLeft: '0.5rem' }}>
-                ({cleanKurirKendaraan})
+                ({kurirKendaraan})
               </span>
             </div>
             <div style={{ fontSize: '0.78rem', color: '#475569' }}>
-              📍 Jarak ke Pelanggan: <strong style={{ color: '#0284c7' }}>~{distKurirMeter < 1000 ? `${distKurirMeter} meter` : `${(distKurirMeter/1000).toFixed(2)} km`}</strong>
+              Jarak ke Pelanggan: <strong style={{ color: '#0284c7' }}>~{distKurirMeter < 1000 ? `${distKurirMeter} meter` : `${(distKurirMeter/1000).toFixed(2)} km`}</strong>
               {' '}&bull; Alamat: {alamatTujuan}
             </div>
           </div>
@@ -351,7 +348,7 @@ const LiveMapKurir = ({
                 cursor: 'pointer'
               }}
             >
-              <span>🧭 Buka Rute di Google Maps Indonesia</span>
+              <span>Buka Rute di Google Maps</span>
             </a>
           </div>
         </div>

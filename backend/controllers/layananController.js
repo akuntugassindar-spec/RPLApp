@@ -839,7 +839,7 @@ const getTrackingKurir = async (req, res) => {
         kurir: {
           nama: kurirNama,
           telepon: kurirTelepon,
-          kendaraan: (courierObj.kendaraan || 'Honda Vario 160 (B 4589 AB)').replace(/\(L\s+/gi, '(B ').replace(/\bL\s+(\d+)/gi, 'B $1'),
+          kendaraan: (courierObj.kendaraan || 'Honda Vario 160 (B 4589 AB)').replace(/\(L\s+/gi, '(B ').replace(/\bL\s+(\d+)/gi, 'B $1').replace(/L\s*3120\s*XY/gi, 'B 3120 TNG').replace(/3120\s*XY/gi, '3120 TNG'),
           posisi_saat_ini: { lat: kurirLat, lng: kurirLng },
           jarak_ke_pelanggan_km: jarakKurirKePelanggan
         },

@@ -110,7 +110,12 @@ const AdminDashboard = () => {
       {/* Grid Metrik Statistik */}
       <div className="stats-grid">
         <div className="stat-card">
-          <div className="stat-icon blue"></div>
+          <div className="stat-icon blue">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+              <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+            </svg>
+          </div>
           <div className="stat-info">
             <h3>{totalLayanan}</h3>
             <p>Total Permintaan</p>
@@ -118,7 +123,12 @@ const AdminDashboard = () => {
         </div>
 
         <div className="stat-card">
-          <div className="stat-icon yellow"></div>
+          <div className="stat-icon yellow">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+          </div>
           <div className="stat-info">
             <h3>{pendingLayanan}</h3>
             <p>Menunggu Konfirmasi</p>
@@ -126,7 +136,12 @@ const AdminDashboard = () => {
         </div>
 
         <div className="stat-card">
-          <div className="stat-icon teal"></div>
+          <div className="stat-icon teal">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="23 4 23 10 17 10"></polyline>
+              <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+            </svg>
+          </div>
           <div className="stat-info">
             <h3>{inProgressLayanan}</h3>
             <p>Sedang Diproses</p>
@@ -134,7 +149,12 @@ const AdminDashboard = () => {
         </div>
 
         <div className="stat-card">
-          <div className="stat-icon green"></div>
+          <div className="stat-icon green">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+          </div>
           <div className="stat-info">
             <h3>{completedLayanan}</h3>
             <p>Selesai Dikerjakan</p>
@@ -199,21 +219,14 @@ const AdminDashboard = () => {
                         <Link
                           to={`/admin/layanan/${item.id || item._id}`}
                           className="btn btn-primary btn-sm"
+                          style={{ height: '32px', minHeight: '32px', padding: '0 0.85rem', fontSize: '0.825rem', fontWeight: 600, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', boxSizing: 'border-box', textDecoration: 'none' }}
                         >
                           Kelola
                         </Link>
                         <button
                           type="button"
-                          className="btn btn-sm"
-                          style={{
-                            backgroundColor: '#ef4444',
-                            color: '#ffffff',
-                            border: 'none',
-                            padding: '0.25rem 0.6rem',
-                            borderRadius: '4px',
-                            fontWeight: 600,
-                            cursor: 'pointer'
-                          }}
+                          className="btn btn-danger btn-sm"
+                          style={{ height: '32px', minHeight: '32px', padding: '0 0.85rem', fontSize: '0.825rem', fontWeight: 600, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', boxSizing: 'border-box', border: 'none', cursor: 'pointer' }}
                           onClick={() => handleDelete(item.id || item._id)}
                         >
                           Hapus
