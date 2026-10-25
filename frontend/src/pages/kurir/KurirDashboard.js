@@ -99,7 +99,7 @@ const KurirDashboard = () => {
         }
       },
       (geoErr) => {
-        // Fallback jika GPS browser ditolak: kirim koordinat Surabaya tengah
+        // Fallback jika GPS browser ditolak: kirim koordinat Jakarta Pusat (Jl. Sudirman)
         api.put(`/layanan/${itemId}/tracking`, {
           kurir_lat: -6.2088,
           kurir_lng: 106.8456,
@@ -226,7 +226,7 @@ const KurirDashboard = () => {
                 </span>
               </div>
               <p style={{ margin: '0.25rem 0 0 0', opacity: 0.9, fontSize: '0.92rem' }}>
-                🏍️ Armada: <strong>Honda Vario 160 (L 4589 AB)</strong> &bull; Status: <span style={{ color: '#86efac', fontWeight: 700 }}>● Aktif Siap Bertugas</span>
+                🏍️ Armada: <strong>Honda Vario 160 (B 4589 AB)</strong> &bull; Status: <span style={{ color: '#86efac', fontWeight: 700 }}>● Aktif Siap Bertugas</span>
               </p>
             </div>
           </div>
@@ -421,7 +421,7 @@ const KurirDashboard = () => {
                       📍 {item.alamat || 'Alamat tidak diisi'}
                     </p>
                     <a
-                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.alamat || 'Surabaya')}`}
+                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.alamat || 'Jakarta')}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="btn btn-outline btn-sm"

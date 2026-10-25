@@ -825,7 +825,7 @@ const getTrackingKurir = async (req, res) => {
     const courierObj = COURIER_POOL.find(c => c.nama === kurirNama) || {
       nama: kurirNama,
       telepon: kurirTelepon,
-      kendaraan: 'Honda Vario 160 (L 4589 AB)'
+      kendaraan: 'Honda Vario 160 (B 4589 AB)'
     };
 
     return res.status(200).json({

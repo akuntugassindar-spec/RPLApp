@@ -12,30 +12,30 @@ const DaftarKurir = () => {
       id: 1,
       nama: 'Agus Pratama',
       telepon: '081234567890',
-      kendaraan: 'Honda Vario 160 (L 4589 AB)',
+      kendaraan: 'Honda Vario 160 (B 4589 AB)',
       status: 'bertugas',
       pesananAktif: 2,
-      wilayah: 'Surabaya Pusat & Timur',
+      wilayah: 'Jakarta Pusat & Jakarta Selatan',
       totalSelesai: 48
     },
     {
       id: 2,
       nama: 'Bambang Wijaya',
       telepon: '081398765432',
-      kendaraan: 'Yamaha NMAX 155 (L 5214 CD)',
+      kendaraan: 'Yamaha NMAX (B 3120 TNG)',
       status: 'tersedia',
       pesananAktif: 0,
-      wilayah: 'Surabaya Barat & Selatan',
+      wilayah: 'Kota Tangerang & Karawaci',
       totalSelesai: 62
     },
     {
       id: 3,
       nama: 'Rian Kurniawan',
       telepon: '085712348765',
-      kendaraan: 'Honda Beat Street (L 3108 EF)',
+      kendaraan: 'Honda Beat Street (B 6742 BSD)',
       status: 'bertugas',
       pesananAktif: 1,
-      wilayah: 'Surabaya Utara & Sekitarnya',
+      wilayah: 'Tangerang Selatan & BSD City',
       totalSelesai: 39
     }
   ]);
