@@ -216,14 +216,14 @@ HASIL AKHIR  : 64 PASSED / 0 FAILED (100% LULUS)
 | **Notifikasi Sukses Tersembunyi di Bawah Layar** | Ditangani dengan komponen modal overlay `SuccessOverlay` yang langsung muncul di tengah layar terlepas dari posisi scroll pengguna. | ✅ Teruji |
 
 ---
----
 
 ## 5. Status Perekaman Video Demo Aplikasi (`demo.mp4`)
 
-Video demonstrasi (`demo.mp4`) telah **berhasil dibuat dan diverifikasi** dengan standar Full HD 1080p (1920x1080) pada kecepatan 30 FPS dan ukuran efisien ~2.89 MB. Seluruh alur end-to-end telah terdokumentasi dalam 8 adegan terstruktur:
+Video demonstrasi (`demo.mp4`) telah **berhasil dibuat dan diverifikasi** dengan standar Full HD 1080p (1920x1080) pada kecepatan 30 FPS dan ukuran efisien ~2.86 MB dengan antarmuka otentik **Google Chrome di Windows**. Seluruh alur end-to-end telah terdokumentasi dalam 8 adegan terstruktur:
 
 * **Berkas Video:** [`demo.mp4`](demo.mp4) (Status: ✅ Siap Dipresentasikan)
-* **Spesifikasi:** Full HD 1080p (1920x1080), 30 FPS, H.264 / AAC compatibility, durasi 104 detik.
+* **Naskah Lengkap:** [`skenario_video.md`](skenario_video.md) & [`HowToRun.md`](HowToRun.md)
+* **Spesifikasi:** Full HD 1080p (1920x1080), 30 FPS, Google Chrome Windows UI, durasi 104 detik.
 
 ### Skenario Rekaman 8 Adegan Lengkap:
 1. **Menit 00:00 – 00:30 (Pembuka):**
@@ -232,7 +232,7 @@ Video demonstrasi (`demo.mp4`) telah **berhasil dibuat dan diverifikasi** dengan
 2. **Menit 00:31 – 01:45 (Alur Pelanggan - Pemesanan Layanan):**
    - Buka Beranda publik `http://localhost:3000`.
    - Login menggunakan akun pelanggan `bahrul@gmail.com` (password: `password123`).
-   - Masuk ke menu **Pesan Layanan**, isi keluhan kacamata, pilih alamat jemput Tangerang/Jakarta, tanggal & jam jemput.
+   - Masuk ke menu **Pesan Layanan**, isi keluhan kacamata, pilih alamat jemput Surabaya, tanggal & jam jemput.
    - Unggah foto fisik kacamata & resep optik.
    - Klik submit dan perlihatkan **Modal Overlay Notifikasi Sukses** yang tampil di tengah layar.
 3. **Menit 01:46 – 03:00 (Alur Administrator - Manajemen & Biaya):**

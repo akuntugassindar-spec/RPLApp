@@ -165,38 +165,67 @@ Aplikasi telah menyediakan 4 akun demo bawaan untuk mendemonstrasikan seluruh fi
 
 ---
 
-## 8. Skenario Demonstrasi Lengkap (End-to-End Walkthrough)
+## 8. Skenario Demonstrasi Lengkap (End-to-End Walkthrough & Video Demo)
 
-Untuk mendemonstrasikan alur tuntas aplikasi secara berurutan:
+Sistem telah dilengkapi berkas rekaman video demonstrasi lengkap beresolusi **Full HD 1080p (1920 × 1080, 30 FPS)** dengan antarmuka otentik **Google Chrome di Windows**:
+* 🎬 **Berkas Video:** [`demo.mp4`](demo.mp4) (Durasi: 104 detik / 1 menit 44 detik, Ukuran: 2.86 MB)
+* 📜 **Naskah Standar Presenter:** Seluruh alur di bawah ini telah disinkronkan dengan berkas [`skenario_video.md`](skenario_video.md)
 
-1. **Akses Beranda Publik (`/`)**:
-   - Tampilkan informasi layanan: Perbaikan Kacamata, Ganti Lensa, dan Antar-Jemput.
-2. **Alur Pelanggan (Pemesanan Layanan)**:
-   - Login menggunakan akun pelanggan (`bahrul@gmail.com` / `password123`).
-   - Masuk ke menu **Pesan Layanan** (`/layanan/buat`).
-   - Pilih jenis layanan, isi keluhan kacamata, alamat penjemputan Jakarta & Tangerang, tanggal & jam jemput.
-   - Unggah foto kerusakan kacamata dan foto resep optik dokter.
-   - Klik **Kirim Permintaan Layanan**. Modal Overlay Notifikasi Sukses akan tampil di tengah layar.
-3. **Alur Administrator (Manajemen & Verifikasi)**:
-   - Logout lalu Login sebagai Admin (`admin@optik.com` / `admin123`).
-   - Buka **Admin Dashboard** (`/admin/dashboard`) dan pilih pesanan yang baru diajukan.
-   - Verifikasi foto kacamata & foto resep (bisa klik untuk Lightbox zoom).
-   - Masukkan estimasi biaya pengerjaan kacamata dan tentukan kurir penjemput dari pool armada.
-   - Ubah status menjadi `dijadwalkan`.
-4. **Alur Kurir Logistik (Penjemputan & Live GPS)**:
-   - Login sebagai Kurir (`kurir@gmail.com` / `kurir123`).
-   - Buka **Dashboard Kurir** (`/kurir/dashboard`).
-   - Klik tombol **"Update Status: Diambil Kurir"** saat menjemput kacamata.
-   - Klik **"Siarkan GPS Kurir"** untuk memperbarui koordinat posisi terkini secara langsung.
-5. **Alur Pembayaran Digital (Payment Gateway Simulator)**:
-   - Pelanggan membuka detail pesanan (`/layanan/:id`) atau pembayaran (`/pembayaran/:id`).
-   - Pilih metode pembayaran: **QRIS Standar Bank Indonesia**, **BCA Virtual Account**, **GoPay**, atau **COD**.
-   - Sistem menampilkan QRIS EMVCo dinamis dengan kode CRC-16 yang valid, atau nomor VA dengan tombol salin otomatis.
-   - Klik **"Konfirmasi Pembayaran Lunas"**. Modal Overlay sukses muncul dan status seketika menjadi **LUNAS**.
-6. **Alur Pengantaran Kacamata & Penyelesaian**:
-   - Kacamata diproses di lab (`diproses`), diselesaikan (`selesai`), dan diantar kurir (`diantar`).
-   - Kurir/Admin menandai pesanan selesai saat kacamata diterima pelanggan di alamat tujuan.
-   - Peta Live Radar kurir menampilkan rute turn-by-turn dan tombol direct Google Maps.
+---
+
+### A. Matriks Skenario Rekaman 8 Adegan (`demo.mp4`)
+
+| No | Menit / Detik | Adegan / Modul | Halaman / Rute | Aktor Akun | Tindakan di Layar | Indikator Keberhasilan |
+| :-: | :--- | :--- | :--- | :--- | :--- | :--- |
+| **1** | `00:00 – 00:08` | **Judul & Arsitektur** | Layar Intro Dark Slate | Sistem | Tampilan brand OptikExpress, arsitektur 3-tier, 3 role RBAC, fitur GPS & QRIS | Judul dan arsitektur terbaca jelas |
+| **2** | `00:08 – 00:18` | **Beranda Publik** | `localhost:3000/` | Tamu / Publik | Chrome di Windows, navbar murni teks tanpa emote, hero banner, 4 kartu keunggulan | Kursor meluncur ke tombol "Daftar & Pesan" |
+| **3** | `00:18 – 00:32` | **Alur Pelanggan** | `localhost:3000/layanan/buat` | Pelanggan (`bahrul`) | Form servis kacamata, alamat BSD Tangerang, upload foto kacamata & resep, klik submit | Modal pop-up `SuccessOverlay` muncul di tengah layar |
+| **4** | `00:32 – 00:46` | **Alur Administrator** | `localhost:3000/admin/dashboard` | Admin (`admin@optik.com`) | Buka 4 stat card Icons8, buka pesanan #4, tetapkan biaya Rp 150.000, assign kurir Plat B | Toast notifikasi sukses, status jadi `dijadwalkan` |
+| **5** | `00:46 – 01:00` | **Alur Kurir Logistik** | `localhost:3000/kurir/dashboard` | Kurir (`Bambang Wijaya`) | Klik "Mulai Jemput" (`diambil`), klik "Siarkan GPS Saya", peta radar Leaflet/Google Maps | Marker kurir Plat B bergerak mendekati lokasi pemesan |
+| **6** | `01:00 – 01:14` | **Alur Pembayaran** | `localhost:3000/pembayaran/4` | Pelanggan (`bahrul`) | Rincian tagihan Rp 150.000, tab QRIS EMVCo BI + VA BCA, klik "Konfirmasi Lunas" | Modal sukses muncul, status tagihan seketika **LUNAS** |
+| **7** | `01:14 – 01:26` | **Lab & Audit Trail** | `localhost:3000/riwayat-status/4` | Sistem / Lab | Stepper status lab (`diproses`), `diantar`, `selesai`, dan tabel 6 log kronologis | Seluruh log kronologis tersimpan di database 3NF |
+| **8** | `01:26 – 01:44` | **Unit Test & Penutup** | Jendela Terminal PowerShell | Developer | Eksekusi `npm --prefix backend test`, 12 test suites, 64 tests PASSED 100% | Slide penutup MVP Ready & tautan GitHub |
+
+---
+
+### B. Rincian Alur & Naskah Narasi Tiap Adegan
+
+1. **Scene 1 (00:00 – 00:08) — Judul & Pengantar Sistem:**
+   - **Visual:** Layar pembuka modern gelap (*Dark Slate*), logo OptikExpress, badge Pertemuan 7, ringkasan arsitektur 3-Tier Fullstack (React 18, Express.js, MySQL 8.0 3NF).
+   - **Narasi:** *"Selamat datang di demonstrasi OptikExpress — Sistem Informasi Layanan Antar-Jemput Kacamata berbasis web yang mengintegrasikan Pelanggan, Administrator, dan Kurir Armada Lapangan secara real-time."*
+
+2. **Scene 2 (00:08 – 00:18) — Beranda Publik (`localhost:3000/`):**
+   - **Visual:** Jendela Google Chrome di Windows, navbar bersih murni teks tanpa emotikon mentah, hero banner, dan 4 keunggulan layanan (*Antar-Jemput, Teknisi Profesional, Lensa Lengkap, Status Transparan*).
+   - **Narasi:** *"Pengunjung disajikan landing page dengan informasi layanan servis kacamata tanpa perlu keluar rumah dengan antarmuka yang bersih dan modern."*
+
+3. **Scene 3 (00:18 – 00:32) — Alur Pelanggan (Pemesanan & Upload Berkas):**
+   - **Visual:** Halaman `/layanan/buat` login sebagai `bahrul@gmail.com`. Form perbaikan frame patah & ganti lensa blueray minus 2.50, alamat jemput BSD Tangerang Selatan, upload foto kacamata dan foto resep dokter.
+   - **Tindakan:** Klik tombol **"Kirim Permintaan Layanan"** ➔ Modal pop-up **`SuccessOverlay`** muncul di tengah layar mengonfirmasi pesanan ID `#4`.
+   - **Narasi:** *"Pelanggan mengajukan permintaan servis kacamata dengan mengunggah foto kondisi fisik frame dan foto resep optik dokter, diakhiri dengan konfirmasi modal pop-up sukses."*
+
+4. **Scene 4 (00:32 – 00:46) — Alur Administrator (Verifikasi Biaya & Assign Kurir Plat B):**
+   - **Visual:** Admin Dashboard `/admin/dashboard` login sebagai `admin@optik.com`. 4 stat card Icons8 modern, tabel permintaan layanan ID #4.
+   - **Tindakan:** Admin memvalidasi foto via zoom lightbox, menetapkan estimasi biaya **Rp 150.000**, memilih armada kurir Plat B **Bambang Wijaya (Yamaha NMAX - B 3120 TNG)**, dan klik **"Simpan & Jadwalkan"**.
+   - **Narasi:** *"Administrator memverifikasi foto kacamata, menetapkan biaya teknis Rp 150.000, serta menugaskan armada kurir Plat B wilayah Tangerang/Jakarta sehingga status pesanan berubah menjadi dijadwalkan."*
+
+5. **Scene 5 (00:46 – 01:00) — Alur Kurir Logistik (Penjemputan & Live Courier Tracking GPS):**
+   - **Visual:** Dashboard Kurir `/kurir/dashboard` login sebagai `kurir@gmail.com` (Bambang Wijaya - Plat B 3120 TNG).
+   - **Tindakan:** Kurir klik **"Mulai Jemput Kacamata"** (status `diambil`) dan **"Siarkan GPS Saya"** (`LIVE GPS: -6.2088, 106.8456`). Peta interaktif Leaflet OpenStreetMap & Google Maps Indonesia menampilkan pergerakan kurir mendekati alamat pemesan (< 500m).
+   - **Narasi:** *"Kurir logistik memulai penjemputan dan mengaktifkan siaran GPS langsung. Peta radar interaktif menampilkan rute kurir dan estimasi jarak turn-by-turn ke lokasi penjemputan."*
+
+6. **Scene 6 (01:00 – 01:14) — Alur Pembayaran Digital (Simulator QRIS EMVCo & VA BCA):**
+   - **Visual:** Halaman `/pembayaran/4` menampilkan rincian tagihan ID #4 sebesar Rp 150.000.
+   - **Tindakan:** Pelanggan memilih tab QRIS berstandar resmi Bank Indonesia (spesifikasi EMVCo & kalkulasi CRC-16 valid) atau VA BCA `8077708123456789`, lalu klik **"Konfirmasi Tagihan Lunas"**. Modal sukses pop-up muncul dan status seketika menjadi **LUNAS (Verified)**.
+   - **Narasi:** *"Pelanggan melakukan pembayaran melalui simulator gateway QRIS standar Bank Indonesia atau BCA Virtual Account. Status transaksi langsung terverifikasi lunas secara otomatis."*
+
+7. **Scene 7 (01:14 – 01:26) — Alur Lab Optik, Pengantaran & Audit Trail:**
+   - **Visual:** Halaman `/riwayat-status/4` menampilkan status stepper pengerjaan lab (`diproses`), pengantaran kurir (`diantar`), hingga diterima pelanggan (`selesai`).
+   - **Tindakan:** Tabel log audit trail memperlihatkan 6 catatan kronologis riwayat status dari awal hingga akhir yang tersimpan permanen di basis data 3NF.
+   - **Narasi:** *"Kacamata diperbaiki dan dipasangkan lensa baru di laboratorium optik, diantar kembali oleh armada kurir, dan diterima tuntas oleh pelanggan dengan seluruh audit trail tercatat transparan."*
+
+8. **Scene 8 (01:26 – 01:44) — Verifikasi Otomatis (64/64 Unit Tests 100% Lulus) & Penutup:**
+   - **Visual:** Jendela terminal PowerShell mengeksekusi `npm --prefix backend test`. Seluruh 12 test suites dan 64 tests lolos seratus persen (*0 fail*). Layar ditutup dengan ringkasan rilis MVP dan tautan GitHub.
+   - **Narasi:** *"Keandalan sistem diuji secara menyeluruh melalui 64 unit tests komprehensif pada backend dengan hasil seratus persen lulus. Seluruh sistem siap digunakan dan didemonstrasikan."*
 
 ---
 
