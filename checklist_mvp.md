@@ -222,7 +222,7 @@ HASIL AKHIR  : 64 PASSED / 0 FAILED (100% LULUS)
 Video demonstrasi (`demo.mp4`) telah **berhasil dibuat dan diverifikasi** dengan standar Full HD 1080p (1920x1080) pada kecepatan 30 FPS dan ukuran efisien ~2.86 MB dengan antarmuka otentik **Google Chrome di Windows**. Seluruh alur end-to-end telah terdokumentasi dalam 8 adegan terstruktur:
 
 * **Berkas Video:** [`demo.mp4`](demo.mp4) (Status: ✅ Siap Dipresentasikan)
-* **Naskah Lengkap:** [`skenario_video.md`](skenario_video.md) & [`HowToRun.md`](HowToRun.md)
+* **Naskah Lengkap:** [`HowToRun.md`](HowToRun.md) (Bagian 8 Skenario Video Demo)
 * **Spesifikasi:** Full HD 1080p (1920x1080), 30 FPS, Google Chrome Windows UI, durasi 104 detik.
 
 ### Skenario Rekaman 8 Adegan Lengkap:

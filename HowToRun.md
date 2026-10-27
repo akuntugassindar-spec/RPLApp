@@ -169,7 +169,7 @@ Aplikasi telah menyediakan 4 akun demo bawaan untuk mendemonstrasikan seluruh fi
 
 Sistem telah dilengkapi berkas rekaman video demonstrasi lengkap beresolusi **Full HD 1080p (1920 × 1080, 30 FPS)** dengan antarmuka otentik **Google Chrome di Windows**:
 * 🎬 **Berkas Video:** [`demo.mp4`](demo.mp4) (Durasi: 104 detik / 1 menit 44 detik, Ukuran: 2.86 MB)
-* 📜 **Naskah Standar Presenter:** Seluruh alur di bawah ini telah disinkronkan dengan berkas [`skenario_video.md`](skenario_video.md)
+* 📜 **Naskah Standar Presenter:** Tersedia lengkap pada tabel matriks dan rincian 8 adegan di bawah ini.
 
 ---
 
