@@ -216,3 +216,44 @@ HASIL AKHIR  : 64 PASSED / 0 FAILED (100% LULUS)
 | **Notifikasi Sukses Tersembunyi di Bawah Layar** | Ditangani dengan komponen modal overlay `SuccessOverlay` yang langsung muncul di tengah layar terlepas dari posisi scroll pengguna. | ✅ Teruji |
 
 ---
+---
+
+## 5. Status Perekaman Video Demo Aplikasi (`demo.mp4`)
+
+Video demonstrasi (`demo.mp4`) telah **berhasil dibuat dan diverifikasi** dengan standar Full HD 1080p (1920x1080) pada kecepatan 30 FPS dan ukuran efisien ~2.89 MB. Seluruh alur end-to-end telah terdokumentasi dalam 8 adegan terstruktur:
+
+* **Berkas Video:** [`demo.mp4`](demo.mp4) (Status: ✅ Siap Dipresentasikan)
+* **Spesifikasi:** Full HD 1080p (1920x1080), 30 FPS, H.264 / AAC compatibility, durasi 104 detik.
+
+### Skenario Rekaman 8 Adegan Lengkap:
+1. **Menit 00:00 – 00:30 (Pembuka):**
+   - Perkenalan nama, judul proyek **OptikExpress**, dan tujuan sistem layanan antar-jemput kacamata.
+   - Menampilkan arsitektur singkat 3-Tier (React, Express, MySQL).
+2. **Menit 00:31 – 01:45 (Alur Pelanggan - Pemesanan Layanan):**
+   - Buka Beranda publik `http://localhost:3000`.
+   - Login menggunakan akun pelanggan `bahrul@gmail.com` (password: `password123`).
+   - Masuk ke menu **Pesan Layanan**, isi keluhan kacamata, pilih alamat jemput Tangerang/Jakarta, tanggal & jam jemput.
+   - Unggah foto fisik kacamata & resep optik.
+   - Klik submit dan perlihatkan **Modal Overlay Notifikasi Sukses** yang tampil di tengah layar.
+3. **Menit 01:46 – 03:00 (Alur Administrator - Manajemen & Biaya):**
+   - Logout lalu Login sebagai Administrator `admin@optik.com` (password: `admin123`).
+   - Buka **Admin Dashboard**, pilih pesanan yang baru masuk.
+   - Perlihatkan foto kacamata & resep via Lightbox Zoom.
+   - Tetapkan total biaya pengerjaan kacamata dan tugaskan kurir dari pool armada internal.
+   - Ubah status menjadi `dijadwalkan`.
+4. **Menit 03:01 – 04:15 (Alur Kurir - Penjemputan & Live GPS):**
+   - Login sebagai Kurir `kurir@gmail.com` (password: `kurir123`).
+   - Buka **Dashboard Kurir**, perlihatkan daftar tugas penjemputan/pengantaran.
+   - Klik **Update Status: Diambil Kurir**, lalu klik **Siarkan GPS Kurir**.
+   - Perlihatkan peta interaktif **Leaflet OpenStreetMap** dengan marker animasi radar dan tombol direct Google Maps.
+5. **Menit 04:16 – 05:30 (Alur Pembayaran Digital - Payment Gateway Simulator):**
+   - Buka kembali akun pelanggan pada halaman rincian tagihan (`/layanan/:id/pembayaran`).
+   - Perlihatkan opsi multi-pembayaran: QRIS Standar Bank Indonesia (EMVCo), Virtual Account BCA, GoPay, dan COD.
+   - Klik konfirmasi pelunasan tagihan. Perlihatkan status berubah menjadi **LUNAS** dengan Modal Overlay Sukses.
+6. **Menit 05:31 – 06:15 (Alur Pengantaran & Penyelesaian):**
+   - Admin/Kurir mengubah status menjadi `diproses` ➔ `selesai` ➔ `diantar`.
+   - Tunjukkan riwayat log status pengerjaan yang tercatat lengkap di basis data.
+7. **Menit 06:16 – 07:00 (Eksekusi Unit Test & Penutup):**
+   - Buka terminal dan jalankan `npm --prefix backend test`.
+   - Tunjukkan hasil **64 tests PASSED 100%**.
+   - Penutup dan ucapan terima kasih.
