@@ -217,43 +217,45 @@ HASIL AKHIR  : 64 PASSED / 0 FAILED (100% LULUS)
 
 ---
 
-## 5. Status Perekaman Video Demo Aplikasi (`demo.mp4`)
+## 5. Status Skenario Demonstrasi & Rekaman Video Demo (`demo.mp4`)
 
-Video demonstrasi (`demo.mp4`) telah **berhasil dibuat dan diverifikasi** dengan standar Full HD 1080p (1920x1080) pada kecepatan 30 FPS dan ukuran efisien ~2.86 MB dengan antarmuka otentik **Google Chrome di Windows**. Seluruh alur end-to-end telah terdokumentasi dalam 8 adegan terstruktur:
+Skenario demonstrasi aplikasi telah disinkronkan sepenuhnya dengan **[`HowToRun.md`](HowToRun.md) (Bagian 8)** dan telah direkam ke dalam berkas video Full HD 1080p (`demo.mp4`) dengan antarmuka otentik Google Chrome di Windows:
 
 * **Berkas Video:** [`demo.mp4`](demo.mp4) (Status: ✅ Siap Dipresentasikan)
-* **Naskah Lengkap:** [`HowToRun.md`](HowToRun.md) (Bagian 8 Skenario Video Demo)
-* **Spesifikasi:** Full HD 1080p (1920x1080), 30 FPS, Google Chrome Windows UI, durasi 104 detik.
+* **Spesifikasi Video:** Full HD 1080p (1920 × 1080), 30 FPS, Google Chrome Windows UI, durasi 104 detik.
+* **Panduan Detail:** Skenario langkah-demi-langkah mengacu langsung pada [`HowToRun.md`](HowToRun.md) Bagian 8.
 
-### Skenario Rekaman 8 Adegan Lengkap:
-1. **Menit 00:00 – 00:30 (Pembuka):**
-   - Perkenalan nama, judul proyek **OptikExpress**, dan tujuan sistem layanan antar-jemput kacamata.
-   - Menampilkan arsitektur singkat 3-Tier (React, Express, MySQL).
-2. **Menit 00:31 – 01:45 (Alur Pelanggan - Pemesanan Layanan):**
-   - Buka Beranda publik `http://localhost:3000`.
-   - Login menggunakan akun pelanggan `bahrul@gmail.com` (password: `password123`).
-   - Masuk ke menu **Pesan Layanan**, isi keluhan kacamata, pilih alamat jemput Surabaya, tanggal & jam jemput.
-   - Unggah foto fisik kacamata & resep optik.
-   - Klik submit dan perlihatkan **Modal Overlay Notifikasi Sukses** yang tampil di tengah layar.
-3. **Menit 01:46 – 03:00 (Alur Administrator - Manajemen & Biaya):**
-   - Logout lalu Login sebagai Administrator `admin@optik.com` (password: `admin123`).
-   - Buka **Admin Dashboard**, pilih pesanan yang baru masuk.
-   - Perlihatkan foto kacamata & resep via Lightbox Zoom.
-   - Tetapkan total biaya pengerjaan kacamata dan tugaskan kurir dari pool armada internal.
+### Rincian Skenario Demonstrasi (Sesuai HowToRun.md):
+1. **Akses Beranda Publik (`/`)**:
+   - Tampilkan informasi layanan: Perbaikan Kacamata, Ganti Lensa, dan Antar-Jemput.
+   - Navigasi navbar bersih murni teks tanpa emotikon mentah.
+2. **Alur Pelanggan (Pemesanan Layanan)**:
+   - Login menggunakan akun pelanggan (`bahrul@gmail.com` / `password123`).
+   - Masuk ke menu **Pesan Layanan** (`/layanan/buat`).
+   - Pilih jenis layanan, isi keluhan kacamata patah & lensa blueray, alamat penjemputan BSD Tangerang Selatan, tanggal & jam jemput.
+   - Unggah foto kerusakan fisik kacamata dan foto resep optik dokter.
+   - Klik **Kirim Permintaan Layanan**. Modal Overlay Notifikasi Sukses (`SuccessOverlay`) akan tampil di tengah layar (ID Pesanan `#4`).
+3. **Alur Administrator (Manajemen & Verifikasi)**:
+   - Logout lalu Login sebagai Admin (`admin@optik.com` / `admin123`).
+   - Buka **Admin Dashboard** (`/admin/dashboard`) dan pilih pesanan #4 yang baru diajukan.
+   - Verifikasi foto kacamata & foto resep (bisa klik untuk Lightbox zoom).
+   - Masukkan estimasi biaya pengerjaan kacamata **Rp 150.000** dan tentukan armada kurir Plat B (**Bambang Wijaya - B 3120 TNG**).
    - Ubah status menjadi `dijadwalkan`.
-4. **Menit 03:01 – 04:15 (Alur Kurir - Penjemputan & Live GPS):**
-   - Login sebagai Kurir `kurir@gmail.com` (password: `kurir123`).
-   - Buka **Dashboard Kurir**, perlihatkan daftar tugas penjemputan/pengantaran.
-   - Klik **Update Status: Diambil Kurir**, lalu klik **Siarkan GPS Kurir**.
-   - Perlihatkan peta interaktif **Leaflet OpenStreetMap** dengan marker animasi radar dan tombol direct Google Maps.
-5. **Menit 04:16 – 05:30 (Alur Pembayaran Digital - Payment Gateway Simulator):**
-   - Buka kembali akun pelanggan pada halaman rincian tagihan (`/layanan/:id/pembayaran`).
-   - Perlihatkan opsi multi-pembayaran: QRIS Standar Bank Indonesia (EMVCo), Virtual Account BCA, GoPay, dan COD.
-   - Klik konfirmasi pelunasan tagihan. Perlihatkan status berubah menjadi **LUNAS** dengan Modal Overlay Sukses.
-6. **Menit 05:31 – 06:15 (Alur Pengantaran & Penyelesaian):**
-   - Admin/Kurir mengubah status menjadi `diproses` ➔ `selesai` ➔ `diantar`.
-   - Tunjukkan riwayat log status pengerjaan yang tercatat lengkap di basis data.
-7. **Menit 06:16 – 07:00 (Eksekusi Unit Test & Penutup):**
+4. **Alur Kurir Logistik (Penjemputan & Live GPS)**:
+   - Login sebagai Kurir (`kurir@gmail.com` / `kurir123`).
+   - Buka **Dashboard Kurir** (`/kurir/dashboard`).
+   - Klik tombol **"Update Status: Diambil Kurir"** saat menjemput kacamata.
+   - Klik **"Siarkan GPS Kurir"** untuk memperbarui koordinat posisi terkini secara langsung (`LIVE GPS: -6.2088, 106.8456`).
+   - Peta Live Radar Google Maps Indonesia & OpenStreetMap menampilkan rute turn-by-turn mendekati alamat pemesan (< 500m).
+5. **Alur Pembayaran Digital (Payment Gateway Simulator)**:
+   - Pelanggan membuka detail pesanan (`/layanan/:id`) atau pembayaran (`/pembayaran/:id`).
+   - Pilih metode pembayaran: **QRIS Standar Bank Indonesia (EMVCo)**, **BCA Virtual Account**, **GoPay**, atau **COD**.
+   - Sistem menampilkan QRIS dinamis dengan kode CRC-16 yang valid, atau nomor VA dengan tombol salin otomatis.
+   - Klik **"Konfirmasi Pembayaran Lunas"**. Modal Overlay sukses muncul dan status tagihan seketika menjadi **LUNAS (Verified)**.
+6. **Alur Pengantaran Kacamata & Penyelesaian**:
+   - Kacamata diproses di lab optik (`diproses`), diselesaikan (`selesai`), dan diantar kurir (`diantar`).
+   - Kurir/Admin menandai pesanan selesai saat kacamata diterima pelanggan di alamat tujuan.
+   - Halaman `/riwayat-status/:id` menyajikan tabel kronologis Audit Trail lengkap tersimpan di basis data 3NF.
+7. **Pengujian Otomatis (Unit Testing 100% Lulus)**:
    - Buka terminal dan jalankan `npm --prefix backend test`.
-   - Tunjukkan hasil **64 tests PASSED 100%**.
-   - Penutup dan ucapan terima kasih.
+   - Menampilkan 12 test suites, 64 unit tests komprehensif **100% PASSED (0 FAIL)**.
