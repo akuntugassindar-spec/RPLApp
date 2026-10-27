@@ -159,7 +159,6 @@ Aplikasi telah menyediakan 4 akun demo bawaan untuk mendemonstrasikan seluruh fi
 | :--- | :--- | :--- | :--- | :--- |
 | **Administrator** | Administrator Optik | `admin@optik.com` | `admin123` | Konfirmasi pesanan, update biaya teknis, assign armada kurir, kontrol alur lab |
 | **Pelanggan** | Bahrul Ulum | `bahrul@gmail.com` | `password123` | Formulir pemesanan, upload foto/resep, pembayaran QRIS/VA, lacak live GPS |
-| **Pelanggan** | Siti Rahmawati | `siti.rahma@gmail.com` | `password123` | Riwayat pesanan servis, lacak kurir radar, konfirmasi lunas |
 | **Kurir Logistik** | Agus Pratama (Kurir) | `kurir@gmail.com` | `kurir123` | Dashboard kurir, penjemputan/pengantaran, siaran GPS kurir, kasir di tempat |
 
 > *Catatan:* Sistem juga mendukung registrasi akun pelanggan baru secara instan melalui menu **Daftar Akun** (`/register`).
