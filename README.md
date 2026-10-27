@@ -11,8 +11,6 @@
 
 ---
 
----
-
 ## Prerequisites
 
 Sebelum mulai, pastikan hal berikut sudah terpenuhi:
