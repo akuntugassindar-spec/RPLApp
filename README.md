@@ -11,14 +11,6 @@
 
 ---
 
-## Video Demonstrasi Aplikasi (demo.mp4)
-
-Video demonstrasi walkthrough end-to-end beresolusi Full HD (1920x1080, 30 FPS) yang mencakup 8 adegan lengkap sesuai panduan `HowToRun.md` telah disertakan di root repositori:
-
-🎬 **Berkas Video:** [`demo.mp4`](demo.mp4) (Resolusi: Full HD 1080p, Durasi: 1 menit 44 detik, Ukuran: 2.89 MB)  
-📖 **Panduan Skenario 3 Role & Walkthrough:** [`HowToRun.md`](HowToRun.md)  
-📋 **Checklist Rilis MVP Pertemuan 7:** [`checklist_mvp.md`](checklist_mvp.md)
-
 ---
 
 ## Prerequisites
