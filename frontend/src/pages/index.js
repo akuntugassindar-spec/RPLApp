@@ -14,7 +14,7 @@ export * from './pembayaran';
 export * from './riwayat_status_layanan';
 
 // Modul Halaman User / Pelanggan
-export * from './user';
+export { PelacakKurirPelanggan } from './user';
 
 // Halaman Publik
 export { default as Home } from './Home';

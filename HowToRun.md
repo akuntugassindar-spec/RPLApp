@@ -190,6 +190,7 @@ Untuk mendemonstrasikan alur tuntas aplikasi secara berurutan:
    - Klik tombol **"Update Status: Diambil Kurir"** saat menjemput kacamata.
    - Klik **"Siarkan GPS Kurir"** untuk memperbarui koordinat posisi terkini secara langsung (`LIVE GPS: -6.2088, 106.8456`).
    - Peta Live Radar Google Maps Indonesia & OpenStreetMap menampilkan rute turn-by-turn mendekati alamat pemesan (< 500m).
+   - Di sisi pelanggan, pelanggan dapat memantau pergerakan kurir secara langsung melalui menu **"Lacak Kurir"** (`/pelacak-kurir`) pada Navbar atau tombol **"Lacak Kurir"** di Dashboard Pelanggan.
 5. **Alur Pembayaran Digital (Payment Gateway Simulator)**:
    - Pelanggan membuka detail pesanan (`/layanan/:id`) atau pembayaran (`/pembayaran/:id`).
    - Pilih metode pembayaran: **QRIS Standar Bank Indonesia (EMVCo)**, **BCA Virtual Account**, **GoPay**, atau **COD**.

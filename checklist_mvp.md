@@ -66,10 +66,12 @@
 ### F. Fitur 6: Penugasan Kurir Cerdas & Live GPS Courier Radar Tracking
 *Target: Menghubungkan logistik penjemputan optik secara transparan dengan peta jalan rill.*
 - [x] **Auto-Assign Round-Robin:** Alokasi kurir internal optik secara deterministik dan merata.
-- [x] **Alokasi Kurir Terdekat Surabaya:** Geocoding otomatis kata kunci wilayah Surabaya dan kalkulasi kurir terdekat (< 1.5 km) menggunakan formula Haversine.
-- [x] **Live Map Radar:** Peta interaktif Leaflet OpenStreetMap dengan marker toko optik, pelanggan, kurir, animasi gelombang radar (*radar pulse ring*), dan polyline rute jalan nyata.
+- [x] **Alokasi Kurir Terdekat Jakarta & Tangerang:** Geocoding otomatis kata kunci wilayah Jakarta & Tangerang dan alokasi kurir terdekat (< 1.5 km) menggunakan formula Haversine.
+- [x] **Armada Kurir Plat B Resmi:** Seluruh kendaraan kurir operasional menggunakan Plat B resmi wilayah DKI Jakarta & Tangerang (`B 4589 AB`, `B 3120 TNG`).
+- [x] **Live Map Radar & OpenStreetMap Leaflet:** Peta interaktif Leaflet OpenStreetMap & HTML Google Maps Embed dengan penanganan transisi bebas error (`_leaflet_pos` guard), penanda lokasi kurir Plat B, pelanggan, dan toko optik pusat.
+- [x] **Fitur Pelacak Kurir Khusus Pelanggan (`/pelacak-kurir`):** Halaman pelacakan live GPS khusus pelanggan yang dapat diakses langsung dari menu Navbar maupun tombol Dashboard, dilengkapi informasi armada (Plat B), estimasi waktu tiba (ETA), tombol hubungi kurir via WhatsApp/telepon, simulasi gerak kurir live, dan integrasi rute navigasi Google Maps turn-by-turn.
 - [x] **Direct Google Maps Navigation:** Tombol navigasi rute turn-by-turn langsung ke Google Maps resmi via koordinat GPS.
-- [x] **Status Pengujian:** ✅ **PASSED** (Unit Test: `tests/layanan.test.js` - Fitur 5 & Fitur 6)
+- [x] **Status Pengujian:** ✅ **PASSED** (Unit Test: `tests/layanan.test.js` - Fitur 5, Fitur 6 & Fitur 7)
 
 ### G. Fitur 7: Notifikasi Otomatis & Komponen Pop-up Modal Overlay
 *Target: Memberikan umpan balik instan yang jelas dan nyaman bagi pengguna.*
