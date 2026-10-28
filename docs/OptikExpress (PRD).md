@@ -69,8 +69,10 @@ Siklus layanan kacamata diatur melalui alur terstruktur 6 status operasional (*S
 * **AC-1:** Sistem mendukung minimal 8 metode transaksi: `qris`, `bca_va`, `bni_va`, `bri_va`, `mandiri_va`, `gopay`, `shopeepay`, dan `cod`.
 * **AC-2:** ID Transaksi dibuat dengan format standar unik `MIDTRANS-{timestamp}-{random}`.
 * **AC-3:** Persentase perjalanan kurir dihitung secara dinamis sesuai tahapan status pengerjaan (10% s.d. 100%).
-* **AC-4:** Posisi kurir dihitung melalui interpolasi koordinat GPS nyata antara Toko Optik (Jl. Pemuda 48) dan alamat pelanggan.
-* **AC-5:** Peta terintegrasi menggunakan OpenStreetMap (Leaflet) dan dilengkapi tombol navigasi rute turn-by-turn langsung ke Google Maps resmi.
+* **AC-4:** Posisi kurir dihitung melalui interpolasi koordinat GPS nyata antara Toko Optik Pusat (Jakarta & Tangerang) dan alamat pelanggan.
+* **AC-5:** Armada kurir menggunakan plat nomor resmi wilayah Jakarta & Tangerang (Plat B: `B 3120 TNG`, `B 4589 AB`).
+* **AC-6:** Peta terintegrasi menggunakan HTML Google Maps Indonesia dan Leaflet OpenStreetMap dengan penanganan aman transisi (`_leaflet_pos` guard) serta tombol direct Google Maps.
+* **AC-7:** Halaman khusus Pelacak Kurir Pelanggan (`/pelacak-kurir`) dapat diakses dari menu Navbar dan tombol Dashboard untuk memantau armada secara real-time.
 
 ---
 
@@ -86,4 +88,4 @@ Siklus layanan kacamata diatur melalui alur terstruktur 6 status operasional (*S
 ## 5. Strategi Pengujian (Verification and Test Strategy)
 
 * Seluruh aturan bisnis pada kelima User Story diuji secara otomatis menggunakan test runner bawaan Node.js (`node:test` dan `node:assert/strict`).
-* Target kelulusan: 100% All Passed (48 tests dalam 9 suites pengujian).
+* Target kelulusan: 100% All Passed (64 unit tests dalam 12 suites pengujian).

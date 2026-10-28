@@ -47,8 +47,11 @@ Desain antarmuka OptikExpress mengusung konsep **Modern, Clean, Minimalis, dan P
 ## 4. Anatomi Komponen Antarmuka Utama
 
 ### A. Navigasi Global (Navbar)
-* Berisi logo OptikExpress dengan ikon kacamata terpadu, tautan navigasi Beranda, Layanan, Cara Kerja, Tentang Kami, dan tombol aksi "Pesan Sekarang".
-* Dilengkapi menu hamburger interaktif pada layar mobile untuk membuka navigasi drawer secara vertikal.
+* Mengusung desain bersih profesional bebas emotikon mentah (menggunakan teks dan tag peran bersih).
+* Menu Publik: Beranda, Masuk, dan Daftar Akun.
+* Menu Pelanggan: Dashboard, Lacak Kurir (`/pelacak-kurir`), + Buat Pesanan, user badge nama pelanggan, dan tombol Keluar.
+* Menu Admin: Dashboard Admin, Kelola Layanan, user badge Admin, dan tombol Keluar.
+* Menu Kurir: Dashboard Kurir, Armada Kurir, user badge Kurir, dan tombol Keluar.
 
 ### B. Hero Section
 * Headline resmi: *"Perbaikan Kacamata Kini Lebih Mudah."*
@@ -74,11 +77,11 @@ Menyajikan alur visual terhubung:
 ### E. Formulir Pemesanan Terintegrasi
 Menyediakan input terstruktur: Nama pelanggan, nomor telepon/WhatsApp, jenis layanan, alamat lengkap penjemputan, tanggal dan jam jemput, serta catatan kerusakan. Dilengkapi validasi input instan dan penanganan status loading saat mengirimkan request ke backend.
 
-### F. Pelacakan Kurir Live GPS (Komponen LiveMapKurir)
-* Peta interaktif berbasis Leaflet OpenStreetMap.
-* Marker toko optik, marker alamat tujuan pelanggan, dan marker kurir dengan animasi gelombang radar (*radar pulse ring*).
-* Polyline rute perjalanan warna biru.
-* Tombol aksi: *"Buka Rute Langsung di Google Maps"* yang memicu direct URL ke aplikasi Google Maps resmi dengan koordinat asal dan tujuan nyata.
+### F. Pelacakan Kurir Live GPS (Komponen LiveMapKurir & PelacakKurirPelanggan)
+* Halaman Pelacak Kurir Khusus Pelanggan (`/pelacak-kurir`): Menyediakan pemilihan tab pesanan aktif, kartu kontak kurir lapangan resmi Plat B (Bambang Wijaya - B 3120 TNG / Agus Pratama - B 4589 AB), tombol WhatsApp/Telepon, progress bar perjalanan armada, dan estimasi waktu tiba (ETA).
+* Peta interaktif hybrid: HTML Google Maps Indonesia dan Leaflet OpenStreetMap dengan penanganan bebas error runtime (`_leaflet_pos` safe guard).
+* Marker toko optik pusat, marker alamat tujuan pelanggan, dan marker kurir bergerak dinamis dengan animasi gelombang radar (*radar pulse ring*).
+* Tombol aksi: *"Buka Rute di Google Maps"* yang memicu direct URL turn-by-turn navigasi ke aplikasi Google Maps resmi dengan koordinat nyata.
 
 ---
 

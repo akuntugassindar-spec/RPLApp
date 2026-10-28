@@ -24,7 +24,7 @@ Dokumen ini dibaca oleh **AI Coding Agent apa pun** (Google Gemini, Antigravity,
 4. **Keamanan Tanpa Kompromi:** Dilarang menyimpan password dalam plaintext. Selalu gunakan BCrypt. Jangan pernah mematikan middleware otentikasi JWT (`auth.js`) atau proteksi admin (`adminAuth.js`) hanya demi mempermudah testing.
 5. **Dilarang Hardcode Kredensial:** Semua kredensial database dan kunci rahasia JWT wajib dibaca melalui file lingkungan `.env` / `process.env`.
 6. **Integritas Relasi Basis Data:** Selalu gunakan parameterized queries (`?`) untuk mencegah SQL Injection. Pertahankan foreign key constraint dengan `ON DELETE CASCADE`.
-7. **Jaga Seluruh Unit Test Tetap Lulus (100% Passing):** Setiap perubahan kode tidak boleh merusak 48 unit tests yang sudah ada di `backend/tests/`.
+7. **Jaga Seluruh Unit Test Tetap Lulus (100% Passing):** Setiap perubahan kode tidak boleh merusak 64 unit tests yang sudah ada di `backend/tests/` (12 test suites lulus 100%).
 8. **Dilarang Menggunakan Emotikon/Emoji pada File Dokumentasi:** Seluruh berkas dokumentasi di dalam folder `docs/` wajib bersih dari karakter emotikon/emoji dan ditulis dalam bahasa formal.
 9. **Konfirmasi Sebelum Melakukan Commit/Push:** Jangan melakukan git commit atau push ke repositori jarak jauh (GitHub) tanpa persetujuan eksplisit dari pengguna.
 10. **Jujur Terhadap Hambatan Teknis:** Jika ada fitur yang belum selesai atau terjadi error saat pengujian, jelaskan akar penyebabnya secara transparan dan berikan solusi yang tepat.
