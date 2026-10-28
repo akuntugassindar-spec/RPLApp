@@ -1,12 +1,26 @@
 # CATATAN PERKEMBANGAN PENGEMBANGAN (DEVLOG.MD)
 
-**Proyek:** OptikExpress — Sistem Informasi Layanan Antar-Jemput Kacamata  
+**Proyek:** OptikExpress - Sistem Informasi Layanan Antar-Jemput Kacamata  
 **Repositori GitHub:** [https://github.com/akuntugassindar-spec/RPLApp.git](https://github.com/akuntugassindar-spec/RPLApp.git)  
+**Terakhir Diperbarui:** 28 Oktober 2026 (Sinkronisasi Fitur Pelacak Kurir, Leaflet Fix, & Video Demo 3 Menit)  
 **Lingkungan Eksekusi:** Node.js `v24.22.1 LTS` | npm `v11.19.1` | Express.js | React.js | MySQL 8.0 3NF
 
 ---
 
-## 1. Kronologi Pengembangan Proyek (Pertemuan 1 s/d 7 & Pasca-MVP)
+## RINGKASAN PEMBARUAN TERAKHIR (28 OKTOBER 2026)
+
+| Komponen / Fitur | Status | Rincian Implementasi & Bukti Teknis |
+| :--- | :---: | :--- |
+| **Fitur Pelacak Kurir Pelanggan** | SELESAI | Komponen baru `PelacakKurirPelanggan.js` (`/pelacak-kurir` & `/lacak-kurir`), menu navigasi baru di Navbar pelanggan, tombol di Dashboard, pemilih pesanan, kontak WA/telepon kurir Plat B, dan simulasi pergerakan satelit live GPS. |
+| **Perbaikan Bug Leaflet (`_leaflet_pos`)** | SELESAI | Memisahkan inisialisasi peta sekali-pakai dari pembaruan koordinat marker via `marker.setLatLng()`. Ditambahkan pengaman `_getMapPanePos` safe patch di `index.html` dan `LiveMapKurir.js` sehingga bebas error saat transisi animasi zoom/pan. |
+| **Video Demonstrasi (`demo.mp4`)** | SELESAI | Durasi tepat 3 Menit (180 detik / 5.400 frame @ 30 FPS, Full HD 1080p), antarmuka Google Chrome Windows 10/11 asli, gerak kursor mouse halus natural (tidak kaku/tidak lambat), mencakup 9 adegan skenario lengkap HowToRun.md. |
+| **Standardisasi Armada Plat B** | SELESAI | Seluruh armada kurir operasional menggunakan Plat B resmi wilayah DKI Jakarta & Tangerang Selatan (`B 3120 TNG` & `B 4589 AB`). |
+| **Pembersihan Emotikon UI** | SELESAI | Seluruh antarmuka frontend bersih 100% dari emotikon mentah, digantikan ikon SVG modern dan badge status elegan. |
+| **Hasil Pengujian Otomatis** | 100% PASS | 64 unit tests dalam 12 test suites lulus 100% (0 Failed) via `npm --prefix backend test`. |
+
+---
+
+## 1. Kronologi Lengkap Pengembangan Proyek (Pertemuan 1 s/d 7 & Pasca-MVP)
 
 ### Pertemuan 1: Inisiasi dan Eksplorasi Tema
 * **Fokus:** Brainstorming ide proyek berbasis masalah nyata.
@@ -53,7 +67,7 @@
   4. **Ekspansi Test Suite Komprehensif:** 64 unit tests dalam 12 test suites lulus 100% (`PASS 64 / 0 FAIL`).
   5. **Penyusunan Berkas Pengumpulan Rilis:** Pembuatan panduan menjalankan sistem lengkap ([`HowToRun.md`](../HowToRun.md)) dan matriks verifikasi fitur ([`checklist_mvp.md`](../checklist_mvp.md)).
 
-### Pembaruan Pasca-Pertemuan 7: Perbaikan Bug Runtime & Peningkatan Fitur Pelanggan
+### Pembaruan Pasca-Pertemuan 7: Perbaikan Bug Runtime & Peningkatan Fitur Pelanggan (28 Oktober 2026)
 * **Fokus:** Penyelesaian bug transisi Leaflet, penambahan fitur pelacakan pelanggan khusus, standardisasi armada Plat B, pembersihan UI dari emotikon mentah, serta pembuatan video demonstrasi 3 menit standar Google Chrome Windows.
 * **Aktivitas & Hasil:**
   1. **Perbaikan Error Runtime Leaflet (`_leaflet_pos`):**
@@ -66,12 +80,12 @@
      * Mengintegrasikan tombol pintas pelacakan kurir live GPS di `DashboardLayanan.js`.
      * Menyediakan pemilih pesanan aktif, info kurir lapangan (Plat B), tombol WhatsApp/telepon kurir, estimasi tiba (ETA), rute Google Maps / OSM, dan simulasi pergerakan satelit live GPS.
   3. **Standardisasi Kendaraan Armada Kurir Plat B:**
-     * Memperbarui seluruh identitas armada logistik resmi ke wilayah operasional DKI Jakarta & Tangerang Selatan: `Bambang Wijaya — Yamaha NMAX (B 3120 TNG)` dan `Agus Pratama — Honda Vario 160 (B 4589 AB)`.
+     * Memperbarui seluruh identitas armada logistik resmi ke wilayah operasional DKI Jakarta & Tangerang Selatan: `Bambang Wijaya - Yamaha NMAX (B 3120 TNG)` dan `Agus Pratama - Honda Vario 160 (B 4589 AB)`.
   4. **Pembersihan Antarmuka dari Emotikon/Emoji Mentah:**
      * Menghapus seluruh emotikon mentah dari seluruh halaman dan komponen React, digantikan dengan ikon SVG modern, tipografi bersih, dan badge status profesional.
   5. **Produksi Video Demonstrasi Resmi (`demo.mp4`):**
      * Memproduksi video berdurasi tepat 3 Menit (180,0 detik / 5.400 frame pada 30 FPS, Full HD 1080p).
-     * Menerapkan bingkai antarmuka Google Chrome Windows 10/11 asli lengkap dengan tab bar, tombol kontrol jendela Windows (`─`, `□`, `✕`), dan Omnibox URL.
+     * Menerapkan bingkai antarmuka Google Chrome Windows 10/11 asli lengkap dengan tab bar, tombol kontrol jendela Windows (`-`, `[ ]`, `X`), dan Omnibox URL.
      * Menerapkan pergerakan kursor mouse natural dengan interpolasi *cubic ease-in-out* dan animasi *ripple click* berkecepatan normal.
      * Menampilkan 9 adegan skenario lengkap dari Beranda, Pemesanan, Pelacak Kurir Live GPS, Panel Admin, Dashboard Kurir, Kasir QRIS BI EMVCo, Audit Trail 6 Tahapan, hingga Eksekusi 64 Unit Tests.
 
@@ -122,3 +136,4 @@ Repositori OptikExpress mencatat riwayat commit yang terstruktur dan informatif:
 * `fix: resolve Leaflet _leaflet_pos error and add customer courier tracking feature`
 * `docs: synchronize HowToRun.md and checklist_mvp.md with customer courier tracking feature`
 * `docs: update demo.mp4 with 3-minute Windows Chrome UI and customer tracking walkthrough`
+* `docs: synchronize docs folder (DevLog, PRD, Design_UI, Agent) with latest customer tracking, Plat B, and 64 tests`
