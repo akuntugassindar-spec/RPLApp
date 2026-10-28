@@ -196,8 +196,8 @@ const DashboardLayanan = () => {
                         <Link to={`/layanan/${item.id}`} className="btn btn-outline btn-sm">
                           Detail
                         </Link>
-                        <Link to={`/kurir/tracking/${item.id}`} className="btn btn-sm" style={{ backgroundColor: '#0284c7', color: '#fff', border: 'none' }}>
-                          Lacak
+                        <Link to={`/pelacak-kurir?id=${item.id}`} className="btn btn-sm" style={{ backgroundColor: '#0284c7', color: '#fff', border: 'none' }}>
+                          Lacak Kurir
                         </Link>
                         {item.status_pembayaran !== 'lunas' && item.total_biaya > 0 && (
                           <Link to={`/pembayaran/${item.id}`} className="btn btn-sm" style={{ backgroundColor: '#10b981', color: '#fff', border: 'none' }}>

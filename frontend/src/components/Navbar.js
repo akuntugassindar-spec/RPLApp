@@ -130,6 +130,11 @@ const Navbar = () => {
                 </Link>
               </li>
               <li>
+                <Link to="/pelacak-kurir" className={`nav-link ${isActive('/pelacak-kurir')}`}>
+                  Lacak Kurir
+                </Link>
+              </li>
+              <li>
                 <Link to="/layanan/buat" className="btn btn-primary btn-sm">
                   + Buat Pesanan
                 </Link>

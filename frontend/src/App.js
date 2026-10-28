@@ -26,6 +26,9 @@ import { RiwayatStatusLayanan } from './pages/riwayat_status_layanan';
 // Halaman Khusus Administrator
 import { AdminDashboard } from './pages/admin';
 
+// Modul Pelacak Kurir Pelanggan
+import { PelacakKurirPelanggan } from './pages/user';
+
 /**
  * Komponen Utama Aplikasi React
  * Mengatur seluruh perutean aplikasi dengan React Router v6 dan PrivateRoute
@@ -121,6 +124,22 @@ function App() {
             element={
               <PrivateRoute>
                 <TrackingKurir />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/pelacak-kurir"
+            element={
+              <PrivateRoute>
+                <PelacakKurirPelanggan />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/lacak-kurir"
+            element={
+              <PrivateRoute>
+                <PelacakKurirPelanggan />
               </PrivateRoute>
             }
           />

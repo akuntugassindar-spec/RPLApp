@@ -229,6 +229,15 @@ const TrackingKurir = () => {
   const kurirLat = simulasiBerjalan ? (optikLat + (destLat - optikLat) * ratio) : actualKurirLat;
   const kurirLng = simulasiBerjalan ? (optikLng + (destLng - optikLng) * ratio) : actualKurirLng;
 
+  const userJson = localStorage.getItem('user');
+  let currentUser = null;
+  try {
+    currentUser = userJson ? JSON.parse(userJson) : null;
+  } catch (e) {
+    currentUser = null;
+  }
+  const isKurirOrAdmin = currentUser?.role === 'kurir' || currentUser?.role === 'admin';
+
   const totalBiaya = Number(layanan.total_biaya || trackingData?.pembayaran?.total_biaya || 150000);
   const isLunas = statusPembayaran === 'lunas' || layanan.status_pembayaran === 'lunas';
 
@@ -238,13 +247,17 @@ const TrackingKurir = () => {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.25rem' }}>
-            <Link to={`/layanan/${id}`} className="btn btn-outline btn-sm">← Kembali ke Detail</Link>
+            <Link to={isKurirOrAdmin ? `/layanan/${id}` : '/dashboard'} className="btn btn-outline btn-sm">
+              {isKurirOrAdmin ? '← Kembali ke Detail' : '← Ke Dashboard'}
+            </Link>
             <h1 style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--dark)' }}>
-              Pelacakan Kurir & Kasir Pesanan #${id}
+              {isKurirOrAdmin ? `Pelacakan Kurir & Kasir Pesanan #${id}` : `Pelacakan Kurir Pesanan #${id}`}
             </h1>
           </div>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>
-            Sistem Pemantauan Armada Logistik Real-Time & Pembayaran Jasa Antar-Jemput
+            {isKurirOrAdmin
+              ? 'Sistem Pemantauan Armada Logistik Real-Time & Pembayaran Jasa Antar-Jemput'
+              : 'Pantau Posisi Kurir Penjemputan dan Pengantaran Kacamata Menuju Alamat Anda Secara Real-Time'}
           </p>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
@@ -280,7 +293,7 @@ const TrackingKurir = () => {
             </div>
             <div>
               <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800, color: isLunas ? '#166534' : '#0369a1' }}>
-                Kasir & Pembayaran Jasa (Kurir & Pelanggan)
+                {isKurirOrAdmin ? 'Kasir & Pembayaran Jasa (Kurir & Admin)' : 'Informasi Tagihan & Pembayaran'}
               </h3>
               <p style={{ margin: '2px 0 0 0', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
                 Metode: <strong style={{ textTransform: 'uppercase' }}>{layanan.metode_pembayaran || 'QRIS / COD'}</strong> &bull; Biaya: <strong>Rp {totalBiaya.toLocaleString('id-ID')}</strong>
@@ -319,35 +332,63 @@ const TrackingKurir = () => {
         ) : (
           <div>
             <p style={{ fontSize: '0.85rem', color: '#475569', marginBottom: '1rem' }}>
-              Kurir dapat menerima pembayaran tunai dari pelanggan di tempat, atau memperlihatkan QRIS di layar ponsel untuk discan oleh pelanggan menggunakan aplikasi GoPay/BCA/DANA.
+              {isKurirOrAdmin
+                ? 'Kurir dapat menerima pembayaran tunai dari pelanggan di tempat, atau memperlihatkan QRIS di layar ponsel untuk discan oleh pelanggan menggunakan aplikasi GoPay/BCA/DANA.'
+                : 'Selesaikan pembayaran secara praktis melalui QRIS Bank Indonesia (GoPay, BCA, OVO, DANA), atau bayar tunai (COD) langsung kepada kurir saat penjemputan/pengantaran.'}
             </p>
             <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
-              {/* Tombol Terima Tunai COD */}
-              <button
-                type="button"
-                onClick={handleKurirTerimaTunai}
-                disabled={processingBayar}
-                className="btn btn-primary"
-                style={{ background: '#10b981', borderColor: '#10b981', fontWeight: 700 }}
-              >
-                {processingBayar ? 'Memproses...' : 'Terima Pembayaran Tunai COD'}
-              </button>
+              {isKurirOrAdmin ? (
+                <>
+                  {/* Tombol Terima Tunai COD Khusus Kurir */}
+                  <button
+                    type="button"
+                    onClick={handleKurirTerimaTunai}
+                    disabled={processingBayar}
+                    className="btn btn-primary"
+                    style={{ background: '#10b981', borderColor: '#10b981', fontWeight: 700 }}
+                  >
+                    {processingBayar ? 'Memproses...' : 'Terima Pembayaran Tunai COD'}
+                  </button>
 
-              {/* Tombol Tampilkan QRIS Kurir */}
-              <button
-                type="button"
-                onClick={handleBukaQrisKurir}
-                disabled={processingBayar}
-                className="btn btn-outline"
-                style={{ borderColor: '#0284c7', color: '#0284c7', fontWeight: 700 }}
-              >
-                Tampilkan Kode QRIS
-              </button>
+                  {/* Tombol Tampilkan QRIS Kurir */}
+                  <button
+                    type="button"
+                    onClick={handleBukaQrisKurir}
+                    disabled={processingBayar}
+                    className="btn btn-outline"
+                    style={{ borderColor: '#0284c7', color: '#0284c7', fontWeight: 700 }}
+                  >
+                    Tampilkan Kode QRIS
+                  </button>
 
-              {/* Tautan Pembayaran Lengkap */}
-              <Link to={`/pembayaran/${id}`} className="btn btn-outline" style={{ fontSize: '0.85rem' }}>
-                Buka Layar Kasir
-              </Link>
+                  {/* Tautan Pembayaran Lengkap */}
+                  <Link to={`/pembayaran/${id}`} className="btn btn-outline" style={{ fontSize: '0.85rem' }}>
+                    Buka Layar Kasir
+                  </Link>
+                </>
+              ) : (
+                <>
+                  {/* Tombol Bayar untuk Pelanggan */}
+                  <Link
+                    to={`/pembayaran/${id}`}
+                    className="btn btn-primary"
+                    style={{ fontWeight: 700 }}
+                  >
+                    Bayar Tagihan Sekarang
+                  </Link>
+
+                  {/* Tombol QRIS Cepat untuk Pelanggan */}
+                  <button
+                    type="button"
+                    onClick={handleBukaQrisKurir}
+                    disabled={processingBayar}
+                    className="btn btn-outline"
+                    style={{ borderColor: '#0284c7', color: '#0284c7', fontWeight: 700 }}
+                  >
+                    Tampilkan Kode QRIS
+                  </button>
+                </>
+              )}
             </div>
           </div>
         )}

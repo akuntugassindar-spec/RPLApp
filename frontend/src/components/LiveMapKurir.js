@@ -70,20 +70,36 @@ const LiveMapKurir = ({
   // Ref dan state untuk Leaflet (OSM secondary fallback)
   const containerRef = useRef(null);
   const mapRef = useRef(null);
+  const kurirMarkerRef = useRef(null);
+  const destMarkerRef = useRef(null);
+  const polylineRef = useRef(null);
 
+  // Inisialisasi Peta Leaflet (Hanya sekali saat engine OSM aktif)
   useEffect(() => {
     if (enginePeta !== 'osm' || typeof window === 'undefined' || !window.L || !containerRef.current) {
       return;
     }
 
-    try {
-      if (containerRef.current._leaflet_id) {
-        containerRef.current._leaflet_id = null;
-      }
+    // Hindari re-inisialisasi jika instance peta sudah ada
+    if (mapRef.current) {
+      return;
+    }
 
-      if (mapRef.current) {
-        mapRef.current.remove();
-        mapRef.current = null;
+    try {
+      // Patch pengaman Leaflet internal: cegah error _leaflet_pos saat transisi zoom/pan
+      if (window.L.Map && !window.L.Map.prototype._safeLeafletPosPatch) {
+        window.L.Map.prototype._safeLeafletPosPatch = true;
+        const origGetMapPanePos = window.L.Map.prototype._getMapPanePos;
+        if (typeof origGetMapPanePos === 'function') {
+          window.L.Map.prototype._getMapPanePos = function () {
+            if (!this._mapPane) return new window.L.Point(0, 0);
+            try {
+              return origGetMapPanePos.call(this);
+            } catch (err) {
+              return new window.L.Point(0, 0);
+            }
+          };
+        }
       }
 
       const map = window.L.map(containerRef.current, {
@@ -119,10 +135,10 @@ const LiveMapKurir = ({
         iconAnchor: [35, 23]
       });
 
-      window.L.marker([validDestLat, validDestLng], { icon: destIcon }).addTo(map);
-      window.L.marker([validKurirLat, validKurirLng], { icon: kurirIcon }).addTo(map);
+      const destMarker = window.L.marker([validDestLat, validDestLng], { icon: destIcon }).addTo(map);
+      const kurirMarker = window.L.marker([validKurirLat, validKurirLng], { icon: kurirIcon }).addTo(map);
 
-      window.L.polyline([
+      const polyline = window.L.polyline([
         [validKurirLat, validKurirLng],
         [validDestLat, validDestLng]
       ], { color: '#0284c7', weight: 4, dashArray: '6, 6' }).addTo(map);
@@ -130,20 +146,54 @@ const LiveMapKurir = ({
       map.fitBounds([
         [validKurirLat, validKurirLng],
         [validDestLat, validDestLng]
-      ], { padding: [35, 35], maxZoom: 16 });
+      ], { padding: [35, 35], maxZoom: 16, animate: false });
 
       mapRef.current = map;
+      destMarkerRef.current = destMarker;
+      kurirMarkerRef.current = kurirMarker;
+      polylineRef.current = polyline;
     } catch (e) {
       console.error('[LiveMapKurir] Gagal init leaflet:', e);
     }
 
     return () => {
       if (mapRef.current) {
-        try { mapRef.current.remove(); } catch (err) {}
+        try {
+          mapRef.current.stop();
+          mapRef.current.remove();
+        } catch (err) {}
         mapRef.current = null;
+        destMarkerRef.current = null;
+        kurirMarkerRef.current = null;
+        polylineRef.current = null;
       }
     };
-  }, [enginePeta, validKurirLat, validKurirLng, validDestLat, validDestLng, kurirNama]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [enginePeta, kurirNama]);
+
+  // Pembaruan Posisi Marker dan Polyline tanpa Re-create Peta
+  useEffect(() => {
+    if (!mapRef.current) return;
+    try {
+      if (kurirMarkerRef.current) {
+        kurirMarkerRef.current.setLatLng([validKurirLat, validKurirLng]);
+      }
+      if (destMarkerRef.current) {
+        destMarkerRef.current.setLatLng([validDestLat, validDestLng]);
+      }
+      if (polylineRef.current) {
+        polylineRef.current.setLatLngs([
+          [validKurirLat, validKurirLng],
+          [validDestLat, validDestLng]
+        ]);
+      }
+      if (mapRef.current && typeof mapRef.current.panTo === 'function') {
+        mapRef.current.panTo([validKurirLat, validKurirLng], { animate: false });
+      }
+    } catch (err) {
+      console.warn('[LiveMapKurir] Gagal memperbarui koordinat marker:', err);
+    }
+  }, [validKurirLat, validKurirLng, validDestLat, validDestLng]);
 
   return (
     <div style={{ width: '100%', fontFamily: 'inherit' }}>

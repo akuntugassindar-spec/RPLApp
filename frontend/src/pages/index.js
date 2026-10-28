@@ -13,8 +13,10 @@ export * from './pembayaran';
 // Modul Halaman Riwayat Status Layanan
 export * from './riwayat_status_layanan';
 
+// Modul Halaman User / Pelanggan
+export * from './user';
+
 // Halaman Publik
 export { default as Home } from './Home';
 export { default as Login } from './Login';
 export { default as Register } from './Register';
-
