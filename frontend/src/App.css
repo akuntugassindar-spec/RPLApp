@@ -622,6 +622,12 @@ textarea.form-control {
   justify-content: center;
   margin: 0 auto 1.25rem;
   font-size: 1.8rem;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.feature-card:hover .feature-icon {
+  transform: scale(1.08);
+  background-color: #bae6fd;
 }
 
 /* ==========================================================================

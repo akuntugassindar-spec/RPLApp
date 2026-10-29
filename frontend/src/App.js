@@ -225,6 +225,9 @@ function App() {
           <p>
             &copy; {new Date().getFullYear()} <strong>OptikExpress</strong> — Sistem Informasi Layanan Antar-Jemput Kacamata. Hak Cipta Dilindungi.
           </p>
+          <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.35rem' }}>
+            Ikon vektor web disediakan oleh <a href="https://www.flaticon.com/free-icons/web" title="web icons" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--primary)', textDecoration: 'underline' }}>Flaticon</a>.
+          </p>
         </div>
       </footer>
     </div>
