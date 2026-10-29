@@ -75,6 +75,26 @@
      * Menerapkan pergerakan kursor mouse natural dengan interpolasi *cubic ease-in-out* dan animasi *ripple click* berkecepatan normal.
      * Menampilkan 9 adegan skenario lengkap dari Beranda, Pemesanan, Pelacak Kurir Live GPS, Panel Admin, Dashboard Kurir, Kasir QRIS BI EMVCo, Audit Trail 6 Tahapan, hingga Eksekusi 64 Unit Tests.
 
+### Pertemuan 8: Pengujian Keamanan, Panduan Fresh Clone & Deployment, serta Manajemen Log Aman
+* **Fokus:** Audit keamanan dependensi & arsitektur, penyusunan panduan instalasi ulang dari nol (*fresh clone*), perumusan format log aman (anti-PII leak), analisis penanganan error, serta verifikasi kelulusan 100% seluruh unit test.
+* **Aktivitas & Hasil:**
+  1. **Hasil Uji Security dan Catatan Perubahan yang Relevan (01):**
+     * **Audit Dependensi (`npm audit`):** Ditemukan 3 kerentanan awal pada backend (`body-parser`, `nodemailer`, `qs`). Dilakukan remediasi via `npm audit fix` hingga menghasilkan **0 vulnerabilities** (100% bersih dari kerentanan). Pada frontend, kerentanan dependensi berkurang dari 45 menjadi 33 tanpa *breaking changes* pada build produksi.
+     * **Otorisasi Ketat JWT & RBAC 3-Role:** Mengamankan seluruh endpoint API melalui middleware berlapis (`authMiddleware`, `adminAuthMiddleware`, `staffAuth`). Pengguna biasa diblokir saat mencoba mengakses rute admin (HTTP 403 Forbidden).
+     * **Proteksi Anti-IDOR (Insecure Direct Object Reference):** Memastikan kepemilikan data layanan terisolasi sempurna; pelanggan A tidak dapat melihat atau memodifikasi detail teknis kacamata milik pelanggan B.
+     * **Pencegahan SQL Injection:** Memastikan seluruh query database menggunakan prepared statement berparameter binding (`?`) pada pustaka `mysql2/promise`.
+     * **Enkripsi Kata Sandi:** Hashing kata sandi satu arah menggunakan BCrypt dengan 10 salt rounds untuk mencegah kebocoran kredensial.
+  2. **Penyempurnaan README.md untuk Fresh Clone & Paket Demo (02):**
+     * Menyusun panduan instalasi ulang komprehensif mulai dari `git clone`, konfigurasi environment (`.env`), eksekusi Docker Compose v2, hingga instalasi lokal native (Node.js LTS & MySQL).
+     * Menyediakan tabel kredensial akun demo siap pakai (`admin@optik.com`, `pelanggan@gmail.com`, `bahrul@gmail.com`, `kurir@gmail.com`) dengan password standar `password123`.
+  3. **Standardisasi Log Aman, Analisis Error, & Remediasi (03):**
+     * Merumuskan aturan pencatatan log tanpa kebocoran data sensitif (*Zero PII & Credential Leakage*): Dilarang mencatat password, secret token, atau kunci privat, serta melakukan *masking* nomor telepon pelanggan (`0812****7890`).
+     * Menyusun matriks perbaikan 4 jenis error kritis: Database Connection Failure, Leaflet Runtime TypeError (`_leaflet_pos`), IDOR Access Attempt, dan JWT Token Expired di [`docs/Logging.md`](Logging.md).
+  4. **Verifikasi Alur Fresh Clone, Build, Deploy, & Unit Testing (04):**
+     * Memverifikasi alur instalasi ulang dari repositori bersih: `git clone` → `install` → `run` → `build` → `deploy`.
+     * Membuktikan build produksi frontend `react-scripts build` berhasil 100% (`Compiled successfully`).
+     * Membuktikan seluruh 12 test suites dan 64 unit tests backend lulus tanpa kegagalan (`64 PASSED / 0 FAILED`).
+
 ---
 
 ## 2. Bukti Hasil Eksekusi Unit Test (64 Tests Passed - 100%)

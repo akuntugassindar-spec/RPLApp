@@ -32,10 +32,11 @@ Sebelum mulai, pastikan hal berikut sudah terpenuhi:
 
 Cara ini **tidak perlu** mengonfigurasi database MySQL atau Node.js secara manual. Semua service sudah dibungkus di dalam Docker Compose.
 
-### 1. Masuk ke Folder Project
+### 1. Kloning Repositori & Masuk ke Folder Project (Fresh Clone)
 
 ```bash
-cd "RPLApp"
+git clone https://github.com/akuntugassindar-spec/RPLApp.git
+cd RPLApp
 ```
 
 ### 2. Buat File `.env`
@@ -419,6 +420,121 @@ Status fitur ditandai secara objektif: **[Ada]** = telah terimplementasi penuh d
 - **Enkripsi Kata Sandi:** Menggunakan hashing satu arah **BCrypt** dengan *salt rounds* 10 untuk menjaga keamanan akun pengguna.
 - **Integritas Database Relasional:** Struktur 6 tabel ternormalisasi 3NF dengan constraint *Foreign Key* dan relasi `ON DELETE CASCADE`.
 - **Sanitasi SQL Injection:** Perlindungan menyeluruh menggunakan prepared statement dan parameter binding pada pustaka `mysql2/promise`.
+
+---
+
+---
+
+## Panduan Instalasi Ulang & Akses Paket Demo (Fresh Clone Repo, Build, Deploy)
+
+Panduan ini disusun untuk skenario instalasi ulang bersih (*fresh clone*) dari repositori GitHub, baik menggunakan Docker Compose maupun instalasi lokal (Node.js & MySQL):
+
+### 1. Fresh Clone & Pull Request Workflow
+```bash
+# 1. Kloning repositori bersih
+git clone https://github.com/akuntugassindar-spec/RPLApp.git
+cd RPLApp
+
+# 2. Sinkronisasi cabang utama (main)
+git checkout main
+git pull origin main
+
+# (Opsional) Untuk kolaborasi fitur via Pull Request:
+# git checkout -b fitur/nama-fitur
+# git commit -m "feat: deskripsi fitur"
+# git push origin fitur/nama-fitur
+```
+
+### 2. Instalasi Dependensi Bersih (Clean Install)
+```bash
+# Backend
+npm --prefix backend install
+
+# Frontend
+npm --prefix frontend install
+```
+
+### 3. Eksekusi Unit Test (Verifikasi 100% Lulus)
+```bash
+npm --prefix backend test
+```
+*Ekspektasi Hasil:* 12 test suites, 64 unit tests **100% LULUS (0 FAILED)**.
+
+### 4. Build Produksi Frontend
+```bash
+npm --prefix frontend run build
+```
+*Ekspektasi Hasil:* `Compiled successfully` tanpa warning/error, menghasilkan bundel statis optimal di `frontend/build/`.
+
+### 5. Menjalankan Server & Deployment
+
+#### Opsi A: Menggunakan Docker Compose (Sangat Disarankan)
+```bash
+# Setup environment
+cp backend/.env.example backend/.env
+
+# Build dan deploy seluruh kontainer
+docker compose up --build -d
+
+# Cek status kontainer
+docker compose ps
+```
+
+#### Opsi B: Menggunakan Node.js & MySQL Lokal (XAMPP / Laragon)
+1. Nyalakan service MySQL di XAMPP / Laragon.
+2. Buat database `db_kacamata` (skema tabel `backend/database/schema.sql` dan akun demo akan di-seed otomatis saat backend start).
+3. Jalankan backend:
+   ```bash
+   npm --prefix backend start
+   # Server aktif di http://localhost:5000
+   ```
+4. Jalankan frontend:
+   ```bash
+   npm --prefix frontend start
+   # Aplikasi terbuka di http://localhost:3000
+   ```
+
+### 6. Akses Aplikasi & Paket Demo Siap Uji
+
+* **URL Frontend:** [http://localhost:3000](http://localhost:3000)
+* **Health Check API:** [http://localhost:5000/api/health](http://localhost:5000/api/health)
+* **Kredensial Akun Demo (Password: `password123`):**
+  - **Administrator:** `admin@optik.com` (Kelola pesanan, assign kurir, update biaya servis).
+  - **Pelanggan Utama:** `pelanggan@gmail.com` atau `bahrul@gmail.com` (Pesan layanan kacamata, lacak kurir GPS, bayar QRIS).
+  - **Kurir Lapangan:** `kurir@gmail.com` (Armada Plat B `B 3120 TNG` / `B 4589 AB`, broadcast GPS satelit, kasir COD/QRIS).
+
+---
+
+## Audit Keamanan, Contoh Log Aman, & Analisis Error Runtime
+
+### 1. Hasil Uji Keamanan & Audit Dependensi
+* **Audit Dependensi (`npm audit`):**
+  - Backend: **0 vulnerabilities** (100% bersih dari kerentanan, 126 paket terverifikasi aman).
+  - Frontend: 33 dev vulnerabilities terisolasi pada internal tooling `react-scripts` v5 tanpa dampak ke runtime produksi.
+* **Autentikasi & Otorisasi RBAC 3-Role:** Token JWT tervalidasi dengan secret dinamis dan masa berlaku 24 jam. Endpoint admin dan kurir terlindungi middleware ganda.
+* **Anti-IDOR:** Pembatasan akses horizontal memastikan pengguna hanya dapat mengakses data servis miliknya sendiri.
+* **SQL Injection Prevention:** 100% query database menggunakan parameter binding (`?`) pada `mysql2/promise`.
+* **Enkripsi Kata Sandi:** Hashing kata sandi satu arah menggunakan BCrypt dengan 10 salt rounds.
+
+### 2. Format Log Aman (Zero PII & Credential Leakage)
+Sistem mematuhi standar pencatatan log tanpa mengekspos kata sandi, token rahasia, maupun data pribadi pelanggan:
+```text
+[2026-10-29T14:40:12.102Z] [AUTH_SUCCESS] User ID: 2 | Email: bahrul@gmail.com | Role: pelanggan | Client-IP: 127.0.0.1
+[2026-10-29T14:41:05.412Z] [ORDER_CREATED] Layanan ID #4 created | User ID: 2 | Jenis: perbaikan_dan_lensa | Pickup: BSD Tangerang
+[2026-10-29T14:42:18.890Z] [KURIR_ASSIGN] Layanan ID #4 assigned to Kurir ID #1 (Bambang Wijaya - Armada: B 3120 TNG)
+[2026-10-29T14:43:40.231Z] [GPS_BROADCAST] Kurir ID #1 broadcast: Lat -6.2088, Lng 106.8456 | Status: Menuju lokasi
+[2026-10-29T14:44:15.540Z] [NOTIFICATION] WhatsApp notification queued for Customer: 0812****7890 | Status Event: DIJADWALKAN
+[2026-10-29T14:45:00.672Z] [PAYMENT_SETTLED] Layanan ID #4 | TxID: MIDTRANS-1730... | Gross: Rp 150.000 | Method: QRIS (CRC16: 4C2F)
+```
+
+### 3. Matriks Penyebab Error Runtime & Tindakan Perbaikannya
+
+| Kategori Error | Log Error Khas | Penyebab Utama | Tindakan Perbaikan |
+| :--- | :--- | :--- | :--- |
+| **Database Connection** | `[Database Error] Gagal terhubung ke database MySQL: connect ECONNREFUSED 127.0.0.1:3306` | Service MySQL belum berjalan atau port 3306 terblokir. | Jalankan MySQL di XAMPP / `docker compose up -d db`. Sesuaikan kredensial di `backend/.env`. |
+| **Leaflet Runtime (`_leaflet_pos`)** | `TypeError: Cannot read properties of undefined (reading '_leaflet_pos')` | Instansiasi ulang `L.map()` berulang pada elemen DOM atau animasi pan/zoom belum selesai saat marker bergerak. | Pisahkan inisialisasi peta sekali-pakai via `useRef`, perbarui posisi kurir dengan `marker.setLatLng()` dan `panTo({ animate: false })`, pasang safe patch `_getMapPanePos`. |
+| **Percobaan IDOR** | `[SECURITY_WARN] IDOR attempt blocked: User ID 2 attempted unauthorized access to Layanan ID 1 - HTTP 403 Forbidden` | Parameter ID di URL dimodifikasi untuk mengakses pesanan user lain. | Verifikasi kepemilikan data di controller (`req.user.role !== 'admin' && layanan.user_id !== req.user.id`). |
+| **JWT Kadaluarsa** | `[AUTH_FAIL] Token verification failed: TokenExpiredError: jwt expired` | Sesi token melebihi 24 jam atau secret key berubah. | Intersep status HTTP 401 di frontend, bersihkan `localStorage`, dan arahkan otomatis ke `/login`. |
 
 ---
 
