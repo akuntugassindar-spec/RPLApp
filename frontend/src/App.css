@@ -630,6 +630,14 @@ textarea.form-control {
   background-color: #bae6fd;
 }
 
+.feature-icon svg {
+  width: 30px;
+  height: 30px;
+  color: var(--primary);
+  stroke: var(--primary);
+  display: block;
+}
+
 /* ==========================================================================
    ALERTS & FEEDBACK
    ========================================================================== */
