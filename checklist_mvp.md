@@ -223,8 +223,8 @@ HASIL AKHIR  : 64 PASSED / 0 FAILED (100% LULUS)
 
 Skenario demonstrasi aplikasi telah disinkronkan sepenuhnya dengan **[`HowToRun.md`](HowToRun.md) (Bagian 8)** dan telah direkam ke dalam berkas video Full HD 1080p (`demo.mp4`) dengan antarmuka otentik Google Chrome di Windows:
 
-* **Berkas Video:** `demo.mp4` (Berkas video demonstrasi lokal / arsip presentasi)
-* **Spesifikasi Video:** Full HD 1080p (1920 × 1080), 30 FPS, Google Chrome Windows UI, durasi 3 menit (180 detik).
+* **Berkas Video:** [`demo.mp4`](demo.mp4) (Status: ✅ Siap Dipresentasikan)
+* **Spesifikasi Video:** Full HD 1080p (1920 × 1080), 30 FPS, Google Chrome Windows UI, durasi 104 detik.
 * **Panduan Detail:** Skenario langkah-demi-langkah mengacu langsung pada [`HowToRun.md`](HowToRun.md) Bagian 8.
 
 ### Rincian Skenario Demonstrasi (Sesuai HowToRun.md):
