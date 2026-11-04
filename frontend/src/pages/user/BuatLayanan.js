@@ -7,7 +7,11 @@ import api from '../../utils/api';
  * Menyediakan form pengisian data perbaikan atau pergantian lensa:
  * jenis_layanan, jenis_kacamata, keluhan, detail_perbaikan, alamat,
  * tanggal_jemput, jam_jemput, keterangan, serta unggah foto kacamata & resep dokter (opsional).
- * Sesuai Fitur Inti #12 di README.md & Spesifikasi PRD.
+ * Fitur Unggah Foto Fisik Kacamata & Resep Optik:
+ * - Penyimpanan media berbasis disk server (/uploads/)
+ * - Validasi tipe file gambar (JPG, PNG, WEBP)
+ * - Batasan ukuran maksimal 5 MB
+ * - Bersifat OPSIONAL: pelanggan dapat memilih untuk mengunggah atau tidak mengunggah foto.
  */
 const BuatLayanan = () => {
   const navigate = useNavigate();
@@ -48,10 +52,19 @@ const BuatLayanan = () => {
   const handleFileChange = (e, field) => {
     const file = e.target.files[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        setError('Ukuran berkas foto maksimal 5 MB.');
+      // Validasi tipe berkas (hanya gambar)
+      if (!file.type.startsWith('image/')) {
+        setError('Hanya berkas gambar (JPG, PNG, WEBP) yang diizinkan untuk diunggah.');
+        e.target.value = '';
         return;
       }
+      // Validasi ukuran berkas (maksimal 5 MB)
+      if (file.size > 5 * 1024 * 1024) {
+        setError('Ukuran berkas foto melebihi batas maksimal 5 MB.');
+        e.target.value = '';
+        return;
+      }
+      setError('');
       const reader = new FileReader();
       reader.onloadend = () => {
         const base64Data = reader.result;
@@ -188,72 +201,89 @@ const BuatLayanan = () => {
             />
           </div>
 
-          {/* Baris 4: Unggah Foto Kacamata & Resep Optik (Fitur Inti #12 README.md - Opsional) */}
+          {/* Baris 4: Unggah Foto Fisik Kacamata & Resep Optik (Fitur Opsional) */}
           <div style={{ background: '#f8fafc', padding: '1.25rem', borderRadius: 'var(--radius-md)', border: '1px solid #e2e8f0', marginBottom: '1.25rem' }}>
-            <h3 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#0369a1', margin: '0 0 0.5rem 0' }}>
-              Foto Kacamata & Resep Dokter (Opsional)
-            </h3>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.35rem' }}>
+              <h3 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#0369a1', margin: 0 }}>
+                Unggah Foto Fisik Kacamata & Resep Optik (Opsional)
+              </h3>
+              <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#0284c7', background: '#e0f2fe', padding: '0.15rem 0.55rem', borderRadius: '999px' }}>
+                Bersifat Opsional (Boleh Dikosongkan)
+              </span>
+            </div>
             <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: '0 0 1rem 0' }}>
-              Lampirkan foto kacamata yang rusak atau foto resep dokter mata untuk membantu teknisi optik kami bekerja lebih presisi.
+              Anda dapat melampirkan foto fisik kacamata rusak atau foto resep dokter mata (jika ada). Fitur ini bersifat opsional, Anda tetap dapat mengajukan layanan tanpa mengunggah foto.
             </p>
 
             <div className="form-grid">
-              {/* Foto Kacamata */}
-              <div className="form-group" style={{ margin: 0 }}>
-                <label className="form-label" style={{ fontSize: '0.85rem' }}>
-                  Foto Fisik Kacamata / Kerusakan
+              {/* Foto Fisik Kacamata */}
+              <div className="form-group" style={{ margin: 0, background: '#fff', padding: '1rem', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                <label className="form-label" style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--dark)' }}>
+                  Foto Fisik Kacamata / Kerusakan (Opsional)
                 </label>
                 <input
                   type="file"
-                  accept="image/*"
+                  accept="image/jpeg,image/png,image/webp,image/jpg"
                   onChange={(e) => handleFileChange(e, 'foto_kacamata')}
-                  style={{ display: 'block', fontSize: '0.8rem' }}
+                  style={{ display: 'block', fontSize: '0.8rem', width: '100%', marginTop: '0.35rem' }}
                 />
+                <small style={{ color: 'var(--text-muted)', fontSize: '0.72rem', display: 'block', marginTop: '0.25rem' }}>
+                  Format: JPG, PNG, WEBP (Maksimal 5 MB)
+                </small>
                 {previewKacamata && (
-                  <div style={{ marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <div style={{ marginTop: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.5rem', background: '#f0fdf4', borderRadius: '6px', border: '1px solid #bbf7d0' }}>
                     <img
                       src={previewKacamata}
                       alt="Preview Kacamata"
-                      style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+                      style={{ width: '64px', height: '64px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #cbd5e1' }}
                     />
-                    <button
-                      type="button"
-                      onClick={() => handleRemovePhoto('foto_kacamata')}
-                      className="btn btn-outline btn-sm"
-                      style={{ fontSize: '0.75rem', padding: '0.2rem 0.5rem', color: '#ef4444', borderColor: '#ef4444' }}
-                    >
-                      Hapus Foto
-                    </button>
+                    <div>
+                      <span style={{ fontSize: '0.78rem', fontWeight: 600, color: '#166534', display: 'block' }}>Foto kacamata dipilih</span>
+                      <button
+                        type="button"
+                        onClick={() => handleRemovePhoto('foto_kacamata')}
+                        className="btn btn-outline btn-sm"
+                        style={{ fontSize: '0.75rem', padding: '0.2rem 0.5rem', marginTop: '0.25rem', color: '#ef4444', borderColor: '#ef4444' }}
+                      >
+                        Hapus Foto
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
 
-              {/* Foto Resep */}
-              <div className="form-group" style={{ margin: 0 }}>
-                <label className="form-label" style={{ fontSize: '0.85rem' }}>
-                  Foto Resep Dokter / Ukuran Optik
+              {/* Foto Resep Optik */}
+              <div className="form-group" style={{ margin: 0, background: '#fff', padding: '1rem', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                <label className="form-label" style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--dark)' }}>
+                  Foto Resep Dokter / Ukuran Optik (Opsional)
                 </label>
                 <input
                   type="file"
-                  accept="image/*"
+                  accept="image/jpeg,image/png,image/webp,image/jpg"
                   onChange={(e) => handleFileChange(e, 'foto_resep')}
-                  style={{ display: 'block', fontSize: '0.8rem' }}
+                  style={{ display: 'block', fontSize: '0.8rem', width: '100%', marginTop: '0.35rem' }}
                 />
+                <small style={{ color: 'var(--text-muted)', fontSize: '0.72rem', display: 'block', marginTop: '0.25rem' }}>
+                  Format: JPG, PNG, WEBP (Maksimal 5 MB)
+                </small>
                 {previewResep && (
-                  <div style={{ marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <div style={{ marginTop: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.5rem', background: '#f0fdf4', borderRadius: '6px', border: '1px solid #bbf7d0' }}>
                     <img
                       src={previewResep}
-                      alt="Preview Resep"
-                      style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+                      alt="Preview Resep Dokter"
+                      style={{ width: '64px', height: '64px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #cbd5e1' }}
                     />
-                    <button
-                      type="button"
-                      onClick={() => handleRemovePhoto('foto_resep')}
-                      className="btn btn-outline btn-sm"
-                      style={{ fontSize: '0.75rem', padding: '0.2rem 0.5rem', color: '#ef4444', borderColor: '#ef4444' }}
-                    >
-                      Hapus Foto
-                    </button>
+                    <div>
+                      <span style={{ fontSize: '0.78rem', fontWeight: 600, color: '#166534', display: 'block' }}>Foto resep dipilih</span>
+                      <button
+                        type="button"
+                        onClick={() => handleRemovePhoto('foto_resep')}
+                        className="btn btn-outline btn-sm"
+                        style={{ fontSize: '0.75rem', padding: '0.2rem 0.5rem', marginTop: '0.25rem', color: '#ef4444', borderColor: '#ef4444' }}
+                      >
+                        Hapus Foto
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>

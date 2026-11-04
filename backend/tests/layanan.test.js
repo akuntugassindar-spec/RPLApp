@@ -91,17 +91,25 @@ describe('Pengujian Fitur 2: Notifikasi Otomatis (Email & WhatsApp Mock)', () =>
 });
 
 describe('Pengujian Fitur 3: Unggah Foto Kacamata & Resep Optik', () => {
-  it('saveBase64Image harus mengembalikan null jika input kosong', () => {
+  it('saveBase64Image harus mengembalikan null jika input kosong (fitur bersifat opsional)', () => {
     assert.strictEqual(saveBase64Image(null, 'test'), null);
     assert.strictEqual(saveBase64Image('', 'test'), null);
+    assert.strictEqual(saveBase64Image(undefined, 'test'), null);
   });
   it('saveBase64Image harus mempertahankan URL existing', () => {
     assert.strictEqual(saveBase64Image('/uploads/sample.jpg', 'test'), '/uploads/sample.jpg');
   });
-  it('saveBase64Image harus menyimpan base64 valid', () => {
+  it('saveBase64Image harus menyimpan base64 valid ke disk server /uploads/', () => {
     const b64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
     const r = saveBase64Image(b64, 'test-unit');
     assert.ok(typeof r === 'string'); assert.ok(r.startsWith('/uploads/')); assert.ok(r.endsWith('.png'));
+  });
+  it('saveBase64Image harus menolak jika format bukan gambar atau ukuran melebihi 5 MB', () => {
+    const textFile = 'data:text/plain;base64,SGVsbG8gV29ybGQ=';
+    assert.strictEqual(saveBase64Image(textFile, 'test'), null);
+    const hugeBuffer = Buffer.alloc(5.2 * 1024 * 1024, 'a').toString('base64');
+    const hugeImage = `data:image/jpeg;base64,${hugeBuffer}`;
+    assert.strictEqual(saveBase64Image(hugeImage, 'test'), null);
   });
 });
 

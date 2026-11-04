@@ -368,6 +368,8 @@ const autoAssignCourier = (seedId = 0) => {
 
 /**
  * Helper untuk menyimpan gambar Base64 ke disk server (/uploads/)
+ * Memvalidasi tipe berkas gambar dan batasan ukuran maksimal 5 MB.
+ * Bersifat opsional: mengembalikan null jika input kosong.
  */
 const saveBase64Image = (base64Str, prefix = 'media') => {
   if (!base64Str || typeof base64Str !== 'string') return null;
@@ -377,11 +379,28 @@ const saveBase64Image = (base64Str, prefix = 'media') => {
   try {
     const matches = base64Str.match(/^data:([A-Za-z-+/]+);base64,(.+)$/);
     if (!matches || matches.length !== 3) return null;
-    const mimeType = matches[1];
+    const mimeType = matches[1].toLowerCase();
+
+    // Validasi tipe berkas: wajib bertipe gambar
+    if (!mimeType.startsWith('image/')) {
+      console.warn(`[saveBase64Image] Ditolak: MIME-type "${mimeType}" bukan format gambar yang valid.`);
+      return null;
+    }
+
     const dataBuffer = Buffer.from(matches[2], 'base64');
+
+    // Validasi ukuran berkas: maksimal 5 MB (5 * 1024 * 1024 bytes)
+    const MAX_FILE_SIZE = 5 * 1024 * 1024;
+    if (dataBuffer.length > MAX_FILE_SIZE) {
+      console.warn(`[saveBase64Image] Ditolak: Ukuran gambar (${(dataBuffer.length / (1024 * 1024)).toFixed(2)} MB) melebihi batas 5 MB.`);
+      return null;
+    }
+
     let ext = 'jpg';
     if (mimeType.includes('png')) ext = 'png';
     else if (mimeType.includes('webp')) ext = 'webp';
+    else if (mimeType.includes('gif')) ext = 'gif';
+
     const uploadsDir = path.join(__dirname, '..', 'uploads');
     if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
     const filename = `${prefix}_${Date.now()}_${Math.random().toString(36).substring(2, 7)}.${ext}`;

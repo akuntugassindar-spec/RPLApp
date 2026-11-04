@@ -50,7 +50,7 @@
   1. **Integrasi End-to-End Tuntas:** Menjamin alur dari pengajuan layanan kacamata, penugasan kurir, pengerjaan lab optik, pelunasan multi-metode, hingga pengantaran tuntas 100%.
   2. **Implementasi Komponen Modal Overlay (`SuccessOverlay.js`):** Menampilkan notifikasi pop-up di tengah layar pengguna dengan backdrop blur, animasi centang, dan auto-dismiss progress bar saat melakukan pengubahan data atau status pesanan.
   3. **Penanganan Robust Error & Edge Cases:** Validasi ketat payload HTTP 400, sanitasi input, pemulihan koneksi database, proteksi double submit form via loading state, dan fallback otomatis akun demo.
-  4. **Ekspansi Test Suite Komprehensif:** 64 unit tests dalam 12 test suites lulus 100% (`PASS 64 / 0 FAIL`).
+  4. **Ekspansi Test Suite Komprehensif:** 65 unit tests dalam 12 test suites lulus 100% (`PASS 64 / 0 FAIL`).
   5. **Penyusunan Berkas Pengumpulan Rilis:** Pembuatan panduan menjalankan sistem lengkap ([`HowToRun.md`](../HowToRun.md)) dan matriks verifikasi fitur ([`checklist_mvp.md`](../checklist_mvp.md)).
 
 ### Pembaruan Pasca-Pertemuan 7: Perbaikan Bug Runtime & Peningkatan Fitur Pelanggan
@@ -93,11 +93,18 @@
   4. **Verifikasi Alur Fresh Clone, Build, Deploy, & Unit Testing (04):**
      * Memverifikasi alur instalasi ulang dari repositori bersih: `git clone` → `install` → `run` → `build` → `deploy`.
      * Membuktikan build produksi frontend `react-scripts build` berhasil 100% (`Compiled successfully`).
-     * Membuktikan seluruh 12 test suites dan 64 unit tests backend lulus tanpa kegagalan (`64 PASSED / 0 FAILED`).
+     * Membuktikan seluruh 12 test suites dan 65 unit tests backend lulus tanpa kegagalan (`64 PASSED / 0 FAILED`).
+
+### Pembaruan Lanjutan: Penyempurnaan Fitur Unggah Foto Fisik Kacamata & Resep Optik (Opsional)
+* **Fokus:** Integrasi menyeluruh form upload foto kacamata rusak & resep dokter mata di halaman pemesanan layanan (`/layanan/buat`), penyimpanan media disk server (`/uploads/`), validasi format gambar & batas ukuran 5 MB, penambahan verifikasi visual di detail layanan (Lightbox Zoom), dan penegasan bahwa fitur bersifat opsional.
+* **Aktivitas & Hasil:**
+  1. **Formulir Pengajuan Layanan (`BuatLayanan.js`):** Menambahkan field upload `foto_kacamata` dan `foto_resep` dengan status *opsional* (dapat diisi atau dilewati jika tidak memiliki foto), validasi ukuran maksimal 5 MB, validasi tipe gambar, thumbnail preview, dan tombol hapus foto.
+  2. **Tampilan & Verifikasi Foto (`DetailLayanan.js` & `AdminDetailLayanan.js`):** Menyediakan kartu dokumentasi foto fisik kacamata & resep optik lengkap dengan modal Lightbox zoom untuk pelanggan dan verifikasi administrator. Jika foto tidak dilampirkan, ditampilkan status informatif bahwa pemeriksaan fisik akan dilakukan teknisi saat kurir menjemput kacamata.
+  3. **Backend & Unit Testing:** Validasi MIME-type gambar dan batas 5 MB pada `saveBase64Image` di `layananController.js`. Suite pengujian otomatis bertambah menjadi 65 tests (100% PASS, 0 FAIL).
 
 ---
 
-## 2. Bukti Hasil Eksekusi Unit Test (64 Tests Passed - 100%)
+## 2. Bukti Hasil Eksekusi Unit Test (65 Tests Passed - 100%)
 
 Perintah eksekusi:
 ```bash
@@ -110,18 +117,18 @@ Rangkuman Hasil:
 ▶ User Story #4: Detail Teknis Kacamata (CRUD) ................... [8 Tests PASS]
 ▶ Pengujian Fitur 1: Manajemen & Validasi Layanan ................ [6 Tests PASS]
 ▶ Pengujian Fitur 2: Notifikasi Otomatis (Email & WhatsApp) ...... [2 Tests PASS]
-▶ Pengujian Fitur 3: Unggah Foto Kacamata & Resep ................ [3 Tests PASS]
+▶ Pengujian Fitur 3: Unggah Foto Kacamata & Resep ................ [4 Tests PASS]
 ▶ Pengujian Fitur 4: Integrasi Payment Gateway .................. [1 Tests PASS]
 ▶ Pengujian Fitur 5: Penugasan Kurir Cerdas (Auto-Assign) ........ [2 Tests PASS]
 ▶ Pengujian Fitur 6: Alokasi Kurir Terdekat Surabaya ............. [4 Tests PASS]
-▶ Pengujian Fitur 7: Google Maps Indonesia (Jakarta & Tangerang) . [3 Tests PASS]
+▶ Pengujian Fitur 7: Google Maps Indonesia (Jakarta & Tangerang) . [4 Tests PASS]
 ▶ User Story #3: Middleware Otorisasi JWT & Proteksi Admin ....... [12 Tests PASS]
 ▶ User Story #5: Pembayaran Gateway & Live Tracking Kurir ....... [8 Tests PASS]
 ▶ Pengujian Standar QRIS Bank Indonesia (EMVCo & CRC16) ......... [4 Tests PASS]
 
 Total Test Suites : 12 Suites
-Total Unit Tests  : 64 Tests
-Hasil Eksekusi    : 64 PASS / 0 FAIL (100% Lulus)
+Total Unit Tests  : 65 Tests
+Hasil Eksekusi    : 65 PASS / 0 FAIL (100% Lulus)
 ```
 
 ---

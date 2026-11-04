@@ -42,6 +42,17 @@ const DetailLayanan = () => {
   const [customQrisInput, setCustomQrisInput] = useState('');
   const [isCustomQrisActive, setIsCustomQrisActive] = useState(false);
 
+  // Lightbox preview foto kacamata & resep
+  const [selectedLightboxImage, setSelectedLightboxImage] = useState(null);
+
+  const getImageUrl = (imgPath) => {
+    if (!imgPath) return '';
+    if (imgPath.startsWith('http://') || imgPath.startsWith('https://') || imgPath.startsWith('data:')) return imgPath;
+    const host = typeof window !== 'undefined' && window.location ? window.location.hostname : 'localhost';
+    return `http://${host}:5000${imgPath.startsWith('/') ? imgPath : '/' + imgPath}`;
+  };
+
+
   const fetchDetail = useCallback(async () => {
     setLoading(true);
     setError('');
@@ -1060,6 +1071,160 @@ const DetailLayanan = () => {
           </table>
         </div>
       </div>
+
+      {/* ==================================================================== */}
+      {/* DOKUMENTASI FOTO FISIK KACAMATA & RESEP OPTIK (OPSIONAL)            */}
+      {/* ==================================================================== */}
+      <div className="card" style={{ marginBottom: '1.5rem' }}>
+        <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+          <div>
+            <h3 className="card-title" style={{ fontSize: '1.1rem' }}>
+              Dokumentasi Foto Fisik Kacamata & Resep Optik
+            </h3>
+            <small style={{ color: 'var(--text-muted)' }}>
+              Media fisik yang dilampirkan saat pengajuan pesanan (Fitur Opsional)
+            </small>
+          </div>
+          {(layanan?.foto_kacamata || layanan?.foto_resep) ? (
+            <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#166534', background: '#dcfce7', padding: '0.2rem 0.6rem', borderRadius: '999px' }}>
+              Foto Terlampir
+            </span>
+          ) : (
+            <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#64748b', background: '#f1f5f9', padding: '0.2rem 0.6rem', borderRadius: '999px' }}>
+              Foto Tidak Dilampirkan (Opsional)
+            </span>
+          )}
+        </div>
+
+        {(layanan?.foto_kacamata || layanan?.foto_resep) ? (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.5rem', marginTop: '1rem' }}>
+            {/* Foto Kacamata */}
+            <div style={{ background: '#f8fafc', padding: '1rem', borderRadius: '10px', border: '1px solid #e2e8f0', textAlign: 'center' }}>
+              <strong style={{ fontSize: '0.9rem', color: 'var(--dark)', display: 'block', marginBottom: '0.5rem' }}>
+                Foto Fisik Kacamata / Kerusakan
+              </strong>
+              {layanan?.foto_kacamata ? (
+                <div>
+                  <img
+                    src={getImageUrl(layanan.foto_kacamata)}
+                    alt="Foto Fisik Kacamata"
+                    onClick={() => setSelectedLightboxImage(getImageUrl(layanan.foto_kacamata))}
+                    style={{
+                      width: '100%',
+                      maxHeight: '220px',
+                      objectFit: 'cover',
+                      borderRadius: '8px',
+                      border: '1px solid #cbd5e1',
+                      cursor: 'zoom-in',
+                      boxShadow: '0 2px 6px rgba(0,0,0,0.06)'
+                    }}
+                  />
+                  <small style={{ display: 'block', marginTop: '0.5rem', color: '#0369a1', cursor: 'pointer', fontWeight: 600 }} onClick={() => setSelectedLightboxImage(getImageUrl(layanan.foto_kacamata))}>
+                    Klik untuk memperbesar gambar
+                  </small>
+                </div>
+              ) : (
+                <div style={{ padding: '2.5rem 1rem', background: '#fff', borderRadius: '8px', border: '1px dashed #cbd5e1', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+                  Tidak ada foto fisik kacamata yang dilampirkan (opsional).
+                </div>
+              )}
+            </div>
+
+            {/* Foto Resep Dokter */}
+            <div style={{ background: '#f8fafc', padding: '1rem', borderRadius: '10px', border: '1px solid #e2e8f0', textAlign: 'center' }}>
+              <strong style={{ fontSize: '0.9rem', color: 'var(--dark)', display: 'block', marginBottom: '0.5rem' }}>
+                Foto Resep Dokter / Ukuran Optik
+              </strong>
+              {layanan?.foto_resep ? (
+                <div>
+                  <img
+                    src={getImageUrl(layanan.foto_resep)}
+                    alt="Foto Resep Dokter"
+                    onClick={() => setSelectedLightboxImage(getImageUrl(layanan.foto_resep))}
+                    style={{
+                      width: '100%',
+                      maxHeight: '220px',
+                      objectFit: 'cover',
+                      borderRadius: '8px',
+                      border: '1px solid #cbd5e1',
+                      cursor: 'zoom-in',
+                      boxShadow: '0 2px 6px rgba(0,0,0,0.06)'
+                    }}
+                  />
+                  <small style={{ display: 'block', marginTop: '0.5rem', color: '#0369a1', cursor: 'pointer', fontWeight: 600 }} onClick={() => setSelectedLightboxImage(getImageUrl(layanan.foto_resep))}>
+                    Klik untuk memperbesar gambar
+                  </small>
+                </div>
+              ) : (
+                <div style={{ padding: '2.5rem 1rem', background: '#fff', borderRadius: '8px', border: '1px dashed #cbd5e1', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+                  Tidak ada foto resep dokter yang dilampirkan (opsional).
+                </div>
+              )}
+            </div>
+          </div>
+        ) : (
+          <div style={{ padding: '1.5rem', background: '#f8fafc', borderRadius: '8px', border: '1px dashed #cbd5e1', textAlign: 'center', marginTop: '0.5rem' }}>
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', margin: 0 }}>
+              Pelanggan memilih untuk tidak melampirkan foto kacamata atau resep dokter (opsional).
+              Pemeriksaan fisik kacamata dan ukuran lensa akan dikonfirmasi secara langsung oleh teknisi saat kurir menjemput kacamata.
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/* Modal Lightbox Preview */}
+      {selectedLightboxImage && (
+        <div
+          onClick={() => setSelectedLightboxImage(null)}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            backgroundColor: 'rgba(15, 23, 42, 0.85)',
+            zIndex: 99999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '1.5rem',
+            backdropFilter: 'blur(4px)'
+          }}
+        >
+          <div style={{ position: 'relative', maxWidth: '90vw', maxHeight: '90vh' }} onClick={(e) => e.stopPropagation()}>
+            <img
+              src={selectedLightboxImage}
+              alt="Zoom Preview"
+              style={{ maxWidth: '100%', maxHeight: '85vh', borderRadius: '10px', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.5)' }}
+            />
+            <button
+              type="button"
+              onClick={() => setSelectedLightboxImage(null)}
+              style={{
+                position: 'absolute',
+                top: '-12px',
+                right: '-12px',
+                background: '#ef4444',
+                color: '#fff',
+                border: '2px solid #fff',
+                borderRadius: '50%',
+                width: '36px',
+                height: '36px',
+                fontSize: '18px',
+                fontWeight: 800,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 4px 6px rgba(0,0,0,0.3)'
+              }}
+            >
+              X
+            </button>
+          </div>
+        </div>
+      )}
+
 
     </div>
   );

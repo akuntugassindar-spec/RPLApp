@@ -133,11 +133,12 @@ Rangkuman Hasil Pengujian:
   ✔ sendWANotification harus dapat menangani jika no telepon kosong
 ✔ Pengujian Fitur 2: Notifikasi Otomatis (PASS - 2 Tests)
 
-▶ Pengujian Fitur 3: Unggah Foto Kacamata & Resep Optik
-  ✔ saveBase64Image harus mengembalikan null jika input kosong
+▶ Pengujian Fitur 3: Unggah Foto Kacamata & Resep Optik (Fitur Opsional)
+  ✔ saveBase64Image harus mengembalikan null jika input kosong (fitur bersifat opsional)
   ✔ saveBase64Image harus mempertahankan URL existing
-  ✔ saveBase64Image harus menyimpan base64 valid
-✔ Pengujian Fitur 3: Unggah Foto Kacamata & Resep Optik (PASS - 3 Tests)
+  ✔ saveBase64Image harus menyimpan base64 valid ke disk server /uploads/
+  ✔ saveBase64Image harus menolak jika format bukan gambar atau ukuran melebihi 5 MB
+✔ Pengujian Fitur 3: Unggah Foto Kacamata & Resep Optik (PASS - 4 Tests)
 
 ▶ Pengujian Fitur 4: Integrasi Payment Gateway (Metode & Simulasi Midtrans)
   ✔ VALID_METODE_PEMBAYARAN harus mencakup QRIS, VA, e-Wallet, dan COD
@@ -196,8 +197,8 @@ Rangkuman Hasil Pengujian:
 
 --------------------------------------------------------------------------------
 TOTAL SUITES : 12 Test Suites
-TOTAL TESTS  : 64 Tests
-HASIL AKHIR  : 64 PASSED / 0 FAILED (100% LULUS)
+TOTAL TESTS  : 65 Tests
+HASIL AKHIR  : 65 PASSED / 0 FAILED (100% LULUS)
 --------------------------------------------------------------------------------
 ```
 

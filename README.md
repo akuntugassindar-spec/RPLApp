@@ -400,7 +400,7 @@ Status fitur ditandai secara objektif: **[Ada]** = telah terimplementasi penuh d
 
 1. **[Ada] Autentikasi & RBAC Multi-Role** — Otentikasi sesi berbasis JWT token dengan 3 peran otorisasi terisolasi (`pelanggan`, `admin`, `kurir`).
 2. **[Ada] Pengajuan Layanan Antar-Jemput Kacamata** — Formulir permohonan dinamis mencakup jenis servis (perbaikan frame, penggantian lensa, kombinasi), model frame, tanggal & jam jemput, serta alamat penjemputan.
-3. **[Ada] Unggah Foto Fisik Kacamata & Resep Optik** — Penyimpanan media berbasis disk server (`/uploads/`) dengan validasi tipe file gambar dan batasan ukuran maksimal 5 MB.
+3. **[Ada] Unggah Foto Fisik Kacamata & Resep Optik (Opsional)** — Penyimpanan media berbasis disk server (`/uploads/`) dengan validasi tipe file gambar (JPG, PNG, WEBP) dan batasan ukuran maksimal 5 MB. Fitur ini bersifat opsional (pelanggan dapat melampirkan foto kacamata rusak / resep dokter atau mengajukan layanan tanpa mengunggah foto).
 4. **[Ada] Siklus Status Layanan 6 Tahapan (State Machine)** — Alur status deterministik dan terkontrol: `pengajuan` → `dijadwalkan` → `diambil` → `diproses` → `diantar` → `selesai`.
 5. **[Ada] Pemantauan Kurir Real-Time (Live GPS & Google Maps)** — Integrasi HTML Google Maps Indonesia (Jakarta & Tangerang) serta peta jalan Leaflet OpenStreetMap dengan radius lokal terdekat (< 500 meter).
 6. **[Ada] Integrasi Payment Gateway Multi-Metode** — Simulasi Midtrans mendukung 8 metode pembayaran: QRIS Standar Bank Indonesia (EMVCo & CRC16), 4 Virtual Account bank (BCA, BNI, BRI, Mandiri), 2 e-Wallet (GoPay, ShopeePay), dan COD tunai.
