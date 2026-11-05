@@ -1,12 +1,21 @@
-# 🚀 Panduan Deployment - OptikExpress
+# 🚀 Laporan & Panduan Deployment - OptikExpress
 
-## Pertemuan 9: Deployment
+## Pertemuan 9: Deployment Aplikasi Online
 
 **Sistem Informasi Layanan Antar-Jemput Kacamata**
 
 ---
 
-## Arsitektur Deployment
+## 🌐 Tautan Aplikasi Online (Live Production)
+
+* **URL Utama Aplikasi:** [https://optikexpress.vercel.app](https://optikexpress.vercel.app)
+* **Status Deployment:** `Ready` (Aktif & Live)
+* **Hosting Platform:** Vercel (Hobby Tier - Gratis)
+* **Database Platform:** TiDB Cloud Serverless (MySQL Compatible - Gratis)
+
+---
+
+## 🏛️ Arsitektur Sistem
 
 ```
 ┌────────────────────────────────────────────────────────┐
@@ -24,90 +33,50 @@
                              │  TiDB Cloud         │
                              │  Serverless (Free)  │
                              │  MySQL-Compatible   │
+                             │  Region: Singapore  │
                              └─────────────────────┘
 ```
 
-**Target URL Aplikasi:** `https://optikexpress.vercel.app` (atau nama unik sesuai akun Vercel)
+---
+
+## 🔑 Akun Uji Coba Reviewer / Dosen
+
+Berikut adalah akun seed demo untuk menguji semua hak akses (Role-Based Access Control):
+
+| Peran (Role) | Email Pengguna | Kata Sandi (Password) | Hak Akses Utama |
+|---|---|---|---|
+| **Administrator** | `admin@optik.com` | `admin123` | Dashboard admin, kelola pesanan, assign kurir, tracking GPS, konfirmasi pembayaran |
+| **Pelanggan 1** | `bahrul@gmail.com` | `password123` | Buat pesanan, upload foto kacamata/resep, simulasi bayar QRIS/VA, lacak kurir |
+| **Pelanggan 2** | `siti.rahma@gmail.com` | `password123` | Pesanan multi-layanan (lensa + perbaikan frame) |
+| **Kurir Armada** | `kurir@gmail.com` | `kurir123` | Update status antar-jemput, simulasi pergerakan lokasi GPS |
 
 ---
 
-## Platform yang Digunakan
+## 🧪 Hasil Pengujian Sistem (Automated Tests)
 
-| Komponen | Platform | Biaya | Status Kartu |
-|----------|----------|-------|--------------|
-| Frontend & API Serverless | [Vercel](https://vercel.com) | Gratis (Hobby Tier) | ✅ **100% Tanpa Kartu Kredit** |
-| Database MySQL Serverless | [TiDB Cloud](https://tidbcloud.com) | Gratis Permanen (5 GB) | ✅ **100% Tanpa Kartu Kredit** |
-
----
-
-## Langkah-langkah Deployment
-
-### 1. Database (TiDB Cloud Serverless)
-*(Sudah selesai dibuat di langkah sebelumnya)*
-- **Host**: `gateway01.ap-southeast-1.prod.aws.tidbcloud.com`
-- **Port**: `4000`
-- **Username**: `3DhRAfukqFBRegp.root`
-- **Password**: `Vokfbakw3PtkoH9I`
-- **Database**: `db_kacamata`
-- **SSL**: `true`
-
----
-
-### 2. Setup & Deploy di Vercel
-
-1. Buka **https://vercel.com** di browser.
-2. Klik **Sign Up** atau **Log In** → pilih **Continue with GitHub** (masuk dengan akun GitHub kamu).
-3. Di Dashboard Vercel, klik tombol **`Add New...`** di pojok kanan atas → pilih **`Project`**.
-4. Cari repository GitHub: **`akuntugassindar-spec/RPLApp`** (atau `RPLApp`), lalu klik **`Import`**.
-5. Pada halaman **Configure Project**:
-   - **Project Name**: `optikexpress` (atau biarkan default)
-   - **Framework Preset**: biarkan **Other** (otomatis dibaca dari `vercel.json`)
-   - **Root Directory**: `./` (biarkan default)
-   - **Build and Output Settings**: Biarkan default (sudah dikonfigurasi lewat `vercel.json` dan `package.json`)
-6. Buka menu **Environment Variables** (klik tanda panah untuk expand), lalu tambahkan key-value berikut:
-
-| Key | Value |
-|---|---|
-| `DB_HOST` | `gateway01.ap-southeast-1.prod.aws.tidbcloud.com` |
-| `DB_PORT` | `4000` |
-| `DB_USER` | `3DhRAfukqFBRegp.root` |
-| `DB_PASSWORD` | `Vokfbakw3PtkoH9I` |
-| `DB_NAME` | `db_kacamata` |
-| `DB_SSL` | `true` |
-| `JWT_SECRET` | `super_secret_jwt_kacamata_key_2026_universitas` |
-| `EMAIL_USER` | `akuntugassindar@gmail.com` |
-| `EMAIL_PASS` | `jatgibxucpcgmkdx` |
-
-7. Klik tombol biru **`Deploy`**!
-8. Tunggu proses build dan deploy selama ~1-2 menit hingga muncul confetti perayaan kelulusan deploy.
-9. Aplikasi kamu langsung aktif dan online di URL yang diberikan Vercel (misal: `https://optikexpress.vercel.app`).
-
----
-
-## Akun Demo untuk Pengujian Reviewer
-
-| Role | Email | Password |
-|------|-------|----------|
-| Administrator | `admin@optik.com` | `admin123` |
-| Pelanggan | `bahrul@gmail.com` | `password123` |
-| Pelanggan 2 | `siti.rahma@gmail.com` | `password123` |
-| Kurir Armada | `kurir@gmail.com` | `kurir123` |
-
----
-
-## Hasil Uji & Validasi Sistem (65/65 PASS ✅)
+Semua rangkaian pengujian unit test dan validasi fitur telah dijalankan dan lulus 100%:
 
 ```
 Test Suites: 12 passed, 12 total
 Tests:       65 passed, 65 total
 Snapshots:   0 total
-Time:        ~2.0s
+Time:        ~1.3s
 ```
 
-### Fitur yang Tervalidasi Lengkap:
-- ✅ **Autentikasi & Otorisasi**: JWT Token dengan 3 Role RBAC (Admin, Pelanggan, Kurir).
-- ✅ **Layanan Antar-Jemput**: Pengajuan perbaikan kacamata, ganti lensa, atau kombinasi keduanya.
-- ✅ **Foto Kerusakan & Resep (Opsional)**: Validasi file gambar maksimal 5 MB.
-- ✅ **Simulasi Pembayaran QRIS & VA**: Format standar Bank Indonesia EMVCo CRC16 & multi-channel.
-- ✅ **Live GPS Tracking**: Penugasan armada kurir otomatis berbasis koordinat GPS Jakarta & Tangerang.
-- ✅ **Histori Status & Notifikasi**: Jejak audit status pengerjaan kacamata secara real-time.
+### Rangkuman Fitur yang Tervalidasi:
+1. **User Story #2: Autentikasi Pengguna & Keamanan JWT**
+   * Validasi registrasi & login akun (Email & Password hashing bcryptjs)
+   * Token JWT dengan masa aktif 24 jam & proteksi middleware
+2. **User Story #3: Proteksi Otorisasi 3-Role (Admin, Pelanggan, Kurir)**
+   * Middleware `auth`, `adminAuth`, dan `staffAuth`
+3. **User Story #4: Rincian Teknis Kacamata (CRUD Detail Layanan)**
+   * Frame logam, jenis lensa optik, resep dokter, dan riwayat perbaikan
+4. **Fitur Unggah Foto Kacamata & Resep Optik (Opsional)**
+   * Validasi tipe berkas gambar (JPG, PNG, WebP) dan batasan ukuran 5 MB
+   * Penanganan gracefully saat pengguna memilih untuk tidak melampirkan foto
+5. **User Story #5: Payment Gateway Multi-Channel & QRIS Bank Indonesia**
+   * Format EMVCo CRC16 validasi standar QRIS Bank Indonesia
+   * Dukungan simulasi BCA VA, GoPay, OVO, ShopeePay, DANA, dan COD
+6. **Live Tracking Kurir & Algoritma Penugasan Cerdas**
+   * Auto-assign armada kurir Jakarta & Tangerang terdekat (< 1.5 km)
+   * Estimasi waktu tiba (ETA) dan pergerakan koordinat GPS real-time

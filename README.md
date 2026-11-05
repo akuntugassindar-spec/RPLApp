@@ -2,6 +2,9 @@
 
 **OptikExpress** adalah aplikasi web layanan perbaikan dan penggantian lensa kacamata terintegrasi berbasis antar-jemput yang dirancang untuk mempermudah masyarakat merawat alat bantu penglihatan tanpa harus datang langsung ke toko optik fisik. Sistem ini menjembatani alur operasional antara pelanggan, teknisi laboratorium optik, dan armada kurir logistik lapangan secara terpusat.
 
+> 🌐 **Live Production App (Pertemuan 9):** [https://optikexpress.vercel.app](https://optikexpress.vercel.app)  
+> 📘 **Dokumentasi Deployment & Akun Uji Coba:** [docs/Deployment.md](docs/Deployment.md)
+
 ## Tech Stack
 
 - **Backend:** Node.js v24 LTS (Express.js, `mysql2/promise`, BCrypt, JWT), MySQL 8.0 / MariaDB

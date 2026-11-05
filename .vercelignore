@@ -1,5 +1,0 @@
-# Abaikan file Docker agar Vercel tidak menganggap project sebagai Container
-**/Dockerfile
-*Dockerfile*
-docker-compose.yml
-docker-compose*.yml
