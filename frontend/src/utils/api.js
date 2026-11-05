@@ -54,9 +54,15 @@ api.interceptors.response.use(
   },
   (error) => {
     if (error.response && error.response.status === 401) {
-      // Hapus data autentikasi jika sesi telah habis
+      // BUG-08 Fix: Hapus data autentikasi & alihkan pengguna ke /login jika sesi habis
       localStorage.removeItem('token');
       localStorage.removeItem('user');
+      if (typeof window !== 'undefined' && window.location) {
+        const path = window.location.pathname;
+        if (!path.includes('/login') && !path.includes('/daftar')) {
+          window.location.href = '/login?expired=1';
+        }
+      }
     }
     return Promise.reject(error);
   }

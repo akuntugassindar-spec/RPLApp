@@ -109,8 +109,12 @@ const LiveMapKurir = ({
         attributionControl: false
       });
 
+      // BUG-03 Fix: HTTPS tile layer dengan subdomains fallback & attribution standar
       window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19
+        maxZoom: 19,
+        subdomains: ['a', 'b', 'c'],
+        crossOrigin: true,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       }).addTo(map);
 
       // Marker Tujuan

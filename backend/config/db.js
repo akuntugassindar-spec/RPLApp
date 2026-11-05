@@ -20,7 +20,10 @@ const dbConfig = {
   port: parseInt(process.env.DB_PORT, 10) || 3306,
   waitForConnections: true,
   connectionLimit: 10,
-  queueLimit: 0
+  queueLimit: 0,
+  // BUG-01 Fix: Keep-Alive untuk mencegah timeout serverless gateway TiDB Cloud
+  enableKeepAlive: true,
+  keepAliveInitialDelay: 10000
 };
 
 // Aktifkan SSL jika variabel DB_SSL=true (diperlukan oleh TiDB Cloud Serverless)
@@ -32,9 +35,15 @@ const pool = mysql.createPool(dbConfig);
 
 // Fungsi untuk memastikan kolom-kolom fitur baru telah tersedia pada tabel
 const ensureTableColumns = async (connection) => {
+  // BUG-02 Fix: Migrasi kolom foto_kacamata & foto_resep menjadi MEDIUMTEXT untuk Base64
+  try {
+    await connection.query("ALTER TABLE layanan MODIFY COLUMN foto_kacamata MEDIUMTEXT DEFAULT NULL");
+    await connection.query("ALTER TABLE layanan MODIFY COLUMN foto_resep MEDIUMTEXT DEFAULT NULL");
+  } catch (err) {}
+
   const columnsToAdd = [
-    { name: 'foto_kacamata', type: 'VARCHAR(255) DEFAULT NULL' },
-    { name: 'foto_resep', type: 'VARCHAR(255) DEFAULT NULL' },
+    { name: 'foto_kacamata', type: 'MEDIUMTEXT DEFAULT NULL' },
+    { name: 'foto_resep', type: 'MEDIUMTEXT DEFAULT NULL' },
     { name: 'total_biaya', type: 'INT DEFAULT 0' },
     { name: 'status_pembayaran', type: "ENUM('belum_bayar', 'menunggu_pembayaran', 'lunas') DEFAULT 'belum_bayar'" },
     { name: 'metode_pembayaran', type: 'VARCHAR(50) DEFAULT NULL' },
