@@ -401,7 +401,7 @@ const saveBase64Image = (base64Str, prefix = 'media') => {
     else if (mimeType.includes('webp')) ext = 'webp';
     else if (mimeType.includes('gif')) ext = 'gif';
 
-    const uploadsDir = path.join(__dirname, '..', 'uploads');
+    const uploadsDir = process.env.VERCEL ? path.join('/tmp', 'uploads') : path.join(__dirname, '..', 'uploads');
     if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
     const filename = `${prefix}_${Date.now()}_${Math.random().toString(36).substring(2, 7)}.${ext}`;
     fs.writeFileSync(path.join(uploadsDir, filename), dataBuffer);

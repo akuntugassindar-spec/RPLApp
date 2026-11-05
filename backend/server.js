@@ -34,7 +34,8 @@ app.use(express.json({ limit: '50mb' })); // Parser payload JSON (limit dinaikka
 app.use(express.urlencoded({ extended: true, limit: '50mb' })); // Parser form-data / x-www-form-urlencoded
 
 // Sajikan folder uploads foto kacamata & resep secara statis
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+const staticUploadsDir = process.env.VERCEL ? path.join('/tmp', 'uploads') : path.join(__dirname, 'uploads');
+app.use('/uploads', express.static(staticUploadsDir));
 
 // Rute Pengecekan Status Server (Health Check)
 app.get('/', (req, res) => {
@@ -62,22 +63,38 @@ app.use('/api/auth', authRoutes);
 app.use('/api/layanan', layananRoutes);
 app.use('/api/detail-layanan', detailLayananRoutes);
 
-// ============================================================
-// Production: Sajikan Frontend React Build dari Express
-// ============================================================
-if (process.env.NODE_ENV === 'production') {
-  const frontendBuildPath = path.join(__dirname, '..', 'frontend', 'build');
-  app.use(express.static(frontendBuildPath));
-
-  // React Router catch-all: kembalikan index.html untuk rute non-API
-  app.get('*', (req, res, next) => {
-    if (req.originalUrl.startsWith('/api/') || req.originalUrl.startsWith('/uploads/')) {
-      return next(); // Biarkan rute API/uploads ditangani handler berikutnya
-    }
-    res.sendFile(path.join(frontendBuildPath, 'index.html'));
-  });
-}
-
+// ============================================================
+
+// Production: Sajikan Frontend React Build dari Express
+
+// ============================================================
+
+if (process.env.NODE_ENV === 'production') {
+
+  const frontendBuildPath = path.join(__dirname, '..', 'frontend', 'build');
+
+  app.use(express.static(frontendBuildPath));
+
+
+
+  // React Router catch-all: kembalikan index.html untuk rute non-API
+
+  app.get('*', (req, res, next) => {
+
+    if (req.originalUrl.startsWith('/api/') || req.originalUrl.startsWith('/uploads/')) {
+
+      return next(); // Biarkan rute API/uploads ditangani handler berikutnya
+
+    }
+
+    res.sendFile(path.join(frontendBuildPath, 'index.html'));
+
+  });
+
+}
+
+
+
 // Handler untuk Rute 404 (Tidak Ditemukan)
 app.use((req, res, next) => {
   res.status(404).json({
@@ -97,25 +114,28 @@ app.use((err, req, res, next) => {
 });
 
 // Jalankan Server pada Port yang Ditentukan
+// Jalankan Server pada Port yang Ditentukan (Hanya jika bukan Vercel Serverless)
 const PORT = process.env.PORT || 5000;
 const HOST = process.env.HOST || '0.0.0.0';
-const server = app.listen(PORT, HOST, () => {
-  console.log('====================================================');
-  console.log(` Server Layanan Kacamata berjalan aktif`);
-  console.log(` URL: http://localhost:${PORT}`);
-  console.log(` Mode: ${process.env.NODE_ENV || 'development'}`);
-  console.log('====================================================');
-});
 
-server.on('error', (err) => {
-  if (err.code === 'EADDRINUSE') {
-    console.error(`\n[Server Error]: Port ${PORT} sedang digunakan oleh proses lain (EADDRINUSE).`);
-    console.error(`Tips: Pastikan tidak ada terminal atau proses Node.js lain yang sedang berjalan di port ${PORT}.\n`);
-    process.exit(1);
-  } else {
-    console.error('[Server Error]:', err);
-    process.exit(1);
-  }
-});
+if (!process.env.VERCEL) {
+  const server = app.listen(PORT, HOST, () => {
+    console.log('====================================================');
+    console.log(` Server Layanan Kacamata berjalan aktif`);
+    console.log(` URL: http://localhost:${PORT}`);
+    console.log(` Mode: ${process.env.NODE_ENV || 'development'}`);
+    console.log('====================================================');
+  });
+
+  server.on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+      console.error(`\n[Server Error]: Port ${PORT} sedang digunakan oleh proses lain (EADDRINUSE).\n`);
+      process.exit(1);
+    } else {
+      console.error('[Server Error]:', err);
+      process.exit(1);
+    }
+  });
+}
 
 module.exports = app;
