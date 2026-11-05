@@ -10,10 +10,12 @@ const getBaseURL = () => {
     return process.env.REACT_APP_API_URL;
   }
   if (typeof window !== 'undefined' && window.location) {
-    const { hostname } = window.location;
+    const { hostname, protocol } = window.location;
     if (hostname === 'localhost' || hostname === '127.0.0.1') {
       return `http://${hostname}:5000/api`;
     }
+    // Production: gunakan path relatif (frontend & backend di domain yang sama)
+    return `${protocol}//${window.location.host}/api`;
   }
   return 'http://localhost:5000/api';
 };

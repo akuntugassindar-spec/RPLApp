@@ -62,6 +62,22 @@ app.use('/api/auth', authRoutes);
 app.use('/api/layanan', layananRoutes);
 app.use('/api/detail-layanan', detailLayananRoutes);
 
+// ============================================================
+// Production: Sajikan Frontend React Build dari Express
+// ============================================================
+if (process.env.NODE_ENV === 'production') {
+  const frontendBuildPath = path.join(__dirname, '..', 'frontend', 'build');
+  app.use(express.static(frontendBuildPath));
+
+  // React Router catch-all: kembalikan index.html untuk rute non-API
+  app.get('*', (req, res, next) => {
+    if (req.originalUrl.startsWith('/api/') || req.originalUrl.startsWith('/uploads/')) {
+      return next(); // Biarkan rute API/uploads ditangani handler berikutnya
+    }
+    res.sendFile(path.join(frontendBuildPath, 'index.html'));
+  });
+}
+
 // Handler untuk Rute 404 (Tidak Ditemukan)
 app.use((req, res, next) => {
   res.status(404).json({

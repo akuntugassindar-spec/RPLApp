@@ -1,0 +1,37 @@
+# ============================================================
+# Render Blueprint - OptikExpress Deployment
+# Deploy sebagai single Web Service (backend + frontend)
+# Database: TiDB Cloud Serverless (MySQL-compatible, gratis)
+# ============================================================
+
+services:
+  - type: web
+    name: optikexpress
+    runtime: node
+    plan: free
+    rootDir: .
+    buildCommand: cd frontend && npm install && npm run build && cd ../backend && npm install --production
+    startCommand: cd backend && node server.js
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      - key: NODE_ENV
+        value: production
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_NAME
+        sync: false
+      - key: DB_SSL
+        value: "true"
+      - key: JWT_SECRET
+        generateValue: true
+      - key: EMAIL_USER
+        sync: false
+      - key: EMAIL_PASS
+        sync: false

@@ -11,7 +11,8 @@ const path = require('path');
 dotenv.config({ path: path.join(__dirname, '..', '.env') });
 
 // Buat pool koneksi database MySQL
-const pool = mysql.createPool({
+// Konfigurasi SSL diaktifkan untuk koneksi ke TiDB Cloud (production)
+const dbConfig = {
   host: process.env.DB_HOST || 'localhost',
   user: process.env.DB_USER || 'root',
   password: process.env.DB_PASSWORD || '',
@@ -20,7 +21,14 @@ const pool = mysql.createPool({
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0
-});
+};
+
+// Aktifkan SSL jika variabel DB_SSL=true (diperlukan oleh TiDB Cloud Serverless)
+if (process.env.DB_SSL === 'true') {
+  dbConfig.ssl = { rejectUnauthorized: true };
+}
+
+const pool = mysql.createPool(dbConfig);
 
 // Fungsi untuk memastikan kolom-kolom fitur baru telah tersedia pada tabel
 const ensureTableColumns = async (connection) => {
