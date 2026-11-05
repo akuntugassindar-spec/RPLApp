@@ -94,3 +94,4 @@ Berdasarkan penugasan Pertemuan 10:
 ℹ todo 0
 ℹ duration_ms 1261.4237
 ```
+
