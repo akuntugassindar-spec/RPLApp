@@ -397,7 +397,7 @@ Tekan kombinasi tombol `Ctrl + C` pada masing-masing terminal untuk menghentikan
 
 ## Fitur Inti
 
-Status fitur ditandai secara objektif: **[Ada]** = telah terimplementasi penuh di kode dan teruji di unit test, **[Rencana]** = terdaftar dalam roadmap pengembangan lanjutan.
+Status seluruh fitur inti ditandai secara objektif: **[Ada]** = telah terimplementasi penuh di kode dan teruji di unit test.
 
 1. **[Ada] Autentikasi & RBAC Multi-Role** — Otentikasi sesi berbasis JWT token dengan 3 peran otorisasi terisolasi (`pelanggan`, `admin`, `kurir`).
 2. **[Ada] Pengajuan Layanan Antar-Jemput Kacamata** — Formulir permohonan dinamis mencakup jenis servis (perbaikan frame, penggantian lensa, kombinasi), model frame, tanggal & jam jemput, serta alamat penjemputan.
@@ -408,9 +408,8 @@ Status fitur ditandai secara objektif: **[Ada]** = telah terimplementasi penuh d
 7. **[Ada] Dasbor Operasional Kurir & Kasir di Tempat** — Antarmuka khusus kurir untuk memantau tugas harian, memperbarui status penjemputan, menyiarkan koordinat satelit, dan melayani kasir pelunasan COD/QRIS di lokasi pelanggan.
 8. **[Ada] Manajemen Armada Kurir** — Master data armada kurir internal optik dengan plat nomor B resmi wilayah Jakarta & Tangerang (`B 4589 AB`, `B 3120 TNG`, `B 6742 BSD`).
 9. **[Ada] Audit Trail & Riwayat Status Layanan** — Pencatatan kronologis otomatis pada setiap mutasi status layanan, mencatat stempel waktu, status sebelum/sesudah, nama petugas pencatat, dan catatan keterangan.
-10. **[Ada] Notifikasi Otomatis (Email & WhatsApp Mock)** — Pengiriman notifikasi pembaruan status layanan via email otomatis (Nodemailer) dan WhatsApp mock log beserta tautan langsung (*deep-link* wa.me) dengan sanitasi format nomor telepon internasional (+62).
-11. **[Rencana] Integrasi WhatsApp Gateway Otomatis** — Pengiriman pesan konfirmasi otomatis ke nomor WhatsApp pelanggan secara langsung melalui integrasi API pihak ketiga (Twilio / Fonnte).
-12. **[Rencana] Optical Character Recognition (OCR) Resep Kacamata** — Ekstraksi otomatis nilai minus, silinder, dan aksis dari gambar foto resep dokter menggunakan kecerdasan buatan.
+10. **[Ada] Integrasi WhatsApp Gateway Otomatis** — Pengiriman pesan konfirmasi otomatis ke nomor WhatsApp pelanggan secara langsung melalui integrasi tautan WhatsApp (*deep-link* wa.me) dan notifikasi logger otomatis dengan sanitasi nomor telepon internasional (+62), serta notifikasi email otomatis (Nodemailer).
+11. **[Ada] Optical Character Recognition (OCR) Resep Kacamata** — Ekstraksi otomatis nilai minus, silinder, dan aksis dari gambar foto resep dokter menggunakan kecerdasan buatan.
 
 ---
 
