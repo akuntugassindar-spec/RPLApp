@@ -2,16 +2,13 @@
 
 **OptikExpress** adalah aplikasi web layanan perbaikan dan penggantian lensa kacamata terintegrasi berbasis antar-jemput yang dirancang untuk mempermudah masyarakat merawat alat bantu penglihatan tanpa harus datang langsung ke toko optik fisik. Sistem ini menjembatani alur operasional antara pelanggan, teknisi laboratorium optik, dan armada kurir logistik lapangan secara terpusat.
 
-> 🌐 **Live Production App (Pertemuan 9):** [https://optikexpress.vercel.app](https://optikexpress.vercel.app)  
-> 📘 **Dokumentasi Deployment & Akun Uji Coba:** [docs/Deployment.md](docs/Deployment.md)  
-> 🛠️ **Issue Tracking & Bug Remediation (Pertemuan 10):** [docs/Pertemuan10_Issue_Tracking.md](docs/Pertemuan10_Issue_Tracking.md) | [Lihat 10 Issues di GitHub](https://github.com/akuntugassindar-spec/RPLApp/issues?q=is%3Aissue)
 
 ## Tech Stack
 
 - **Backend:** Node.js v24 LTS (Express.js, `mysql2/promise`, BCrypt, JWT), MySQL 8.0 / MariaDB
 - **Frontend:** React.js 18 (SPA, React Router v6, Axios, Leaflet OpenStreetMap, HTML Google Maps Embed)
 - **Arsitektur:** Decoupled Monorepo, RESTful API, 3-Role RBAC, State Machine 6 Tahapan, Anti-IDOR Security
-- **Pengujian Otomatis:** Node.js Native Test Runner (`node:test`, `node:assert/strict`) — 64 passing unit tests (100% lulus)
+- **Pengujian Otomatis:** Node.js Native Test Runner (`node:test`, `node:assert/strict`) — 65 passing unit tests (100% lulus)
 
 ---
 
@@ -141,12 +138,12 @@ cd backend && npm test
 
 **Yang diharapkan saat suite lulus:**
 
-Seluruh 12 test suites dan 64 test cases mencetak status centang hijau dan rekap passing:
+Seluruh 12 test suites dan 65 test cases mencetak status centang hijau dan rekap passing:
 
 ```
-ℹ tests 64
+ℹ tests 65
 ℹ suites 12
-ℹ pass 64
+ℹ pass 65
 ℹ fail 0
 ℹ cancelled 0
 ℹ skipped 0
@@ -212,7 +209,7 @@ RPLApp/
 │   ├── database/                   # DDL skema 6 tabel 3NF dan seed data (schema.sql)
 │   ├── middleware/                 # Middleware JWT token & otorisasi RBAC 3 role
 │   ├── routes/                     # Definisi endpoint API Express
-│   ├── tests/                      # 64 unit tests komprehensif (Native Node.js Test Runner)
+│   ├── tests/                      # 65 unit tests komprehensif (Native Node.js Test Runner)
 │   ├── uploads/                    # Media fisik kacamata & foto resep dokter
 │   ├── utils/                      # Helper QRIS Bank Indonesia (EMVCo/CRC16) & Geocoding
 │   ├── Dockerfile                  # Container backend Node.js
@@ -404,15 +401,16 @@ Status fitur ditandai secara objektif: **[Ada]** = telah terimplementasi penuh d
 
 1. **[Ada] Autentikasi & RBAC Multi-Role** — Otentikasi sesi berbasis JWT token dengan 3 peran otorisasi terisolasi (`pelanggan`, `admin`, `kurir`).
 2. **[Ada] Pengajuan Layanan Antar-Jemput Kacamata** — Formulir permohonan dinamis mencakup jenis servis (perbaikan frame, penggantian lensa, kombinasi), model frame, tanggal & jam jemput, serta alamat penjemputan.
-3. **[Ada] Unggah Foto Fisik Kacamata & Resep Optik (Opsional)** — Penyimpanan media berbasis disk server (`/uploads/`) dengan validasi tipe file gambar (JPG, PNG, WEBP) dan batasan ukuran maksimal 5 MB. Fitur ini bersifat opsional (pelanggan dapat melampirkan foto kacamata rusak / resep dokter atau mengajukan layanan tanpa mengunggah foto).
+3. **[Ada] Unggah Foto Fisik Kacamata & Resep Optik (Opsional)** — Penyimpanan media berbasis disk server (`/uploads/`) dan database cloud (`MEDIUMTEXT`) dengan validasi tipe file gambar (JPG, PNG, WEBP), batasan ukuran maksimal 5 MB, serta modal pratinjau interaktif Lightbox Zoom. Fitur ini bersifat opsional (pelanggan dapat melampirkan foto kacamata rusak / resep dokter atau mengajukan layanan tanpa mengunggah foto).
 4. **[Ada] Siklus Status Layanan 6 Tahapan (State Machine)** — Alur status deterministik dan terkontrol: `pengajuan` → `dijadwalkan` → `diambil` → `diproses` → `diantar` → `selesai`.
 5. **[Ada] Pemantauan Kurir Real-Time (Live GPS & Google Maps)** — Integrasi HTML Google Maps Indonesia (Jakarta & Tangerang) serta peta jalan Leaflet OpenStreetMap dengan radius lokal terdekat (< 500 meter).
 6. **[Ada] Integrasi Payment Gateway Multi-Metode** — Simulasi Midtrans mendukung 8 metode pembayaran: QRIS Standar Bank Indonesia (EMVCo & CRC16), 4 Virtual Account bank (BCA, BNI, BRI, Mandiri), 2 e-Wallet (GoPay, ShopeePay), dan COD tunai.
 7. **[Ada] Dasbor Operasional Kurir & Kasir di Tempat** — Antarmuka khusus kurir untuk memantau tugas harian, memperbarui status penjemputan, menyiarkan koordinat satelit, dan melayani kasir pelunasan COD/QRIS di lokasi pelanggan.
 8. **[Ada] Manajemen Armada Kurir** — Master data armada kurir internal optik dengan plat nomor B resmi wilayah Jakarta & Tangerang (`B 4589 AB`, `B 3120 TNG`, `B 6742 BSD`).
 9. **[Ada] Audit Trail & Riwayat Status Layanan** — Pencatatan kronologis otomatis pada setiap mutasi status layanan, mencatat stempel waktu, status sebelum/sesudah, nama petugas pencatat, dan catatan keterangan.
-10. **[Rencana] Integrasi WhatsApp Gateway Otomatis** — Pengiriman pesan konfirmasi otomatis ke nomor WhatsApp pelanggan secara langsung melalui integrasi API pihak ketiga (Twilio / Fonnte).
-11. **[Rencana] Optical Character Recognition (OCR) Resep Kacamata** — Ekstraksi otomatis nilai minus, silinder, dan aksis dari gambar foto resep dokter menggunakan kecerdasan buatan.
+10. **[Ada] Notifikasi Otomatis (Email & WhatsApp Mock)** — Pengiriman notifikasi pembaruan status layanan via email otomatis (Nodemailer) dan WhatsApp mock log beserta tautan langsung (*deep-link* wa.me) dengan sanitasi format nomor telepon internasional (+62).
+11. **[Rencana] Integrasi WhatsApp Gateway Otomatis** — Pengiriman pesan konfirmasi otomatis ke nomor WhatsApp pelanggan secara langsung melalui integrasi API pihak ketiga (Twilio / Fonnte).
+12. **[Rencana] Optical Character Recognition (OCR) Resep Kacamata** — Ekstraksi otomatis nilai minus, silinder, dan aksis dari gambar foto resep dokter menggunakan kecerdasan buatan.
 
 ---
 
@@ -462,7 +460,7 @@ npm --prefix frontend install
 ```bash
 npm --prefix backend test
 ```
-*Ekspektasi Hasil:* 12 test suites, 64 unit tests **100% LULUS (0 FAILED)**.
+*Ekspektasi Hasil:* 12 test suites, 65 unit tests **100% LULUS (0 FAILED)**.
 
 ### 4. Build Produksi Frontend
 ```bash
@@ -549,5 +547,5 @@ Target berikut merupakan sasaran performa produk yang telah divalidasi melalui s
 - Waktu respon pencarian data layanan: **< 100 ms** (terpenuhi melalui indexing database 3NF).
 - Akurasi pemantauan rute kurir lapangan: **radius < 500 meter** dari lokasi pelanggan di wilayah Jakarta & Tangerang (terpenuhi).
 - Kecepatan pemrosesan transaksi pembayaran: **real-time (< 3 detik)** dengan verifikasi token transaksi unik (terpenuhi).
-- Kualitas dan keandalan kode sistem: **100% lulus pengujian otomatis** (64 dari 64 unit tests PASSED tanpa kegagalan).
+- Kualitas dan keandalan kode sistem: **100% lulus pengujian otomatis** (65 dari 65 unit tests PASSED tanpa kegagalan).
 - Standar aksesibilitas dan tampilan antarmuka: **100% responsif mobile & desktop** tanpa ketergantungan framework CSS pihak ketiga.
