@@ -409,7 +409,6 @@ Status seluruh fitur inti ditandai secara objektif: **[Ada]** = telah terimpleme
 8. **[Ada] Manajemen Armada Kurir** — Master data armada kurir internal optik dengan plat nomor B resmi wilayah Jakarta & Tangerang (`B 4589 AB`, `B 3120 TNG`, `B 6742 BSD`).
 9. **[Ada] Audit Trail & Riwayat Status Layanan** — Pencatatan kronologis otomatis pada setiap mutasi status layanan, mencatat stempel waktu, status sebelum/sesudah, nama petugas pencatat, dan catatan keterangan.
 10. **[Ada] Integrasi WhatsApp Gateway Otomatis** — Pengiriman pesan konfirmasi otomatis ke nomor WhatsApp pelanggan secara langsung melalui integrasi tautan WhatsApp (*deep-link* wa.me) dan notifikasi logger otomatis dengan sanitasi nomor telepon internasional (+62), serta notifikasi email otomatis (Nodemailer).
-11. **[Ada] Optical Character Recognition (OCR) Resep Kacamata** — Ekstraksi otomatis nilai minus, silinder, dan aksis dari gambar foto resep dokter menggunakan kecerdasan buatan.
 
 ---
 
