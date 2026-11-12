@@ -2,6 +2,29 @@
 
 **OptikExpress** adalah aplikasi web layanan perbaikan dan penggantian lensa kacamata terintegrasi berbasis antar-jemput yang dirancang untuk mempermudah masyarakat merawat alat bantu penglihatan tanpa harus datang langsung ke toko optik fisik. Sistem ini menjembatani alur operasional antara pelanggan, teknisi laboratorium optik, dan armada kurir logistik lapangan secara terpusat.
 
+---
+
+## 🌐 Tautan Live Web & Repositori Proyek
+
+Seluruh tautan resmi telah dikelompokkan pada folder khusus [link web/](link%20web/README.md):
+
+| Kategori | Tautan Proyek | Keterangan |
+| :--- | :--- | :--- |
+| **Live Web App (Vercel)** | [https://optikexpress.vercel.app/](https://optikexpress.vercel.app/) | Aplikasi Web OptikExpress Live Production |
+| **GitHub Repository** | [https://github.com/akuntugassindar-spec/RPLApp](https://github.com/akuntugassindar-spec/RPLApp) | Repositori Resmi Proyek `akuntugassindar-spec/RPLApp` |
+| **GitHub Pages CI/CD Demo** | [https://akuntugassindar-spec.github.io/RPLApp/](https://akuntugassindar-spec.github.io/RPLApp/) | Deployment Live Otomatis GitHub Actions (PPT 1) |
+| **Folder Tautan Khusus** | [📁 Buka Folder `link web/`](link%20web/README.md) | Berisi daftar lengkap seluruh tautan web & branch |
+
+### Tautan Cabang Tugas Pertemuan 11:
+- [Branch `p11_ci_cd`](https://github.com/akuntugassindar-spec/RPLApp/tree/p11_ci_cd) *(Praktik CI/CD 10 Langkah - PPT 1)*
+- [Branch `p11_perbaikan-dan-verifikasi-proyek`](https://github.com/akuntugassindar-spec/RPLApp/tree/p11_perbaikan-dan-verifikasi-proyek) *(Perbaikan yang Terbukti & Verifikasi - PPT 2)*
+- [Branch `v1.0_dev`](https://github.com/akuntugassindar-spec/RPLApp/tree/v1.0_dev) *(Development & Testing 200 UT)*
+- [Branch `v1.1`](https://github.com/akuntugassindar-spec/RPLApp/tree/v1.1) *(Release Versi 1.1)*
+- [Branch `V1.1`](https://github.com/akuntugassindar-spec/RPLApp/tree/V1.1) *(Alias Release V1.1)*
+- [Branch `v1.0`](https://github.com/akuntugassindar-spec/RPLApp/tree/v1.0) *(Baseline Version 1.0)*
+
+---
+
 
 ## Tech Stack
 
