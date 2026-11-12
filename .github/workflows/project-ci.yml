@@ -1,4 +1,4 @@
-name: OptikExpress CI Pipeline
+name: OptikExpress CI Pipeline (Windows Environment)
 
 on:
   push:
@@ -11,41 +11,47 @@ permissions:
 
 jobs:
   backend-test:
-    name: Backend Unit Tests (200 UT)
-    runs-on: ubuntu-latest
+    name: Backend 200 Unit Tests (Windows Runner)
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: powershell
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js 24
+      - name: Setup Node.js 24 (Windows)
         uses: actions/setup-node@v4
         with:
           node-version: '24'
 
-      - name: Install Backend Dependencies
+      - name: Install Backend Dependencies (Windows PowerShell)
         working-directory: backend
-        run: npm ci || npm install
+        run: npm install
 
-      - name: Run 200 Unit Tests
+      - name: Run 200 Unit Tests (Windows PowerShell)
         working-directory: backend
         run: npm test
 
   frontend-build:
-    name: Frontend Build & Verification
-    runs-on: ubuntu-latest
+    name: Frontend Build & Verification (Windows Runner)
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: powershell
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js 24
+      - name: Setup Node.js 24 (Windows)
         uses: actions/setup-node@v4
         with:
           node-version: '24'
 
-      - name: Install Frontend Dependencies
+      - name: Install Frontend Dependencies (Windows PowerShell)
         working-directory: frontend
-        run: npm ci || npm install --legacy-peer-deps
+        run: npm install --legacy-peer-deps
 
-      - name: Build Frontend
+      - name: Build Frontend (Windows PowerShell)
         working-directory: frontend
         run: npm run build
