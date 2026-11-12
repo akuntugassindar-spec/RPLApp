@@ -598,6 +598,13 @@ npm test
 Workflow GitHub Actions menjalankan pengujian otomatis di atas runner Windows Server dan menerbitkan situs ke GitHub Pages:
 ![Pipeline GitHub Actions Windows Runner](docs/screenshots/03_p11_github_actions_windows_pipeline.png)
 
+#### Bukti Tangkapan Layar Status CI/CD Mahasiswa (Error & Lolos):
+- **Tangkapan Layar Error CI/CD:**
+![Screenshot Error CI/CD](Screenshot%20error%20ci_cd.png)
+
+- **Tangkapan Layar Error dan Lolos CI/CD (Centang Hijau):**
+![Screenshot Error dan Lolos CI/CD](Screenshot%20error%20dan%20lolos%20ci_cd.png)
+
 ### 3. Bukti Perbaikan Bug P11: Penanganan Bentrok Jadwal & Recovery Isian
 Formulir pengajuan servis otomatis mendeteksi bentrok kuota kurir, menjelaskan alasan bentrok, menyajikan tombol rekomendasi jam alternatif, dan mempertahankan data isian serta foto pelanggan:
 ![Tangkapan Layar UI Resolusi Bentrok Jadwal P11](docs/screenshots/04_p11_conflict_resolution_ui.png)

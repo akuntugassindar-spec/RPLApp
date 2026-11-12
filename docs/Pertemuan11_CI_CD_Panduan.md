@@ -156,6 +156,12 @@ jobs:
 #### 3. Bukti Pipeline GitHub Actions (Windows Runner):
 ![GitHub Actions Windows Pipeline](screenshots/03_p11_github_actions_windows_pipeline.png)
 
+#### 4. Tangkapan Layar Error CI/CD (Dari Upload Mahasiswa):
+![Screenshot Error CI/CD](../Screenshot%20error%20ci_cd.png)
+
+#### 5. Tangkapan Layar Error & Lolos CI/CD (Dari Upload Mahasiswa):
+![Screenshot Error dan Lolos CI/CD](../Screenshot%20error%20dan%20lolos%20ci_cd.png)
+
 ## 4. Checklist Bukti Screenshot untuk Tugas Mahasiswa
 
 | No | Item Bukti | Lokasi Tangkapan Layar | Status |
