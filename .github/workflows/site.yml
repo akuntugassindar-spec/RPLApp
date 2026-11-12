@@ -1,4 +1,4 @@
-name: Site pipeline
+name: Site pipeline (Windows Environment)
 
 on:
   push:
@@ -11,21 +11,25 @@ permissions:
 
 jobs:
   ci:
-    runs-on: ubuntu-latest
+    name: Build & Test (Windows Runner)
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: powershell
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js 24
+      - name: Setup Node.js 24 (Windows)
         uses: actions/setup-node@v4
         with:
           node-version: '24'
 
-      - name: Jalankan Tes Otomatis
+      - name: Jalankan Tes Otomatis (PowerShell)
         working-directory: cicd-demo
         run: npm test
 
-      - name: Jalankan Build Proyek
+      - name: Jalankan Build Proyek (PowerShell)
         working-directory: cicd-demo
         run: npm run build
 
@@ -35,9 +39,10 @@ jobs:
           path: cicd-demo/dist
 
   deploy:
+    name: Deploy to GitHub Pages (Windows Runner)
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/p11_ci_cd')
     needs: ci
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     permissions:
       pages: write
       id-token: write

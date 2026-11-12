@@ -1,17 +1,18 @@
-# LAPORAN PERBAIKAN DAN VERIFIKASI PROYEK (PERTEMUAN 11)
+# LAPORAN PERBAIKAN DAN VERIFIKASI PROYEK (WINDOWS ENVIRONMENT)
 
-**Mata Kuliah:** Rekayasa Perangkat Lunak  
+**Mata Kuliah:** Rekayasa Perangkat Lunak (Pertemuan 11)  
 **Topik:** Perbaikan yang Terbukti • Dari Issue P10 ke Perubahan Kode yang Siap Ditinjau  
 **Institusi:** Pradita University  
 **Nama Proyek:** OptikExpress — Sistem Informasi Layanan Antar-Jemput Kacamata  
 **Branch:** `p11_perbaikan-dan-verifikasi-proyek`  
-**Repositori GitHub:** [https://github.com/akuntugassindar-spec/RPLApp.git](https://github.com/akuntugassindar-spec/RPLApp.git)
+**Repositori GitHub:** [https://github.com/akuntugassindar-spec/RPLApp.git](https://github.com/akuntugassindar-spec/RPLApp.git)  
+**Lingkungan Eksekusi:** Windows 10/11 (64-bit), Windows PowerShell 7/5.1, Node.js `v24 LTS`, MySQL 8.0
 
 ---
 
 ## 1. Masukan P10: Satu Issue Prioritas
 
-Berdasarkan hasil pengujian kegunaan (*usability testing*) dan audit operasional pada Pertemuan 10:
+Berdasarkan hasil pengujian kegunaan (*usability testing*) dan audit operasional pada Pertemuan 10 di lingkungan Windows:
 
 * **Tautan Issue P10:** GitHub Issue #6 & #11 (*Courier Schedule Collision & Booking Deadlock*).
 * **Gejala Masalah:** Pengguna mengalami kebuntuan saat memilih slot jam penjemputan yang kapasitas kurirnya telah penuh. 
@@ -22,13 +23,13 @@ Berdasarkan hasil pengujian kegunaan (*usability testing*) dan audit operasional
 
 ---
 
-## 2. Jejak Kegagalan & Penelusuran Kode (Root Cause Analysis)
+## 2. Jejak Kegagalan & Penelusuran Kode (Root Cause Analysis di Windows)
 
 | Lapisan Sistem | Kondisi Sebelum Perbaikan (P10) | Perilaku Target Setelah Perbaikan (P11) |
 | :--- | :--- | :--- |
-| **01 Antarmuka (UI)** | Menampilkan `alert-danger` generik tanpa saran. Form ter-reset sehingga user frustrasi harus upload ulang foto. | Menampilkan alert informatif dengan tombol *quick-select* jam alternatif. State form & foto tetap terjaga di memori React. |
-| **02 Backend API** | Mengembalikan HTTP 500 atau pesan error database umum saat kuota terlampaui. | Mengembalikan HTTP 409 (*Conflict*) terstruktur dengan payload `conflict: true`, pesan ramah pengguna, dan daftar `alternativeSlots`. |
-| **03 Penyimpanan (DB)** | Potensi *race condition* atau penambahan record kurir yang over-capacity. | Validasi kuota per slot (`MAX_KURIR_PER_SLOT = 2`) dieksekusi sebelum commit transaksi. Data tidak bertambah saat bentrok. |
+| **01 Antarmuka (UI React)** | Menampilkan `alert-danger` generik tanpa saran. Form ter-reset sehingga user frustrasi harus upload ulang foto. | Menampilkan alert informatif dengan tombol *quick-select* jam alternatif. State form & foto tetap terjaga di memori React. |
+| **02 Backend API Express** | Mengembalikan HTTP 500 atau pesan error database umum saat kuota terlampaui. | Mengembalikan HTTP 409 (*Conflict*) terstruktur dengan payload `conflict: true`, pesan ramah pengguna, dan daftar `alternativeSlots`. |
+| **03 Penyimpanan (MySQL Windows)** | Potensi *race condition* atau penambahan record kurir yang over-capacity. | Validasi kuota per slot (`MAX_KURIR_PER_SLOT = 2`) dieksekusi sebelum commit transaksi. Data tidak bertambah saat bentrok. |
 
 ### Pengujian Hipotesis:
 * **Hipotesis A:** Backend sebenarnya mengirim alasan bentrok, namun frontend menggantinya dengan teks error umum.
@@ -47,10 +48,17 @@ Skenario pengujian mengacu pada 3 kriteria penerimaan yang teruji otomatis:
 
 ---
 
-## 4. Hasil Pengujian Regresi Komprehensif (200 Unit Tests)
+## 4. Hasil Pengujian Regresi Komprehensif (200 Unit Tests di Windows PowerShell)
 
-Seluruh suite pengujian otomatis backend dijalankan menggunakan Node.js Native Test Runner (`node --test tests/*.test.js`) mencakup 17 suites dan **200 unit tests**:
+Seluruh suite pengujian otomatis backend dijalankan pada terminal **Windows PowerShell** menggunakan Node.js Native Test Runner (`node --test tests/*.test.js`) mencakup 17 suites dan **200 unit tests lulus 100% (0 Failed)**:
 
+```powershell
+# Dijalankan pada Windows PowerShell
+cd backend
+npm test
+```
+
+### Rekapitulasi Output Terminal Windows:
 ```text
 ▶ User Story #2: Registrasi & Login Autentikasi (11 Tests - PASS)
 ▶ Courier Dispatch & GPS Telemetry Suite (25 Tests - PASS)
@@ -80,6 +88,13 @@ Seluruh suite pengujian otomatis backend dijalankan menggunakan Node.js Native T
 ℹ duration_ms 1647.83
 ```
 
+### Demonstrasi Run Gagal Terkontrol (Failed Run di Windows PowerShell):
+Untuk membuktikan bahwa sistem mendeteksi kegagalan regresi:
+```powershell
+npm run test:fail
+```
+**Efek:** Pengujian mengembalikan status `✖ fail 1`, proses berhenti dengan exit code 1, dan pipeline memblokir rilis otomatis ke production.
+
 ---
 
 ## 5. Bukti Uji Ulang Pengguna (User Retesting U01 & U02)
@@ -96,11 +111,11 @@ Seluruh suite pengujian otomatis backend dijalankan menggunakan Node.js Native T
 
 Pull Request untuk penggabungan perubahan kode disiapkan dengan format terstruktur:
 
-* **Judul PR:** `fix(p11): perbaikan bentrok jadwal penjemputan kurir dan recovery isian formulir`
+* **Judul PR:** `fix(p11): perbaikan bentrok jadwal penjemputan kurir dan recovery isian formulir (Windows Environment)`
 * **Issue Terkait:** Resolves #6, #11
 * **Penyebab:** Belum adanya validasi kuota kapasitas kurir per slot jam pada controller backend dan tidak tersedianya saran pemulihan interaktif di frontend.
 * **Perubahan Kode:**
   - `backend/controllers/layananController.js`: Pengecekan kuota aktif slot jam (`MAX_KURIR_PER_SLOT = 2`) dan respon HTTP 409 terstruktur.
   - `frontend/src/pages/user/BuatLayanan.js`: Penyajian tombol jam alternatif dan retensi input/foto form.
   - `backend/tests/`: Penambahan test suite hingga 200 unit tests untuk verifikasi menyeluruh.
-* **Verifikasi:** 200 Unit Tests lulus 100%, uji regresi tidak menemukan dampak sampingan, dan 2 sesi uji ulang pengguna sukses mandiri.
+* **Verifikasi:** 200 Unit Tests lulus 100% pada Windows PowerShell, uji regresi tidak menemukan dampak sampingan, dan 2 sesi uji ulang pengguna sukses mandiri.
