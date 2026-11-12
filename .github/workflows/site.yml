@@ -1,0 +1,53 @@
+name: Site pipeline
+
+on:
+  push:
+    branches: [main, p11_ci_cd, v1.0, v1.0_dev, v1.1]
+  pull_request:
+    branches: [main, p11_ci_cd, v1.0, v1.0_dev, v1.1]
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Jalankan Tes Otomatis
+        working-directory: cicd-demo
+        run: npm test
+
+      - name: Jalankan Build Proyek
+        working-directory: cicd-demo
+        run: npm run build
+
+      - name: Unggah Hasil Build (Artifact Pages)
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: cicd-demo/dist
+
+  deploy:
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/p11_ci_cd')
+    needs: ci
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.d.outputs.page_url }}
+    steps:
+      - name: Konfigurasi GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Deploy ke GitHub Pages
+        uses: actions/deploy-pages@v4
+        id: d
