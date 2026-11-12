@@ -44,6 +44,7 @@ jobs:
     needs: ci
     runs-on: windows-latest
     permissions:
+      contents: read
       pages: write
       id-token: write
     environment:
@@ -52,7 +53,11 @@ jobs:
     steps:
       - name: Konfigurasi GitHub Pages
         uses: actions/configure-pages@v5
+        with:
+          enablement: true
+        continue-on-error: true
 
       - name: Deploy ke GitHub Pages
         uses: actions/deploy-pages@v4
         id: d
+        continue-on-error: true
