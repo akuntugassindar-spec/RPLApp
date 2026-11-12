@@ -2,9 +2,9 @@ name: OptikExpress CI Pipeline (Windows Environment)
 
 on:
   push:
-    branches: [main, p11_ci_cd, p11_perbaikan-dan-verifikasi-proyek, v1.0, v1.0_dev, v1.1]
+    branches: [main, p11_ci_cd, p11_perbaikan-dan-verifikasi-proyek, v1.0, v1.0_dev, v1.1, V1.1]
   pull_request:
-    branches: [main, p11_ci_cd, p11_perbaikan-dan-verifikasi-proyek, v1.0, v1.0_dev, v1.1]
+    branches: [main, p11_ci_cd, p11_perbaikan-dan-verifikasi-proyek, v1.0, v1.0_dev, v1.1, V1.1]
 
 permissions:
   contents: read

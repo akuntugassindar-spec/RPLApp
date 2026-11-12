@@ -2,9 +2,9 @@ name: Site pipeline (Windows Environment)
 
 on:
   push:
-    branches: [main, p11_ci_cd, v1.0, v1.0_dev, v1.1]
+    branches: [main, p11_ci_cd, p11_perbaikan-dan-verifikasi-proyek, v1.0, v1.0_dev, v1.1, V1.1]
   pull_request:
-    branches: [main, p11_ci_cd, v1.0, v1.0_dev, v1.1]
+    branches: [main, p11_ci_cd, p11_perbaikan-dan-verifikasi-proyek, v1.0, v1.0_dev, v1.1, V1.1]
 
 permissions:
   contents: read
@@ -40,7 +40,7 @@ jobs:
 
   deploy:
     name: Deploy to GitHub Pages (Windows Runner)
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/p11_ci_cd')
+    if: github.event_name == 'push'
     needs: ci
     runs-on: windows-latest
     permissions:
