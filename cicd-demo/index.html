@@ -2,10 +2,91 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Demo CI/CD</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OptikExpress - Sistem Layanan Antar-Jemput Kacamata</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      margin: 0;
+      padding: 40px 20px;
+      background: #f1f5f9;
+      color: #0f172a;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 85vh;
+    }
+    .card {
+      background: #ffffff;
+      padding: 36px 32px;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+      max-width: 580px;
+      width: 100%;
+      text-align: center;
+      border: 1px solid #e2e8f0;
+    }
+    .badge {
+      display: inline-block;
+      background: #e0f2fe;
+      color: #0284c7;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-weight: 700;
+      font-size: 0.825rem;
+      letter-spacing: 0.025em;
+      margin-bottom: 16px;
+      text-transform: uppercase;
+    }
+    h1 {
+      color: #0284c7;
+      font-size: 2.2rem;
+      margin: 0 0 12px 0;
+      font-weight: 800;
+    }
+    .desc {
+      color: #334155;
+      font-size: 1.05rem;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+    .meta {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 0.9rem;
+      color: #64748b;
+      margin-bottom: 24px;
+    }
+    .btn {
+      display: inline-block;
+      background: #0284c7;
+      color: #ffffff;
+      padding: 12px 28px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 1rem;
+      transition: background 0.2s ease, transform 0.1s ease;
+      box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
+    }
+    .btn:hover {
+      background: #0369a1;
+      transform: translateY(-1px);
+    }
+  </style>
 </head>
 <body>
-  <h1>Reservasi Ruang</h1>
-  <p>Versi 2</p>
+  <div class="card">
+    <div class="badge">CI/CD Automated Deployment • Versi 2</div>
+    <h1>OptikExpress</h1>
+    <p class="desc">Sistem Informasi Layanan Antar-Jemput Kacamata Terintegrasi.</p>
+    <div class="meta">
+      <strong>Status Verifikasi:</strong> Diterbitkan otomatis melalui pipeline CI/CD GitHub Actions di lingkungan Windows Runner.
+    </div>
+    <a class="btn" href="https://optikexpress.vercel.app/" target="_blank" rel="noopener">Buka Aplikasi Web OptikExpress (Vercel)</a>
+  </div>
 </body>
 </html>

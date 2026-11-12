@@ -53,17 +53,17 @@ flowchart LR
   <html lang="id">
   <head>
     <meta charset="UTF-8">
-    <title>Demo CI/CD</title>
+    <title>OptikExpress - Sistem Layanan Antar-Jemput Kacamata</title>
   </head>
   <body>
-    <h1>Reservasi Ruang</h1>
-    <p>Versi 2</p>
+    <h1>OptikExpress</h1>
+    <p>Versi 2 - Sistem Layanan Antar-Jemput Kacamata Terintegrasi</p>
   </body>
   </html>
   ```
 
 ### Langkah 03: Skrip Pengujian & Build
-- `cicd-demo/app.test.mjs`: Menguji keberadaan judul `<h1>Reservasi Ruang</h1>`.
+- `cicd-demo/app.test.mjs`: Menguji keberadaan judul proyek `<h1>OptikExpress</h1>` dan label `Versi 2`.
 - `cicd-demo/build.mjs`: Mengompilasi dan menyalin aset ke direktori `dist/index.html`.
 
 ### Langkah 04: Pengaturan GitHub Pages
