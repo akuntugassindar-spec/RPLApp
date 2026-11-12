@@ -38,6 +38,7 @@ const BuatLayanan = () => {
   const [previewResep, setPreviewResep] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [alternativeSlots, setAlternativeSlots] = useState([]);
   const [success, setSuccess] = useState('');
 
   const handleChange = (e) => {
@@ -108,8 +109,14 @@ const BuatLayanan = () => {
       }, 1200);
     } catch (err) {
       console.error('Gagal membuat layanan:', err);
-      const msg = err.response?.data?.message || err.response?.data?.error || (err.message === 'Network Error' ? 'Koneksi ke backend gagal. Pastikan server backend berjalan di port 5000.' : err.message || 'Terjadi kesalahan saat menyimpan data.');
-      setError(msg);
+      if (err.response?.status === 409 && err.response?.data?.conflict) {
+        setError(err.response.data.message);
+        setAlternativeSlots(err.response.data.alternativeSlots || []);
+      } else {
+        const msg = err.response?.data?.message || err.response?.data?.error || (err.message === 'Network Error' ? 'Koneksi ke backend gagal. Pastikan server backend berjalan di port 5000.' : err.message || 'Terjadi kesalahan saat menyimpan data.');
+        setError(msg);
+        setAlternativeSlots([]);
+      }
     } finally {
       setLoading(false);
     }
@@ -127,7 +134,43 @@ const BuatLayanan = () => {
           </p>
         </div>
 
-        {error && <div className="alert alert-danger">{error}</div>}
+        {error && (
+          <div className="alert alert-danger" style={{ marginBottom: '1.25rem' }}>
+            <div style={{ fontWeight: 600, marginBottom: alternativeSlots.length ? '0.5rem' : 0 }}>{error}</div>
+            {alternativeSlots.length > 0 && (
+              <div style={{ marginTop: '0.5rem', background: '#fff', padding: '0.75rem', borderRadius: '6px', border: '1px solid #fecaca' }}>
+                <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.85rem', color: '#991b1b', fontWeight: 600 }}>
+                  Pilih rekomendasi jam alternatif yang tersedia (isian formulir & foto Anda tetap tersimpan):
+                </p>
+                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                  {alternativeSlots.map((slot) => (
+                    <button
+                      key={slot}
+                      type="button"
+                      onClick={() => {
+                        setFormData((prev) => ({ ...prev, jam_jemput: slot }));
+                        setError('');
+                        setAlternativeSlots([]);
+                      }}
+                      style={{
+                        padding: '0.35rem 0.75rem',
+                        fontSize: '0.82rem',
+                        borderRadius: '4px',
+                        border: '1px solid #dc2626',
+                        background: '#fee2e2',
+                        color: '#991b1b',
+                        fontWeight: 700,
+                        cursor: 'pointer'
+                      }}
+                    >
+                      Jam {slot} (Pilih)
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
         {success && <div className="alert alert-success">{success}</div>}
 
         <form onSubmit={handleSubmit}>
