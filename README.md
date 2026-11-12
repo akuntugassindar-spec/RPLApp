@@ -8,7 +8,7 @@
 - **Backend:** Node.js v24 LTS (Express.js, `mysql2/promise`, BCrypt, JWT), MySQL 8.0 / MariaDB
 - **Frontend:** React.js 18 (SPA, React Router v6, Axios, Leaflet OpenStreetMap, HTML Google Maps Embed)
 - **Arsitektur:** Decoupled Monorepo, RESTful API, 3-Role RBAC, State Machine 6 Tahapan, Anti-IDOR Security
-- **Pengujian Otomatis:** Node.js Native Test Runner (`node:test`, `node:assert/strict`) — 65 passing unit tests (100% lulus)
+- **Pengujian Otomatis:** Node.js Native Test Runner (`node:test`, `node:assert/strict`) — 200 passing unit tests (100% lulus di 17 test suites)
 
 ---
 
@@ -138,12 +138,12 @@ cd backend && npm test
 
 **Yang diharapkan saat suite lulus:**
 
-Seluruh 12 test suites dan 65 test cases mencetak status centang hijau dan rekap passing:
+Seluruh 17 test suites dan 200 test cases mencetak status centang hijau dan rekap passing:
 
 ```
-ℹ tests 65
-ℹ suites 12
-ℹ pass 65
+ℹ tests 200
+ℹ suites 17
+ℹ pass 200
 ℹ fail 0
 ℹ cancelled 0
 ℹ skipped 0
@@ -209,7 +209,7 @@ RPLApp/
 │   ├── database/                   # DDL skema 6 tabel 3NF dan seed data (schema.sql)
 │   ├── middleware/                 # Middleware JWT token & otorisasi RBAC 3 role
 │   ├── routes/                     # Definisi endpoint API Express
-│   ├── tests/                      # 65 unit tests komprehensif (Native Node.js Test Runner)
+│   ├── tests/                      # 200 unit tests komprehensif (Native Node.js Test Runner)
 │   ├── uploads/                    # Media fisik kacamata & foto resep dokter
 │   ├── utils/                      # Helper QRIS Bank Indonesia (EMVCo/CRC16) & Geocoding
 │   ├── Dockerfile                  # Container backend Node.js
@@ -458,7 +458,7 @@ npm --prefix frontend install
 ```bash
 npm --prefix backend test
 ```
-*Ekspektasi Hasil:* 12 test suites, 65 unit tests **100% LULUS (0 FAILED)**.
+*Ekspektasi Hasil:* 17 test suites, 200 unit tests **100% LULUS (0 FAILED)**.
 
 ### 4. Build Produksi Frontend
 ```bash
@@ -538,6 +538,47 @@ Sistem mematuhi standar pencatatan log tanpa mengekspos kata sandi, token rahasi
 
 ---
 
+---
+
+## Bukti Praktik CI/CD & Pengujian Regresi 200 Unit Tests (Pertemuan 11)
+
+Dokumentasi lengkap dan artefak tangkapan layar pengujian otomatis pada runner **Windows (`windows-latest`)** dan **Windows PowerShell**:
+
+* 📘 **Panduan Praktik CI/CD 10 Langkah (PPT 1):** [`docs/Pertemuan11_CI_CD_Panduan.md`](docs/Pertemuan11_CI_CD_Panduan.md) | Branch: [`p11_ci_cd`](https://github.com/akuntugassindar-spec/RPLApp/tree/p11_ci_cd)
+* 🛠️ **Laporan Perbaikan & Verifikasi Proyek (PPT 2):** [`docs/Pertemuan11_Perbaikan_dan_Verifikasi_Proyek.md`](docs/Pertemuan11_Perbaikan_dan_Verifikasi_Proyek.md) | Branch: [`p11_perbaikan-dan-verifikasi-proyek`](https://github.com/akuntugassindar-spec/RPLApp/tree/p11_perbaikan-dan-verifikasi-proyek)
+
+### 1. Bukti Pengujian Unit Gagal (Run Merah) vs Lolos (Run Hijau)
+
+#### A. Simulasi Uji Gagal Terkontrol (Red Run - Exit Code 1)
+Simulasi pembuktian bahwa pipeline CI/CD mendeteksi kegagalan regresi, membatalkan auto-build, dan memblokir deployment otomatis ke produksi:
+```powershell
+# Dijalankan di Windows PowerShell
+cd backend
+npm run test:fail
+```
+![Tangkapan Layar Uji Unit Gagal Red Run](docs/screenshots/01_p11_unit_test_failed_red.png)
+
+> ⚠️ **Efek Run Gagal:** Pengujian mengembalikan kode keluar 1, auto-build dibatalkan, dan rilis ke server produksi diblokir untuk mencegah kerusakan sistem aktif.
+
+#### B. Pengujian Seluruh 200 Unit Tests Lolos 100% (Green Run - Exit Code 0)
+Eksekusi 200 skenario pengujian otomatis pada 17 test suites lulus 100% tanpa kegagalan:
+```powershell
+# Dijalankan di Windows PowerShell
+cd backend
+npm test
+```
+![Tangkapan Layar Seluruh 200 Unit Tests Lolos Hijau](docs/screenshots/02_p11_unit_test_passed_green.png)
+
+> ✅ **Efek Run Lolos:** Seluruh 200 tes lulus hijau (Exit Code 0), auto-build frontend & backend berjalan otomatis, dan pipeline menerbitkan aplikasi ke status *Live*.
+
+### 2. Bukti Pipeline CI/CD GitHub Actions di Windows Runner (`windows-latest`)
+Workflow GitHub Actions menjalankan pengujian otomatis di atas runner Windows Server dan menerbitkan situs ke GitHub Pages:
+![Pipeline GitHub Actions Windows Runner](docs/screenshots/03_p11_github_actions_windows_pipeline.png)
+
+### 3. Bukti Perbaikan Bug P11: Penanganan Bentrok Jadwal & Recovery Isian
+Formulir pengajuan servis otomatis mendeteksi bentrok kuota kurir, menjelaskan alasan bentrok, menyajikan tombol rekomendasi jam alternatif, dan mempertahankan data isian serta foto pelanggan:
+![Tangkapan Layar UI Resolusi Bentrok Jadwal P11](docs/screenshots/04_p11_conflict_resolution_ui.png)
+
 ## Target Keberhasilan
 
 Target berikut merupakan sasaran performa produk yang telah divalidasi melalui serangkaian pengujian:
@@ -545,5 +586,5 @@ Target berikut merupakan sasaran performa produk yang telah divalidasi melalui s
 - Waktu respon pencarian data layanan: **< 100 ms** (terpenuhi melalui indexing database 3NF).
 - Akurasi pemantauan rute kurir lapangan: **radius < 500 meter** dari lokasi pelanggan di wilayah Jakarta & Tangerang (terpenuhi).
 - Kecepatan pemrosesan transaksi pembayaran: **real-time (< 3 detik)** dengan verifikasi token transaksi unik (terpenuhi).
-- Kualitas dan keandalan kode sistem: **100% lulus pengujian otomatis** (65 dari 65 unit tests PASSED tanpa kegagalan).
+- Kualitas dan keandalan kode sistem: **100% lulus pengujian otomatis** (200 dari 200 unit tests PASSED tanpa kegagalan).
 - Standar aksesibilitas dan tampilan antarmuka: **100% responsif mobile & desktop** tanpa ketergantungan framework CSS pihak ketiga.

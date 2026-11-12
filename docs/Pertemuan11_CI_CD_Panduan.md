@@ -143,6 +143,19 @@ jobs:
 
 ---
 
+
+
+### Galeri Tangkapan Layar Praktik CI/CD Windows
+
+#### 1. Bukti Run Merah (Checks Failed):
+![Run Gagal Merah](screenshots/01_p11_unit_test_failed_red.png)
+
+#### 2. Bukti Run Hijau (Checks Passed - 200 UT):
+![Run Lolos Hijau](screenshots/02_p11_unit_test_passed_green.png)
+
+#### 3. Bukti Pipeline GitHub Actions (Windows Runner):
+![GitHub Actions Windows Pipeline](screenshots/03_p11_github_actions_windows_pipeline.png)
+
 ## 4. Checklist Bukti Screenshot untuk Tugas Mahasiswa
 
 | No | Item Bukti | Lokasi Tangkapan Layar | Status |

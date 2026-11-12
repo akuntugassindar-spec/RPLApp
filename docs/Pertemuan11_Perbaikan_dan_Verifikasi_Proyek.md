@@ -97,6 +97,19 @@ npm run test:fail
 
 ---
 
+
+
+### Galeri Tangkapan Layar Verifikasi Proyek (Windows Environment)
+
+#### 1. Tangkapan Layar Pengujian 200 Unit Tests Lulus 100% (Windows PowerShell):
+![200 Unit Tests Passed Green](screenshots/02_p11_unit_test_passed_green.png)
+
+#### 2. Tangkapan Layar Demonstrasi Uji Gagal Terkontrol (Red Run):
+![Demonstrasi Uji Gagal](screenshots/01_p11_unit_test_failed_red.png)
+
+#### 3. Tangkapan Layar Pemulihan Bentrok Jadwal Kurir (UI Recovery):
+![UI Resolusi Bentrok Jadwal](screenshots/04_p11_conflict_resolution_ui.png)
+
 ## 5. Bukti Uji Ulang Pengguna (User Retesting U01 & U02)
 
 | Parameter Uji | Sebelum Perbaikan (P10) | Sesudah Perbaikan (P11) | Kesimpulan |
