@@ -1,0 +1,51 @@
+name: OptikExpress CI Pipeline
+
+on:
+  push:
+    branches: [main, p11_ci_cd, p11_perbaikan-dan-verifikasi-proyek, v1.0, v1.0_dev, v1.1]
+  pull_request:
+    branches: [main, p11_ci_cd, p11_perbaikan-dan-verifikasi-proyek, v1.0, v1.0_dev, v1.1]
+
+permissions:
+  contents: read
+
+jobs:
+  backend-test:
+    name: Backend Unit Tests (200 UT)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Install Backend Dependencies
+        working-directory: backend
+        run: npm ci || npm install
+
+      - name: Run 200 Unit Tests
+        working-directory: backend
+        run: npm test
+
+  frontend-build:
+    name: Frontend Build & Verification
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Install Frontend Dependencies
+        working-directory: frontend
+        run: npm ci || npm install --legacy-peer-deps
+
+      - name: Build Frontend
+        working-directory: frontend
+        run: npm run build
