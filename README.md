@@ -264,6 +264,10 @@ RPLApp/
 │   ├── DevLog.md                   # Catatan harian kronologis pengerjaan fitur
 │   ├── ide_proyek.md               # Analisis masalah, sasaran, & batasan solusi
 │   ├── Logging.md                  # Konvensi pencatatan dev log
+│   ├── Pertemuan10_Issue_Tracking.md   # Dokumentasi issue tracking P10
+│   ├── Pertemuan11_CI_CD_Panduan.md    # Dokumentasi CI/CD P11
+│   ├── Pertemuan11_Perbaikan_dan_Verifikasi_Proyek.md # Dokumentasi perbaikan P11
+│   ├── Pertemuan12_Arsitektur_Code_Folder.md # 📐 Arsitektur code folder P12
 │   ├── OptikExpress (PRD).docx     # Product Requirement Document (format DOCX)
 │   ├── OptikExpress (PRD).md       # Product Requirement Document (format Markdown)
 │   └── OptikExpress (PRD).pdf      # Product Requirement Document (format PDF)
@@ -560,6 +564,36 @@ Sistem mematuhi standar pencatatan log tanpa mengekspos kata sandi, token rahasi
 | **JWT Kadaluarsa** | `[AUTH_FAIL] Token verification failed: TokenExpiredError: jwt expired` | Sesi token melebihi 24 jam atau secret key berubah. | Intersep status HTTP 401 di frontend, bersihkan `localStorage`, dan arahkan otomatis ke `/login`. |
 
 ---
+
+---
+
+## 📐 Arsitektur Code Folder (Pertemuan 12)
+
+Proyek OptikExpress menggunakan arsitektur **Decoupled Monorepo** dengan pemisahan tegas antara backend (Node.js MVC) dan frontend (React Component-Based):
+
+```
+RPLApp/
+├── backend/           → 🔧 API Server (Express.js + MySQL2 — Pola MVC)
+│   ├── config/        →   Konfigurasi koneksi database
+│   ├── controllers/   →   Business logic layer
+│   ├── middleware/     →   JWT Auth & RBAC middleware
+│   ├── routes/        →   Definisi endpoint API
+│   ├── database/      →   Skema SQL (DDL)
+│   ├── utils/         →   Helper functions
+│   ├── tests/         →   200 unit tests
+│   └── server.js      →   Entry point
+├── frontend/          → 🎨 Client SPA (React 18 + Router v6)
+│   └── src/
+│       ├── components/→   Komponen global reusable
+│       ├── pages/     →   Halaman per domain bisnis (admin/, kurir/, layanan/, dll.)
+│       ├── utils/     →   API client & route guard
+│       └── App.js     →   Root router
+├── cicd-demo/         → 🧪 Demo CI/CD (GitHub Pages)
+├── docs/              → 📚 Dokumentasi lengkap per pertemuan
+└── .github/workflows/ → ⚙️ 2 CI/CD pipeline (test + deploy)
+```
+
+📄 **Dokumentasi lengkap:** [`docs/Pertemuan12_Arsitektur_Code_Folder.md`](docs/Pertemuan12_Arsitektur_Code_Folder.md)
 
 ---
 
